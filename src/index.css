@@ -1,0 +1,419 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark theme colors - Original Backgrounds */
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Warm Gold Primary - #F6CE71 */
+    --primary: 45 88% 70%;
+    --primary-foreground: 222 47% 11%;
+
+    /* Muted Sage Secondary - Refined Accent */
+    --secondary: 150 20% 55%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    /* Warm Gold Accent - #F6CE71 */
+    --accent: 45 88% 70%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 45 88% 70%;
+
+    --radius: 1rem;
+
+    /* Custom gradient colors - Golden Palette */
+    --gradient-start: 45 88% 70%;
+    --gradient-end: 150 20% 55%;
+
+    /* Refined glow colors - Warm Gold */
+    --neon-green: 150 20% 55%;
+    --neon-orange: 45 88% 70%;
+    --neon-cyan: 180 25% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background: hsl(222 47% 4%);
+  }
+
+  body {
+    @apply text-foreground antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: transparent;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    @apply font-bold;
+  }
+
+  /* Ensure all main content appears above the background */
+  main,
+  section,
+  header,
+  nav,
+  footer,
+  .container {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@layer components {
+
+  /* Glassmorphism card */
+  .glass-card {
+    @apply backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl;
+    box-shadow:
+      0 8px 32px 0 rgba(0, 0, 0, 0.37),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  }
+
+  /* 3D depth card with hover effect */
+  .depth-card {
+    @apply glass-card transition-all duration-500 ease-out;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+
+  .depth-card:hover {
+    transform: translateY(-8px) rotateX(2deg);
+    box-shadow:
+      0 20px 60px 0 rgba(0, 0, 0, 0.5),
+      0 0 40px rgba(var(--neon-green), 0.3),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  }
+
+  /* Neon glow effect */
+  .neon-glow {
+    box-shadow:
+      0 0 10px rgba(var(--neon-green), 0.5),
+      0 0 20px rgba(var(--neon-green), 0.3),
+      0 0 30px rgba(var(--neon-green), 0.2);
+  }
+
+  .neon-glow-orange {
+    box-shadow:
+      0 0 10px rgba(var(--neon-orange), 0.5),
+      0 0 20px rgba(var(--neon-orange), 0.3),
+      0 0 30px rgba(var(--neon-orange), 0.2);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg,
+        hsl(var(--neon-green)) 0%,
+        hsl(var(--neon-cyan)) 50%,
+        hsl(var(--neon-orange)) 100%);
+  }
+
+  /* Animated gradient background */
+  .animated-gradient {
+    background: linear-gradient(-45deg,
+        hsl(var(--neon-green) / 0.1),
+        hsl(var(--neon-cyan) / 0.1),
+        hsl(var(--neon-orange) / 0.1),
+        hsl(var(--neon-green) / 0.1));
+    background-size: 400% 400%;
+    animation: gradient-shift 15s ease infinite;
+  }
+
+  /* Floating animation */
+  .floating {
+    animation: floating 6s ease-in-out infinite;
+  }
+
+  /* Pulse glow animation */
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* RGB ring animation */
+  .rgb-ring {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rgb-ring::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: conic-gradient(from 0deg,
+        hsl(var(--neon-green)),
+        hsl(var(--neon-cyan)),
+        hsl(var(--neon-orange)),
+        hsl(var(--neon-green)));
+    border-radius: inherit;
+    animation: rotate-rgb 3s linear infinite;
+    z-index: -1;
+  }
+
+  .rgb-ring::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: hsl(var(--background));
+    border-radius: inherit;
+    z-index: -1;
+  }
+
+  /* Parallax section */
+  .parallax-section {
+    @apply relative overflow-hidden;
+  }
+
+  /* Particle background */
+  .particle-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* 3D input field */
+  .input-3d {
+    @apply glass-card px-4 py-3 transition-all duration-300;
+    transform-style: preserve-3d;
+  }
+
+  .input-3d:focus-within {
+    @apply neon-glow;
+    transform: translateZ(10px);
+  }
+
+  /* Smooth page transition */
+  .page-transition {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  /* Performance optimizations for FloatingLines background */
+  .floating-lines-container {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* GPU acceleration for animations */
+  .floating,
+  .animated-gradient,
+  .neon-glow,
+  .pulse-glow,
+  .rgb-ring {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* Optimize depth cards */
+  .depth-card {
+    will-change: transform;
+    contain: layout style paint;
+  }
+
+  /* Optimize glass cards */
+  .glass-card {
+    contain: layout style paint;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+}
+
+/* Keyframe animations */
+@keyframes gradient-shift {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes floating {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow:
+      0 0 10px rgba(var(--neon-green), 0.5),
+      0 0 20px rgba(var(--neon-green), 0.3);
+  }
+
+  50% {
+    box-shadow:
+      0 0 20px rgba(var(--neon-green), 0.8),
+      0 0 40px rgba(var(--neon-green), 0.5),
+      0 0 60px rgba(var(--neon-green), 0.3);
+  }
+}
+
+@keyframes rotate-rgb {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes electric-border {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg,
+      hsl(var(--neon-green)),
+      hsl(var(--neon-orange)));
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg,
+      hsl(var(--neon-cyan)),
+      hsl(var(--neon-green)));
+}
+
+/* Selection color */
+::selection {
+  background: hsl(var(--neon-green) / 0.3);
+  color: hsl(var(--foreground));
+}
+
+/* Toast notifications - ensure they appear on top */
+[data-sonner-toaster] {
+  z-index: 9999 !important;
+  position: fixed !important;
+}
+
+[data-sonner-toast] {
+  z-index: 9999 !important;
+}
