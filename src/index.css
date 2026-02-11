@@ -6,48 +6,57 @@
 
 @layer base {
   :root {
-    /* Dark theme colors - Original Backgrounds */
-    --background: 222 47% 4%;
+    /* Dark theme colors - Forest Green Background */
+    --background: 150 21% 15%;
+    /* #223127 - Dark forest green */
     --foreground: 210 40% 98%;
 
-    --card: 222 47% 8%;
+    --card: 150 21% 18%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222 47% 8%;
+    --popover: 150 21% 18%;
     --popover-foreground: 210 40% 98%;
 
-    /* Warm Gold Primary - #F6CE71 */
-    --primary: 45 88% 70%;
-    --primary-foreground: 222 47% 11%;
+    /* Light Sage Primary - #DBEBC0 */
+    --primary: 82 45% 84%;
+    /* #DBEBC0 - Light sage green */
+    --primary-foreground: 210 40% 98%;
 
-    /* Muted Sage Secondary - Refined Accent */
-    --secondary: 150 20% 55%;
-    --secondary-foreground: 222 47% 11%;
+    /* Forest Green Secondary - #223127 */
+    --secondary: 150 21% 15%;
+    /* #223127 - Dark forest green */
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 217 33% 17%;
+    --muted: 150 15% 25%;
     --muted-foreground: 215 20% 65%;
 
-    /* Warm Gold Accent - #F6CE71 */
-    --accent: 45 88% 70%;
-    --accent-foreground: 222 47% 11%;
+    /* Light Sage Accent - #DBEBC0 */
+    --accent: 82 45% 84%;
+    /* #DBEBC0 */
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 45 88% 70%;
+    --border: 150 15% 25%;
+    --input: 150 15% 25%;
+    --ring: 343 83% 34%;
 
     --radius: 1rem;
 
-    /* Custom gradient colors - Golden Palette */
-    --gradient-start: 45 88% 70%;
-    --gradient-end: 150 20% 55%;
+    /* Custom gradient colors - Burgundy to Forest Green */
+    --gradient-start: 343 83% 34%;
+    /* Burgundy */
+    --gradient-end: 150 21% 15%;
+    /* Forest Green */
 
-    /* Refined glow colors - Warm Gold */
-    --neon-green: 150 20% 55%;
-    --neon-orange: 45 88% 70%;
-    --neon-cyan: 180 25% 60%;
+    /* Refined glow colors - Burgundy & Green */
+    --neon-green: 150 40% 45%;
+    /* Brighter green for glow */
+    --neon-burgundy: 343 83% 45%;
+    /* Brighter burgundy for glow */
+    --neon-rose: 343 70% 55%;
+    /* Rose variant */
   }
 }
 
@@ -57,8 +66,8 @@
   }
 
   html {
-    scroll-behavior: smooth;
-    background: hsl(222 47% 4%);
+    background: hsl(150 21% 15%);
+    /* Forest green background */
   }
 
   body {
@@ -123,24 +132,25 @@
       0 0 30px rgba(var(--neon-green), 0.2);
   }
 
-  .neon-glow-orange {
+  .neon-glow-burgundy {
     box-shadow:
-      0 0 10px rgba(var(--neon-orange), 0.5),
-      0 0 20px rgba(var(--neon-orange), 0.3),
-      0 0 30px rgba(var(--neon-orange), 0.2);
+      0 0 10px rgba(var(--neon-burgundy), 0.5),
+      0 0 20px rgba(var(--neon-burgundy), 0.3),
+      0 0 30px rgba(var(--neon-burgundy), 0.2);
   }
 
-  /* Gradient text - Simplified to solid professional color */
+  /* Gradient text - Light Sage accent */
   .gradient-text {
-    color: #F6CE71;
+    color: #DBEBC0;
+    /* Light Sage */
   }
 
   /* Animated gradient background */
   .animated-gradient {
     background: linear-gradient(-45deg,
         hsl(var(--neon-green) / 0.1),
-        hsl(var(--neon-cyan) / 0.1),
-        hsl(var(--neon-orange) / 0.1),
+        hsl(var(--neon-burgundy) / 0.1),
+        hsl(var(--neon-rose) / 0.1),
         hsl(var(--neon-green) / 0.1));
     background-size: 400% 400%;
     animation: gradient-shift 15s ease infinite;
@@ -167,10 +177,10 @@
     position: absolute;
     inset: -2px;
     background: conic-gradient(from 0deg,
+        hsl(var(--neon-burgundy)),
+        hsl(var(--neon-rose)),
         hsl(var(--neon-green)),
-        hsl(var(--neon-cyan)),
-        hsl(var(--neon-orange)),
-        hsl(var(--neon-green)));
+        hsl(var(--neon-burgundy)));
     border-radius: inherit;
     animation: rotate-rgb 3s linear infinite;
     z-index: -1;
@@ -244,6 +254,327 @@
   /* Optimize glass cards */
   .glass-card {
     contain: layout style paint;
+  }
+
+  /* SCROLL PERFORMANCE OPTIMIZATIONS */
+  /* Reduce scroll jank by using CSS containment */
+  section {
+    contain: layout style;
+    content-visibility: auto;
+    will-change: auto;
+    /* Let browser decide */
+  }
+
+  /* Optimize motion components during scroll */
+  [class*="motion"] {
+    will-change: auto;
+  }
+
+  /* Reduce repaints for animated elements */
+  .container,
+  main,
+  section {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* AGGRESSIVE JITTER ELIMINATION */
+  /* Disable expensive transforms during scroll */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Optimize all animated elements */
+  [data-framer-motion-id] {
+    will-change: auto !important;
+  }
+
+  /* Prevent layout shift */
+  img,
+  video,
+  iframe {
+    content-visibility: auto;
+  }
+
+  /* Smooth scrolling with momentum */
+  html {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Optimize backdrop blur during scroll */
+  .glass-card,
+  .depth-card {
+    will-change: auto;
+  }
+
+  /* Disable animations for users who prefer reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Re-enable intentional animations for users who allow motion */
+  @media (prefers-reduced-motion: no-preference) {
+
+    .floating,
+    .animated-gradient,
+    .pulse-glow,
+    .rgb-ring::before,
+    [data-framer-motion-id] {
+      animation-duration: revert !important;
+      transition-duration: revert !important;
+    }
+  }
+
+  /* Pause animations during scroll to prevent jitter */
+  html.scrolling .floating,
+  html.scrolling .animated-gradient,
+  html.scrolling .pulse-glow,
+  html.scrolling .rgb-ring::before {
+    animation-play-state: paused !important;
+  }
+}
+
+/* ========================================
+   PREMIUM UI EFFECTS - NEW ADDITIONS
+   ======================================== */
+
+@layer components {
+
+  /* Soft glow variant - more subtle than neon */
+  .soft-glow {
+    box-shadow:
+      0 0 20px rgba(219, 235, 192, 0.15),
+      0 0 40px rgba(219, 235, 192, 0.08),
+      0 0 60px rgba(219, 235, 192, 0.04);
+  }
+
+  .soft-glow-hover:hover {
+    box-shadow:
+      0 0 25px rgba(219, 235, 192, 0.25),
+      0 0 50px rgba(219, 235, 192, 0.15),
+      0 0 80px rgba(219, 235, 192, 0.08);
+  }
+}
+
+/* Animated gradient border */
+.gradient-border {
+  position: relative;
+  background: hsl(var(--background));
+  border-radius: 1rem;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+      rgba(219, 235, 192, 0.4),
+      rgba(150, 180, 130, 0.2),
+      rgba(219, 235, 192, 0.4));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Animated gradient border on hover */
+.gradient-border-animated::before {
+  background: linear-gradient(135deg,
+      rgba(219, 235, 192, 0.5),
+      rgba(150, 180, 130, 0.3),
+      rgba(100, 160, 100, 0.3),
+      rgba(219, 235, 192, 0.5));
+  background-size: 300% 300%;
+  animation: gradient-border-flow 4s ease infinite;
+  animation-play-state: paused;
+}
+
+.gradient-border-animated:hover::before {
+  animation-play-state: running;
+}
+
+/* Shimmer effect for premium feel */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.08),
+      transparent);
+  animation: shimmer-slide 3s ease-in-out infinite;
+  animation-play-state: paused;
+  pointer-events: none;
+}
+
+.shimmer:hover::after {
+  animation-play-state: running;
+}
+
+/* Text glow for accent text */
+.text-glow {
+  text-shadow:
+    0 0 10px rgba(219, 235, 192, 0.4),
+    0 0 20px rgba(219, 235, 192, 0.2),
+    0 0 30px rgba(219, 235, 192, 0.1);
+}
+
+.text-glow-hover:hover {
+  text-shadow:
+    0 0 15px rgba(219, 235, 192, 0.6),
+    0 0 30px rgba(219, 235, 192, 0.3),
+    0 0 45px rgba(219, 235, 192, 0.15);
+}
+
+/* Enhanced glassmorphism - premium variant */
+.glass-premium {
+  @apply backdrop-blur-2xl rounded-2xl;
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.03) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.2) inset;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+}
+
+.glass-premium:hover {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.05) 100%);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Multi-layer shadow for depth */
+.shadow-depth {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 8px rgba(0, 0, 0, 0.1),
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 16px 32px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-depth-hover:hover {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.12),
+    0 4px 8px rgba(0, 0, 0, 0.12),
+    0 8px 16px rgba(0, 0, 0, 0.12),
+    0 16px 32px rgba(0, 0, 0, 0.12),
+    0 32px 64px rgba(0, 0, 0, 0.08);
+}
+
+/* Enhanced input focus */
+.input-glow:focus,
+.input-glow:focus-within {
+  outline: none;
+  border-color: rgba(219, 235, 192, 0.5);
+  box-shadow:
+    0 0 0 3px rgba(219, 235, 192, 0.15),
+    0 0 20px rgba(219, 235, 192, 0.1);
+}
+
+/* Smooth scale on hover */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.hover-scale {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Premium button glow */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg,
+      rgba(219, 235, 192, 0.4),
+      rgba(150, 180, 130, 0.2));
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  filter: blur(8px);
+}
+
+.btn-glow:hover::before {
+  opacity: 1;
+}
+
+/* Noise texture overlay for premium feel */
+.noise-overlay {
+  position: relative;
+}
+
+.noise-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Keyframes for new animations */
+@keyframes shimmer-slide {
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes gradient-border-flow {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
   }
 }
 
@@ -386,16 +717,14 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg,
-      hsl(var(--neon-green)),
-      hsl(var(--neon-orange)));
+  background: #DBEBC0;
+  /* Light Sage */
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg,
-      hsl(var(--neon-cyan)),
-      hsl(var(--neon-green)));
+  background: #e8f5d9;
+  /* Lighter sage */
 }
 
 /* Selection color */
@@ -412,4 +741,50 @@
 
 [data-sonner-toast] {
   z-index: 9999 !important;
+}
+
+/* Scroll performance optimization */
+html {
+  scroll-behavior: smooth;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Reduce motion for scroll-triggered animations */
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ========================================
+   ELECTRIC BORDER OPTIMIZATION
+   Pause animations by default, activate on hover
+   ======================================== */
+.electric-border,
+[class*="electric"] {
+  animation-play-state: paused;
+}
+
+.electric-border:hover,
+[class*="electric"]:hover,
+.electric-border:focus-within,
+[class*="electric"]:focus-within {
+  animation-play-state: running;
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+
+  .electric-border,
+  [class*="electric"],
+  .floating,
+  .animated-gradient {
+    animation: none !important;
+    transition: none !important;
+  }
 }

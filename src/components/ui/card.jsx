@@ -2,17 +2,43 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-const Card = React.forwardRef(({ className, ...props }, ref) => (
+const cardVariants = {
+    default: "rounded-lg border bg-card text-card-foreground shadow-sm",
+    glass: "glass-card",
+    elevated: "rounded-lg bg-card text-card-foreground shadow-depth hover:shadow-depth-hover transition-shadow duration-300",
+    premium: "glass-premium",
+}
+
+const Card = React.forwardRef(({ className, variant = "default", ...props }, ref) => {
+    const safeClass = cardVariants[variant] || cardVariants.default
+
+    if (process.env.NODE_ENV !== "production" && !cardVariants[variant]) {
+        console.warn(`[Card] Invalid variant "${variant}" — falling back to "default".`)
+    }
+
+    return (
+        <div
+            ref={ref}
+            className={cn(safeClass, className)}
+            {...props}
+        />
+    )
+})
+Card.displayName = "Card"
+
+const GlassCard = React.forwardRef(({ className, hoverable = false, ...props }, ref) => (
     <div
         ref={ref}
         className={cn(
-            "rounded-lg border bg-card text-card-foreground shadow-sm",
+            "backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl",
+            "shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_0_0_rgba(255,255,255,0.1)]",
+            hoverable && "hover:bg-white/8 hover:border-white/15 hover:shadow-[0_12px_40px_0_rgba(0,0,0,0.4),inset_0_1px_0_0_rgba(255,255,255,0.15)] transition-all duration-300",
             className
         )}
         {...props}
     />
 ))
-Card.displayName = "Card"
+GlassCard.displayName = "GlassCard"
 
 const CardHeader = React.forwardRef(({ className, ...props }, ref) => (
     <div
@@ -58,4 +84,5 @@ const CardFooter = React.forwardRef(({ className, ...props }, ref) => (
 ))
 CardFooter.displayName = "CardFooter"
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+export { Card, GlassCard, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+

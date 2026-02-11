@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Store, MapPin, Phone, Mail, CheckCircle, XCircle, Ban, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { CardSkeleton } from '@/components/ui/skeleton-loaders';
 
 export default function AdminRestaurants() {
     const [restaurants, setRestaurants] = useState([]);
@@ -184,7 +185,11 @@ export default function AdminRestaurants() {
                         </h2>
 
                         {loading ? (
-                            <p className="text-muted-foreground">Loading...</p>
+                            <div className="space-y-4">
+                                <CardSkeleton />
+                                <CardSkeleton />
+                                <CardSkeleton />
+                            </div>
                         ) : restaurants.length === 0 ? (
                             <p className="text-muted-foreground">No restaurants found</p>
                         ) : (

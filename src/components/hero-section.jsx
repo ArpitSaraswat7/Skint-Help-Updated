@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Utensils, Users, MapPin, TrendingUp } from 'lucide-react';
+import { ArrowRight, ForkKnife, UsersThree, MapPin, TrendUp } from "@phosphor-icons/react";
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 
-export function HeroSection() {
+const HeroSection = memo(function HeroSection() {
     const [count, setCount] = useState(0);
     const targetCount = 50000;
 
@@ -34,25 +34,27 @@ export function HeroSection() {
             <div className="absolute inset-0 animated-gradient opacity-30" />
 
             {/* Floating orbs */}
-            <div className="absolute top-20 left-10 w-72 h-72 bg-green-500/20 rounded-full blur-3xl floating" />
-            <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl floating" style={{ animationDelay: '1s' }} />
-            <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl floating" style={{ animationDelay: '2s' }} />
+            <div className="absolute top-20 left-10 w-72 h-72 bg-green-500/20 rounded-full blur-lg floating" />
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-500/20 rounded-full blur-lg floating" style={{ animationDelay: '1s' }} />
+            <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-cyan-500/20 rounded-full blur-lg floating" style={{ animationDelay: '2s' }} />
 
             <div className="container mx-auto px-4 relative z-10">
                 <div className="grid lg:grid-cols-2 gap-12 items-center">
                     {/* Left Content */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, margin: "-100px" }}
                         transition={{ duration: 0.8 }}
                         className="space-y-8"
                     >
                         {/* Badge */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
                             transition={{ delay: 0.2 }}
-                            className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full"
+                            className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full shimmer"
                         >
                             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                             <span className="text-sm font-medium">Connecting Food to People</span>
@@ -61,21 +63,23 @@ export function HeroSection() {
                         {/* Main Heading */}
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
                             transition={{ delay: 0.3 }}
-                            className="text-5xl md:text-7xl font-bold leading-tight"
+                            className="text-5xl md:text-7xl font-bold leading-tight tracking-tight"
                         >
                             End Food Waste,
                             <br />
-                            <span className="gradient-text">Feed Communities</span>
+                            <span className="gradient-text text-glow">Feed Communities</span>
                         </motion.h1>
 
                         {/* Description */}
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
                             transition={{ delay: 0.4 }}
-                            className="text-xl text-muted-foreground max-w-xl"
+                            className="text-xl text-muted-foreground max-w-xl leading-relaxed"
                         >
                             Skint Help bridges the gap between restaurants with surplus food and people in need through our network of collection centers and dedicated volunteers.
                         </motion.p>
@@ -85,17 +89,17 @@ export function HeroSection() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5 }}
-                            className="grid grid-cols-3 gap-4"
+                            className="grid grid-cols-3 gap-4 md:gap-6"
                         >
-                            <div className="glass-card p-4 rounded-xl text-center">
+                            <div className="glass-card p-4 md:p-5 rounded-xl text-center soft-glow-hover transition-all duration-300">
                                 <div className="text-3xl font-bold gradient-text">{count.toLocaleString()}+</div>
                                 <div className="text-sm text-muted-foreground mt-1">Meals Saved</div>
                             </div>
-                            <div className="glass-card p-4 rounded-xl text-center">
+                            <div className="glass-card p-4 md:p-5 rounded-xl text-center soft-glow-hover transition-all duration-300">
                                 <div className="text-3xl font-bold gradient-text">500+</div>
                                 <div className="text-sm text-muted-foreground mt-1">Restaurants</div>
                             </div>
-                            <div className="glass-card p-4 rounded-xl text-center">
+                            <div className="glass-card p-4 md:p-5 rounded-xl text-center soft-glow-hover transition-all duration-300">
                                 <div className="text-3xl font-bold gradient-text">1000+</div>
                                 <div className="text-sm text-muted-foreground mt-1">Volunteers</div>
                             </div>
@@ -135,7 +139,7 @@ export function HeroSection() {
                         <div className="relative h-full flex flex-col justify-between">
                             {/* Restaurant Node */}
                             <PipelineNode
-                                icon={<Utensils className="w-8 h-8" />}
+                                icon={<ForkKnife className="w-8 h-8" />}
                                 title="Restaurants"
                                 description="Surplus food donated"
                                 color="from-orange-500 to-red-500"
@@ -156,7 +160,7 @@ export function HeroSection() {
 
                             {/* People Node */}
                             <PipelineNode
-                                icon={<Users className="w-8 h-8" />}
+                                icon={<UsersThree className="w-8 h-8" />}
                                 title="People in Need"
                                 description="Meals delivered"
                                 color="from-cyan-500 to-blue-500"
@@ -169,12 +173,13 @@ export function HeroSection() {
                         <motion.div
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 1.5 }}
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ delay: 1.5, duration: 0.3 }}
                             className="absolute top-4 right-4 glass-card p-4 rounded-2xl neon-glow"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-cyan-500 flex items-center justify-center">
-                                    <TrendingUp className="w-6 h-6 text-white" />
+                                    <TrendUp className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
                                     <div className="text-2xl font-bold gradient-text">98%</div>
@@ -207,10 +212,10 @@ export function HeroSection() {
             </motion.div>
         </section>
     );
-}
+});
 
 // Pipeline Node Component
-function PipelineNode({ icon, title, description, color, delay, className = '' }) {
+const PipelineNode = memo(function PipelineNode({ icon, title, description, color, delay, className = '' }) {
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
@@ -233,4 +238,6 @@ function PipelineNode({ icon, title, description, color, delay, className = '' }
             </div>
         </motion.div>
     );
-}
+});
+
+export { HeroSection };

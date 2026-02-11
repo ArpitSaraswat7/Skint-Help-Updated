@@ -3,17 +3,22 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Package, MapPin, Phone, Clock, CheckCircle, Navigation, Search, ArrowLeft } from 'lucide-react';
+import { Package, MapPin, Phone, Clock, CheckCircle, Navigation, Search, ArrowLeft, XCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { StatsSkeleton, CardSkeleton } from '@/components/ui/skeleton-loaders';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useConfetti } from '@/hooks/useConfetti';
 
 export default function WorkerPickups() {
     const { profile } = useAuth();
     const navigate = useNavigate();
+    const confetti = useConfetti();
     const [pickups, setPickups] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [filter, setFilter] = useState('all');
+    const [cancelDialog, setCancelDialog] = useState({ open: false, pickup: null, reason: '' });
 
     useEffect(() => {
         fetchPickups();
@@ -122,42 +127,46 @@ export default function WorkerPickups() {
                 </motion.div>
 
                 {/* Stats Cards */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
-                >
-                    <div className="glass-card p-6 rounded-3xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                                <Package className="w-6 h-6 text-white" />
+                {loading ? (
+                    <StatsSkeleton count={3} className="mb-8" />
+                ) : (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+                    >
+                        <div className="glass-card p-6 rounded-3xl">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                                    <Package className="w-6 h-6 text-white" />
+                                </div>
                             </div>
+                            <h3 className="text-3xl font-bold mb-1">{pickups.length}</h3>
+                            <p className="text-sm text-muted-foreground">Total Pickups</p>
                         </div>
-                        <h3 className="text-3xl font-bold mb-1">{pickups.length}</h3>
-                        <p className="text-sm text-muted-foreground">Total Pickups</p>
-                    </div>
 
-                    <div className="glass-card p-6 rounded-3xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-                                <Clock className="w-6 h-6 text-white" />
+                        <div className="glass-card p-6 rounded-3xl">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                                    <Clock className="w-6 h-6 text-white" />
+                                </div>
                             </div>
+                            <h3 className="text-3xl font-bold mb-1">{pendingCount}</h3>
+                            <p className="text-sm text-muted-foreground">Pending Collection</p>
                         </div>
-                        <h3 className="text-3xl font-bold mb-1">{pendingCount}</h3>
-                        <p className="text-sm text-muted-foreground">Pending Collection</p>
-                    </div>
 
-                    <div className="glass-card p-6 rounded-3xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                                <CheckCircle className="w-6 h-6 text-white" />
+                        <div className="glass-card p-6 rounded-3xl">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                                    <CheckCircle className="w-6 h-6 text-white" />
+                                </div>
                             </div>
+                            <h3 className="text-3xl font-bold mb-1">{collectedCount}</h3>
+                            <p className="text-sm text-muted-foreground">Collected</p>
                         </div>
-                        <h3 className="text-3xl font-bold mb-1">{collectedCount}</h3>
-                        <p className="text-sm text-muted-foreground">Collected</p>
-                    </div>
-                </motion.div>
+                    </motion.div>
+                )}
 
                 {/* Search and Filter */}
                 <motion.div
@@ -209,9 +218,10 @@ export default function WorkerPickups() {
                     <h2 className="text-2xl font-bold mb-6">Pickup Schedule</h2>
 
                     {loading ? (
-                        <div className="text-center py-12">
-                            <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                            <p className="text-muted-foreground">Loading pickups...</p>
+                        <div className="space-y-4">
+                            <CardSkeleton />
+                            <CardSkeleton />
+                            <CardSkeleton />
                         </div>
                     ) : filteredPickups.length === 0 ? (
                         <div className="text-center py-12">
@@ -285,6 +295,14 @@ export default function WorkerPickups() {
                                                         <Navigation className="w-4 h-4 mr-2" />
                                                         Navigate
                                                     </Button>
+                                                    <Button
+                                                        onClick={() => setCancelDialog({ open: true, pickup, reason: '' })}
+                                                        variant="outline"
+                                                        className="glass-card border-red-500/20 hover:bg-red-500/10 text-red-400 h-10 px-4 w-full md:w-auto"
+                                                    >
+                                                        <XCircle className="w-4 h-4 mr-2" />
+                                                        Cancel Pickup
+                                                    </Button>
                                                 </>
                                             )}
                                             {pickup.qr_code && (
@@ -299,6 +317,73 @@ export default function WorkerPickups() {
                         </div>
                     )}
                 </motion.div>
+
+                {/* Cancel Pickup Confirmation Dialog */}
+                <ConfirmDialog
+                    open={cancelDialog.open}
+                    onOpenChange={(open) => setCancelDialog({ open, pickup: null, reason: '' })}
+                    onConfirm={async () => {
+                        if (cancelDialog.pickup?.id && cancelDialog.reason) {
+                            try {
+                                // Update pickup status in database
+                                const { error } = await supabase
+                                    .from('food_packets')
+                                    .update({
+                                        status: 'cancelled',
+                                        cancelled_at: new Date().toISOString(),
+                                        cancellation_reason: cancelDialog.reason
+                                    })
+                                    .eq('id', cancelDialog.pickup.id);
+
+                                if (error) throw error;
+
+                                // Success: update UI and show feedback
+                                toast.success(`Pickup canceled: ${cancelDialog.reason.replace('_', ' ')}`);
+                                confetti.deleted(); // 🎉 Subtle cancel confetti
+                                setPickups(prev => prev.filter(p => p.id !== cancelDialog.pickup.id));
+
+                                // TODO: Trigger restaurant notification via backend function
+                                // This would typically call a Supabase Edge Function or backend API
+                            } catch (error) {
+                                console.error('Error canceling pickup:', error);
+                                toast.error(error.message || 'Failed to cancel pickup');
+                            }
+                            setCancelDialog({ open: false, pickup: null, reason: '' });
+                        } else {
+                            toast.error('Please select a reason for cancellation');
+                        }
+                    }}
+                    title="Cancel Pickup?"
+                    description="Please select a reason for canceling this pickup. This action will notify the restaurant."
+                    confirmText="Cancel Pickup"
+                    cancelText="Keep Pickup"
+                    variant="destructive"
+                    icon={<AlertCircle className="w-8 h-8" />}
+                >
+                    <div className="space-y-4">
+                        <select
+                            className="w-full glass-card px-4 py-3 rounded-xl border border-white/10 focus:border-red-500/50 focus:outline-none transition-colors text-white bg-transparent"
+                            value={cancelDialog.reason}
+                            onChange={(e) => setCancelDialog(prev => ({ ...prev, reason: e.target.value }))}
+                        >
+                            <option value="" className="bg-gray-900">Select reason...</option>
+                            <option value="vehicle_issue" className="bg-gray-900">Vehicle Issue</option>
+                            <option value="emergency" className="bg-gray-900">Emergency</option>
+                            <option value="traffic" className="bg-gray-900">Heavy Traffic</option>
+                            <option value="weather" className="bg-gray-900">Bad Weather</option>
+                            <option value="other" className="bg-gray-900">Other</option>
+                        </select>
+
+                        {cancelDialog.pickup && (
+                            <div className="glass-card p-4 rounded-xl space-y-2 text-sm">
+                                <p><strong>Restaurant:</strong> {cancelDialog.pickup.restaurants?.name || 'Unknown'}</p>
+                                <p><strong>Food Type:</strong> {cancelDialog.pickup.food_type}</p>
+                                <p><strong>Quantity:</strong> {cancelDialog.pickup.quantity} meals</p>
+                                <p><strong>Status:</strong> <span className="capitalize">{cancelDialog.pickup.status}</span></p>
+                            </div>
+                        )}
+                    </div>
+                </ConfirmDialog>
             </div>
         </section>
     );

@@ -94,9 +94,17 @@ export default function Login() {
             // Clear selected role from localStorage after successful login
             localStorage.removeItem('selectedRole');
 
-            // Redirect to dashboard
+            // Redirect to role-specific dashboard
             setTimeout(() => {
-                navigate('/dashboard');
+                const roleRoutes = {
+                    'admin': '/owner/dashboard',
+                    'restaurant': '/restaurant/dashboard',
+                    'worker': '/worker/dashboard',
+                    'public': '/customer/dashboard'
+                };
+                const mappedRole = selectedRole === 'owner' ? 'admin' : selectedRole;
+                const redirectPath = roleRoutes[mappedRole] || '/';
+                navigate(redirectPath);
             }, 500);
         } catch (error) {
             toast.error(error.message || 'Authentication failed. Please try again.');
@@ -123,7 +131,14 @@ export default function Login() {
             toast.success('Welcome!');
             localStorage.removeItem('selectedRole');
             setTimeout(() => {
-                navigate('/dashboard');
+                const roleRoutes = {
+                    'admin': '/owner/dashboard',
+                    'restaurant': '/restaurant/dashboard',
+                    'worker': '/worker/dashboard',
+                    'public': '/customer/dashboard'
+                };
+                const redirectPath = roleRoutes[selectedRole === 'owner' ? 'admin' : selectedRole] || '/';
+                navigate(redirectPath);
             }, 500);
         } catch (error) {
             toast.error('Login failed');
@@ -170,10 +185,10 @@ export default function Login() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0a0a0a]">
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0a0a0a] noise-overlay">
             {/* Animated background particles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(20)].map((_, i) => (
+                {[...Array(8)].map((_, i) => (
                     <motion.div
                         key={i}
                         className="absolute w-2 h-2 rounded-full bg-white/10"
@@ -196,8 +211,8 @@ export default function Login() {
             </div>
 
             {/* Gradient orbs */}
-            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-green-500/10 rounded-full blur-[100px] animate-pulse pointer-events-none" />
-            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px] animate-pulse delay-1000 pointer-events-none" />
+            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-green-500/10 rounded-full blur-xl animate-pulse pointer-events-none" />
+            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-xl animate-pulse delay-1000 pointer-events-none" />
 
             {/* Floating Back Button */}
             <motion.button
@@ -234,7 +249,7 @@ export default function Login() {
                         {/* Neon Glow under card */}
                         <div className={`absolute -inset-0.5 bg-gradient-to-r ${currentPortal.color} rounded-3xl opacity-20 group-hover:opacity-40 blur transition duration-500`} />
 
-                        <div className="relative p-8 rounded-3xl bg-black/80 backdrop-blur-2xl border border-white/10">
+                        <div className="relative p-8 rounded-3xl bg-black/80 backdrop-blur-2xl border border-white/10 glass-premium">
                             <div className="text-center mb-8">
                                 <div className={`
                   w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br ${currentPortal.color} 
@@ -256,7 +271,7 @@ export default function Login() {
                                             placeholder="name@example.com"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            className="h-12 pl-12 bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-white/30 focus:bg-white/10 transition-all rounded-xl"
+                                            className="h-12 pl-12 bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-[#DBEBC0]/50 focus:bg-white/10 focus:shadow-[0_0_20px_rgba(219,235,192,0.1)] transition-all rounded-xl"
                                             required
                                             disabled={isLoading}
                                         />
@@ -272,7 +287,7 @@ export default function Login() {
                                             placeholder="••••••••"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
-                                            className="h-12 pl-12 pr-12 bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-white/30 focus:bg-white/10 transition-all rounded-xl"
+                                            className="h-12 pl-12 pr-12 bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-[#DBEBC0]/50 focus:bg-white/10 focus:shadow-[0_0_20px_rgba(219,235,192,0.1)] transition-all rounded-xl"
                                             required
                                             disabled={isLoading}
                                             minLength={8}

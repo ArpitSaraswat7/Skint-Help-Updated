@@ -7,4 +7,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Missing Supabase environment variables. Please check your .env file.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        flowType: 'pkce', // More secure auth flow
+        storageKey: 'skint-help-auth', // Unique storage key to prevent conflicts
+        // Disable CAPTCHA requirement (you can enable it in Supabase dashboard if needed)
+    }
+});

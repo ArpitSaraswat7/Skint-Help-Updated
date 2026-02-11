@@ -1,236 +1,237 @@
 import { motion } from 'framer-motion';
-import { Navbar } from '@/components/navbar';
-import { Footer } from '@/components/footer';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { MapPin, Package, Clock } from 'lucide-react';
+import { MapPin, Package, Clock, Bell, Sparkles, Navigation, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function PublicFoodMap() {
-    const [locations, setLocations] = useState([]);
-    const [selectedLocation, setSelectedLocation] = useState(null);
+    const [email, setEmail] = useState('');
 
-    useEffect(() => {
-        fetchAvailableFood();
-
-        // Realtime subscription
-        const channel = supabase
-            .channel('public-food-updates')
-            .on('postgres_changes', {
-                event: '*',
-                schema: 'public',
-                table: 'food_packets'
-            }, () => {
-                fetchAvailableFood();
-            })
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, []);
-
-    const fetchAvailableFood = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('food_packets')
-                .select(`
-          *,
-          centers(id, name, address, geo_location, current_inventory)
-        `)
-                .eq('status', 'at_center')
-                .not('centers', 'is', null);
-
-            if (error) throw error;
-
-            // Group by center
-            const grouped = (data || []).reduce((acc, packet) => {
-                const centerId = packet.centers?.id;
-                if (!centerId) return acc;
-
-                if (!acc[centerId]) {
-                    acc[centerId] = {
-                        id: centerId,
-                        center_name: packet.centers.name,
-                        center_address: packet.centers.address,
-                        center_location: packet.centers.geo_location,
-                        total_meals: 0,
-                        packets: []
-                    };
-                }
-
-                acc[centerId].total_meals += packet.quantity;
-                acc[centerId].packets.push(packet);
-                return acc;
-            }, {});
-
-            setLocations(Object.values(grouped));
-        } catch (error) {
-            console.error('Error fetching available food:', error);
+    const handleNotifyMe = (e) => {
+        e.preventDefault();
+        if (email) {
+            toast.success('Thanks! We\'ll notify you when the food map launches.');
+            setEmail('');
         }
     };
 
+    const upcomingFeatures = [
+        {
+            icon: <MapPin className="w-6 h-6" />,
+            title: 'Real-Time Location Tracking',
+            description: 'See available food centers on an interactive map',
+            color: 'from-green-500 to-emerald-500',
+        },
+        {
+            icon: <Package className="w-6 h-6" />,
+            title: 'Live Inventory Updates',
+            description: 'Know exactly how many meals are available',
+            color: 'from-cyan-500 to-blue-500',
+        },
+        {
+            icon: <Navigation className="w-6 h-6" />,
+            title: 'Smart Navigation',
+            description: 'Get directions to the nearest food center',
+            color: 'from-orange-500 to-red-500',
+        },
+        {
+            icon: <Search className="w-6 h-6" />,
+            title: 'Advanced Filters',
+            description: 'Filter by food type, distance, and availability',
+            color: 'from-purple-500 to-pink-500',
+        },
+    ];
+
     return (
-        <section className="relative py-16 overflow-hidden">
-            <div className="absolute inset-0 animated-gradient opacity-20" />
+        <section className="relative py-24 overflow-hidden min-h-screen flex items-center">
+            {/* Animated Background */}
+            <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-green-500/30 rounded-full blur-3xl floating" />
+                <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl floating" style={{ animationDelay: '1s' }} />
+            </div>
 
             <div className="container mx-auto px-4 relative z-10">
+                {/* Main Content */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-center mb-12"
+                    className="text-center mb-16"
                 >
-                    <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-4">
-                        <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                        <span className="text-sm font-medium">Live Updates</span>
-                    </div>
-                    <h1 className="text-5xl md:text-7xl font-bold mb-6">
-                        Find <span className="gradient-text">Available Food</span>
-                    </h1>
-                    <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                        Real-time map of available meals at collection centers near you
-                    </p>
-                </motion.div>
-
-                <div className="grid lg:grid-cols-3 gap-8">
-                    {/* Map Visualization */}
+                    {/* Coming Soon Badge */}
                     <motion.div
-                        initial={{ opacity: 0, x: -30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="lg:col-span-2"
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="inline-block mb-6"
                     >
-                        <div className="depth-card p-8 h-[600px] relative overflow-hidden">
-                            {/* Map Background */}
-                            <div className="absolute inset-0 opacity-10">
-                                <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-cyan-500/20" />
-                                <svg className="w-full h-full">
-                                    <defs>
-                                        <pattern id="public-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
-                                        </pattern>
-                                    </defs>
-                                    <rect width="100%" height="100%" fill="url(#public-grid)" />
-                                </svg>
-                            </div>
-
-                            {/* Location Markers */}
-                            {locations.map((location, index) => {
-                                const positions = [
-                                    { top: '25%', left: '30%' },
-                                    { top: '45%', left: '60%' },
-                                    { top: '60%', left: '35%' },
-                                    { top: '30%', left: '70%' },
-                                    { top: '70%', left: '55%' },
-                                ];
-                                const position = positions[index % positions.length];
-
-                                return (
-                                    <motion.div
-                                        key={location.id}
-                                        initial={{ opacity: 0, scale: 0 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: index * 0.1 }}
-                                        className="absolute"
-                                        style={position}
-                                    >
-                                        <motion.button
-                                            whileHover={{ scale: 1.2 }}
-                                            onClick={() => setSelectedLocation(location.id)}
-                                            className="relative group"
-                                        >
-                                            {/* Pulsing ring */}
-                                            <motion.div
-                                                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                                                transition={{ duration: 2, repeat: Infinity }}
-                                                className="absolute inset-0 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 blur-md"
-                                            />
-
-                                            {/* Marker */}
-                                            <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/50">
-                                                <MapPin className="w-7 h-7 text-white" />
-                                            </div>
-
-                                            {/* Meal count badge */}
-                                            <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shadow-lg">
-                                                {location.total_meals}
-                                            </div>
-                                        </motion.button>
-                                    </motion.div>
-                                );
-                            })}
-
-                            {/* Live Indicator */}
-                            <div className="absolute top-4 right-4 glass-card px-3 py-2 rounded-full flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                                <span className="text-xs font-medium">Live</span>
-                            </div>
+                        <div className="inline-flex items-center gap-2 glass-card px-6 py-3 rounded-full border border-[#DBEBC0]/20">
+                            <Sparkles className="w-5 h-5 text-[#DBEBC0]" />
+                            <span className="text-sm font-bold text-[#DBEBC0] uppercase tracking-wider">Coming Soon</span>
                         </div>
                     </motion.div>
 
-                    {/* Location Details */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="space-y-4"
+                    {/* Title */}
+                    <motion.h1
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-5xl md:text-7xl font-bold mb-6 text-white"
                     >
-                        <h2 className="text-2xl font-bold mb-4">Available Locations</h2>
+                        Interactive <span className="gradient-text">Food Map</span>
+                    </motion.h1>
 
-                        {locations.length === 0 ? (
-                            <div className="glass-card p-6 rounded-2xl text-center">
-                                <p className="text-muted-foreground">No food available at the moment</p>
+                    {/* Description */}
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-xl text-white/60 max-w-3xl mx-auto mb-12"
+                    >
+                        We're building an amazing real-time food map to help you find available meals near you instantly.
+                        Get notified when we launch!
+                    </motion.p>
+
+                    {/* Notification Form */}
+                    <motion.form
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        onSubmit={handleNotifyMe}
+                        className="max-w-md mx-auto mb-20"
+                    >
+                        <div className="glass-card p-2 rounded-2xl flex gap-2">
+                            <div className="relative flex-1">
+                                <Bell className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                                <Input
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="h-14 pl-12 bg-white/5 border-0 text-white placeholder:text-white/30 focus:bg-white/10 rounded-xl"
+                                    required
+                                />
                             </div>
-                        ) : (
-                            locations.map((location, index) => (
-                                <motion.div
-                                    key={location.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.1 }}
-                                    className={`depth-card p-6 cursor-pointer transition-all ${selectedLocation === location.id ? 'ring-2 ring-green-500 neon-glow' : ''
-                                        }`}
-                                    onClick={() => setSelectedLocation(location.id)}
-                                >
-                                    <div className="flex items-start gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white flex-shrink-0">
-                                            <Package className="w-6 h-6" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <h3 className="font-bold mb-1">{location.center_name}</h3>
-                                            <p className="text-sm text-muted-foreground mb-2">
-                                                {location.center_address}
-                                            </p>
-                                            <div className="flex items-center gap-4 text-sm">
-                                                <div className="flex items-center gap-1">
-                                                    <Package className="w-4 h-4 text-green-400" />
-                                                    <span className="font-medium">{location.total_meals} meals</span>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <Clock className="w-4 h-4 text-cyan-400" />
-                                                    <span className="text-muted-foreground">Now</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <Button
+                                type="submit"
+                                className="h-14 px-8 bg-gradient-to-r from-[#DBEBC0] to-yellow-600 hover:opacity-90 text-black font-bold rounded-xl"
+                            >
+                                Notify Me
+                            </Button>
+                        </div>
+                    </motion.form>
+                </motion.div>
 
-                                    {selectedLocation === location.id && (
-                                        <motion.div
-                                            initial={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: 'auto' }}
-                                            className="mt-4 pt-4 border-t border-white/10 space-y-2"
-                                        >
-                                            <p className="text-sm font-medium mb-2">Available Packets:</p>
-                                            {location.packets.map((packet) => (
-                                                <div key={packet.id} className="text-sm text-muted-foreground flex justify-between">
-                                                    <span>{packet.food_type}</span>
-                                                    <span>{packet.quantity} meals</span>
-                                                </div>
-                                            ))}
-                                        </motion.div>
-                                    )}
+                {/* Preview Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="mb-16"
+                >
+                    <div className="depth-card p-8 rounded-3xl relative overflow-hidden">
+                        {/* Map Preview Background */}
+                        <div className="absolute inset-0 opacity-10">
+                            <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-cyan-500/20" />
+                            <svg className="w-full h-full">
+                                <defs>
+                                    <pattern id="preview-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
+                                    </pattern>
+                                </defs>
+                                <rect width="100%" height="100%" fill="url(#preview-grid)" />
+                            </svg>
+                        </div>
+
+                        {/* Animated Map Markers Preview */}
+                        <div className="relative h-[400px] flex items-center justify-center">
+                            {[
+                                { top: '20%', left: '25%', delay: 0 },
+                                { top: '40%', left: '55%', delay: 0.2 },
+                                { top: '65%', left: '30%', delay: 0.4 },
+                                { top: '25%', left: '70%', delay: 0.6 },
+                                { top: '70%', left: '60%', delay: 0.8 },
+                            ].map((pos, index) => (
+                                <motion.div
+                                    key={index}
+                                    initial={{ opacity: 0, scale: 0 }}
+                                    animate={{ opacity: 0.6, scale: 1 }}
+                                    transition={{ delay: pos.delay + 0.8, duration: 0.5 }}
+                                    className="absolute"
+                                    style={{ top: pos.top, left: pos.left }}
+                                >
+                                    <motion.div
+                                        animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0, 0.3] }}
+                                        transition={{ duration: 2, repeat: Infinity, delay: pos.delay }}
+                                        className="absolute inset-0 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 blur-md"
+                                    />
+                                    <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg">
+                                        <MapPin className="w-6 h-6 text-white" />
+                                    </div>
                                 </motion.div>
-                            ))
-                        )}
-                    </motion.div>
-                </div>
+                            ))}
+
+                            {/* Center Message */}
+                            <div className="text-center z-10">
+                                <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                                    className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-green-500/20 to-cyan-500/20 flex items-center justify-center"
+                                >
+                                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                                        <MapPin className="w-12 h-12 text-white" />
+                                    </div>
+                                </motion.div>
+                                <h3 className="text-2xl font-bold text-white mb-2">Interactive Map Preview</h3>
+                                <p className="text-white/60">Real-time food availability coming soon</p>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Upcoming Features */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8 }}
+                >
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">
+                        What's <span className="gradient-text">Coming</span>
+                    </h2>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {upcomingFeatures.map((feature, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.9 + index * 0.1 }}
+                                whileHover={{ y: -5 }}
+                                className="depth-card p-6 group"
+                            >
+                                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform`}>
+                                    {feature.icon}
+                                </div>
+                                <h3 className="text-xl font-bold mb-2 text-white">{feature.title}</h3>
+                                <p className="text-white/60 text-sm">{feature.description}</p>
+                            </motion.div>
+                        ))}
+                    </div>
+                </motion.div>
+
+                {/* Live Indicator Badge */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 1.2 }}
+                    className="fixed bottom-8 right-8 glass-card px-4 py-3 rounded-full flex items-center gap-3 shadow-xl"
+                >
+                    <div className="relative">
+                        <div className="w-3 h-3 rounded-full bg-[#DBEBC0] animate-pulse" />
+                        <div className="absolute inset-0 w-3 h-3 rounded-full bg-[#DBEBC0] animate-ping" />
+                    </div>
+                    <span className="text-sm font-medium text-white">In Development</span>
+                </motion.div>
             </div>
         </section>
     );

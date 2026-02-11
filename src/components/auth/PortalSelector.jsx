@@ -1,6 +1,6 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { User, Store, Briefcase, Building2, ArrowRight } from "lucide-react";
+import { User, Storefront, Briefcase, Buildings, ArrowRight } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -17,7 +17,7 @@ const portals = [
         id: "restaurant",
         title: "Restaurant Partner",
         description: "Donate food & reduce waste",
-        icon: Store,
+        icon: Storefront,
         color: "from-orange-400 to-red-600",
         path: "/login",
     },
@@ -33,26 +33,31 @@ const portals = [
         id: "admin",
         title: "Admin / Owner",
         description: "Platform management",
-        icon: Building2,
+        icon: Buildings,
         color: "from-purple-400 to-pink-600",
         path: "/login",
     },
 ];
 
-export function PortalSelector({ children }) {
+export function PortalSelector({ children, onOpenChange }) {
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
+
+    const handleOpenChange = (newOpen) => {
+        setOpen(newOpen);
+        onOpenChange?.(newOpen);
+    };
 
     const handleSelect = (portalId) => {
         // Save selected role to localStorage
         localStorage.setItem('selectedRole', portalId);
-        setOpen(false);
+        handleOpenChange(false); // Use handleOpenChange to close the dialog
         // Navigate to login page
         navigate('/login');
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
                 {children || (
                     <Button variant="default" className="rgb-ring">
@@ -65,6 +70,9 @@ export function PortalSelector({ children }) {
                     <DialogTitle className="text-3xl font-bold text-center mb-8 gradient-text">
                         Select Your Portal
                     </DialogTitle>
+                    <DialogDescription className="sr-only">
+                        Choose which portal you want to access: Public Receiver, Restaurant Partner, Delivery Worker, or Admin
+                    </DialogDescription>
                 </DialogHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {portals.map((portal) => (

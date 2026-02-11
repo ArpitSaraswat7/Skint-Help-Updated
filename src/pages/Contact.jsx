@@ -9,21 +9,21 @@ export default function Contact() {
         {
             icon: <Mail className="w-6 h-6" />,
             title: 'Email Us',
-            value: 'hello@skinthelp.com',
-            link: 'mailto:hello@skinthelp.com',
+            value: 'arpitsaraswat80@gmail.com',
+            link: 'mailto:arpitsaraswat80@gmail.com',
             color: 'from-green-500 to-emerald-500',
         },
         {
             icon: <Phone className="w-6 h-6" />,
             title: 'Call Us',
-            value: '+1 (234) 567-890',
-            link: 'tel:+1234567890',
+            value: '+91 7668703965',
+            link: 'tel:+917668703965',
             color: 'from-cyan-500 to-blue-500',
         },
         {
             icon: <MapPin className="w-6 h-6" />,
             title: 'Visit Us',
-            value: 'San Francisco, CA',
+            value: 'Mathura, Uttar Pradesh, India',
             link: '#',
             color: 'from-orange-500 to-red-500',
         },
@@ -65,7 +65,7 @@ export default function Contact() {
                         transition={{ duration: 0.8 }}
                     >
                         <div className="glass-card p-8 rounded-3xl">
-                            <h2 className="text-3xl font-bold mb-6">Send us a Message</h2>
+                            <h2 className="text-3xl font-bold mb-6 text-white">Send us a Message</h2>
 
                             <form className="space-y-6">
                                 <div className="grid md:grid-cols-2 gap-4">
@@ -122,7 +122,7 @@ export default function Contact() {
                                     />
                                 </div>
 
-                                <Button className="w-full rgb-ring h-14 text-lg font-semibold group">
+                                <Button className="w-full rgb-ring h-14 text-lg font-semibold group text-white">
                                     <span className="relative z-10 flex items-center justify-center gap-2">
                                         Send Message
                                         <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -172,7 +172,7 @@ export default function Contact() {
                                 <div className="text-center">
                                     <MapPin className="w-16 h-16 mx-auto mb-4 text-green-400" />
                                     <h3 className="text-xl font-bold mb-2">Find Us</h3>
-                                    <p className="text-muted-foreground">San Francisco, CA</p>
+                                    <p className="text-muted-foreground">Mathura, Uttar Pradesh, India</p>
                                 </div>
                             </div>
                             {/* Grid overlay */}

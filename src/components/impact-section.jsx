@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { TrendingUp, Users, Utensils, MapPin, Award, Heart } from 'lucide-react';
+import { TrendUp, UsersThree, ForkKnife, MapPin, Medal, Heart } from "@phosphor-icons/react";
 import { useEffect, useState } from 'react';
 
 export function ImpactSection() {
@@ -18,7 +18,7 @@ export function ImpactSection() {
                     className="text-center mb-16"
                 >
                     <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-4">
-                        <TrendingUp className="w-4 h-4 text-green-400" />
+                        <TrendUp className="w-4 h-4 text-green-400" />
                         <span className="text-sm font-medium">Real Impact</span>
                     </div>
                     <h2 className="text-4xl md:text-6xl font-bold mb-4">
@@ -32,7 +32,7 @@ export function ImpactSection() {
                 {/* Impact Stats Grid */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                     <ImpactCard
-                        icon={<Utensils className="w-8 h-8" />}
+                        icon={<ForkKnife className="w-8 h-8" />}
                         value={50000}
                         suffix="+"
                         label="Meals Saved"
@@ -40,7 +40,7 @@ export function ImpactSection() {
                         delay={0}
                     />
                     <ImpactCard
-                        icon={<Users className="w-8 h-8" />}
+                        icon={<UsersThree className="w-8 h-8" />}
                         value={15000}
                         suffix="+"
                         label="People Fed"
@@ -64,14 +64,14 @@ export function ImpactSection() {
                         delay={0.3}
                     />
                     <ImpactCard
-                        icon={<Award className="w-8 h-8" />}
+                        icon={<Medal className="w-8 h-8" />}
                         value={25}
                         label="Cities"
                         color="from-yellow-500 to-orange-500"
                         delay={0.4}
                     />
                     <ImpactCard
-                        icon={<TrendingUp className="w-8 h-8" />}
+                        icon={<TrendUp className="w-8 h-8" />}
                         value={98}
                         suffix="%"
                         label="Success Rate"
@@ -121,7 +121,7 @@ export function ImpactSection() {
                                 title="Carbon Footprint Reduced"
                                 value="120 tons"
                                 description="Equivalent to planting 2,000 trees"
-                                icon={<TrendingUp className="w-6 h-6" />}
+                                icon={<TrendUp className="w-6 h-6" />}
                             />
                             <HighlightCard
                                 title="Community Reach"

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Sparkles, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Heart } from 'lucide-react';
+import { EnvelopeSimple, Phone, MapPin, Heart, FacebookLogo, TwitterLogo, InstagramLogo, LinkedinLogo } from "@phosphor-icons/react";
 
 export function Footer() {
     const currentYear = new Date().getFullYear();
@@ -27,10 +27,10 @@ export function Footer() {
     };
 
     const socialLinks = [
-        { icon: <Facebook className="w-5 h-5" />, url: '#', name: 'Facebook' },
-        { icon: <Twitter className="w-5 h-5" />, url: '#', name: 'Twitter' },
-        { icon: <Instagram className="w-5 h-5" />, url: '#', name: 'Instagram' },
-        { icon: <Linkedin className="w-5 h-5" />, url: '#', name: 'LinkedIn' },
+        { icon: <FacebookLogo className="w-5 h-5" />, url: '#', name: 'Facebook' },
+        { icon: <TwitterLogo className="w-5 h-5" />, url: '#', name: 'Twitter' },
+        { icon: <InstagramLogo className="w-5 h-5" />, url: '#', name: 'Instagram' },
+        { icon: <LinkedinLogo className="w-5 h-5" />, url: '#', name: 'LinkedIn' },
     ];
 
     return (
@@ -40,7 +40,7 @@ export function Footer() {
 
             <div className="container mx-auto px-4 relative z-10">
                 {/* Main Footer Content */}
-                <div className="glass-card rounded-3xl p-8 md:p-12 mb-8">
+                <div className="glass-premium rounded-3xl p-8 md:p-12 mb-8 noise-overlay">
                     <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
                         {/* Brand Column */}
                         <div className="lg:col-span-2">
@@ -48,48 +48,52 @@ export function Footer() {
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
                                     transition={{ duration: 0.3 }}
-                                    className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-cyan-500 flex items-center justify-center neon-glow"
+                                    className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center bg-black/20"
                                 >
-                                    <Sparkles className="w-7 h-7 text-white" />
+                                    <img
+                                        src="/New logo.png"
+                                        alt="Skint Help Logo"
+                                        className="w-full h-full object-cover"
+                                    />
                                 </motion.div>
                                 <span className="text-2xl font-bold gradient-text">Skint Help</span>
                             </Link>
-                            <p className="text-muted-foreground mb-6 max-w-sm">
+                            <p className="text-white mb-6 max-w-sm">
                                 Connecting restaurants with surplus food to people in need through our network of collection centers and volunteers.
                             </p>
 
                             {/* Contact Info */}
                             <div className="space-y-3">
-                                <a href="mailto:hello@skinthelp.com" className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group">
+                                <a href="mailto:arpitsaraswat80@gmail.com" className="flex items-center gap-3 text-sm text-white hover:text-white/80 transition-colors group">
                                     <div className="w-8 h-8 rounded-lg glass-card flex items-center justify-center group-hover:neon-glow transition-all">
-                                        <Mail className="w-4 h-4" />
+                                        <EnvelopeSimple className="w-4 h-4 text-white" />
                                     </div>
-                                    hello@skinthelp.com
+                                    arpitsaraswat80@gmail.com
                                 </a>
-                                <a href="tel:+1234567890" className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group">
+                                <a href="tel:+917668703965" className="flex items-center gap-3 text-sm text-white hover:text-white/80 transition-colors group">
                                     <div className="w-8 h-8 rounded-lg glass-card flex items-center justify-center group-hover:neon-glow transition-all">
-                                        <Phone className="w-4 h-4" />
+                                        <Phone className="w-4 h-4 text-white" />
                                     </div>
-                                    +1 (234) 567-890
+                                    +91 7668703965
                                 </a>
-                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-3 text-sm text-white">
                                     <div className="w-8 h-8 rounded-lg glass-card flex items-center justify-center">
-                                        <MapPin className="w-4 h-4" />
+                                        <MapPin className="w-4 h-4 text-white" />
                                     </div>
-                                    San Francisco, CA
+                                    Mathura, Uttar Pradesh, India
                                 </div>
                             </div>
                         </div>
 
                         {/* Links Columns */}
                         <div>
-                            <h3 className="font-semibold mb-4">Product</h3>
+                            <h3 className="font-semibold mb-4 text-white">Product</h3>
                             <ul className="space-y-2">
                                 {footerLinks.product.map((link) => (
                                     <li key={link.path}>
                                         <Link
                                             to={link.path}
-                                            className="text-sm text-muted-foreground hover:text-foreground hover:translate-x-1 inline-block transition-all"
+                                            className="text-sm text-white hover:text-white/80 hover:translate-x-1 inline-block transition-all"
                                         >
                                             {link.name}
                                         </Link>
@@ -99,13 +103,13 @@ export function Footer() {
                         </div>
 
                         <div>
-                            <h3 className="font-semibold mb-4">Company</h3>
+                            <h3 className="font-semibold mb-4 text-white">Company</h3>
                             <ul className="space-y-2">
                                 {footerLinks.company.map((link) => (
                                     <li key={link.path}>
                                         <Link
                                             to={link.path}
-                                            className="text-sm text-muted-foreground hover:text-foreground hover:translate-x-1 inline-block transition-all"
+                                            className="text-sm text-white hover:text-white/80 hover:translate-x-1 inline-block transition-all"
                                         >
                                             {link.name}
                                         </Link>
@@ -115,13 +119,13 @@ export function Footer() {
                         </div>
 
                         <div>
-                            <h3 className="font-semibold mb-4">Resources</h3>
+                            <h3 className="font-semibold mb-4 text-white">Resources</h3>
                             <ul className="space-y-2">
                                 {footerLinks.resources.map((link) => (
                                     <li key={link.path}>
                                         <Link
                                             to={link.path}
-                                            className="text-sm text-muted-foreground hover:text-foreground hover:translate-x-1 inline-block transition-all"
+                                            className="text-sm text-white hover:text-white/80 hover:translate-x-1 inline-block transition-all"
                                         >
                                             {link.name}
                                         </Link>
@@ -132,14 +136,14 @@ export function Footer() {
                     </div>
 
                     {/* Divider */}
-                    <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-8" />
+                    <div className="h-px bg-gradient-to-r from-transparent via-[#DBEBC0]/30 to-transparent mb-8" />
 
                     {/* Bottom Row */}
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         {/* Copyright */}
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <p className="text-sm text-white flex items-center gap-2">
                             © {currentYear} Skint Help. Made with{' '}
-                            <Heart className="w-4 h-4 text-red-500 fill-red-500 animate-pulse" />
+                            <Heart className="w-4 h-4 text-red-500" weight="fill" />
                             for a better world
                         </p>
 
@@ -151,12 +155,12 @@ export function Footer() {
                                     href={social.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    whileHover={{ scale: 1.1, y: -2 }}
+                                    whileHover={{ scale: 1.1, y: -3 }}
                                     whileTap={{ scale: 0.95 }}
-                                    className="w-10 h-10 rounded-lg glass-card flex items-center justify-center hover:neon-glow transition-all group"
+                                    className="w-10 h-10 rounded-lg glass-card flex items-center justify-center soft-glow-hover transition-all group"
                                     aria-label={social.name}
                                 >
-                                    <span className="text-muted-foreground group-hover:text-foreground transition-colors">
+                                    <span className="text-white group-hover:text-white/80 transition-colors">
                                         {social.icon}
                                     </span>
                                 </motion.a>
@@ -174,7 +178,7 @@ export function Footer() {
                 >
                     <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full text-sm">
                         <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                        <span className="text-muted-foreground">
+                        <span className="text-white">
                             Proudly fighting food waste since 2024
                         </span>
                     </div>

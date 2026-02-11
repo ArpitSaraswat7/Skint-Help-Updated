@@ -2,11 +2,16 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Package, MapPin, Clock, TrendingUp, CheckCircle, AlertCircle, Calendar, Filter } from 'lucide-react';
+import { Package, MapPin, Clock, TrendingUp, CheckCircle, AlertCircle, Calendar, Filter, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { StatsSkeleton, CardSkeleton } from '@/components/ui/skeleton-loaders';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { toast } from 'sonner';
+import { useConfetti } from '@/hooks/useConfetti';
 
 export default function RestaurantDonations() {
     const { profile } = useAuth();
+    const confetti = useConfetti();
     const [donations, setDonations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
@@ -16,6 +21,7 @@ export default function RestaurantDonations() {
         distributed: 0,
         totalMeals: 0
     });
+    const [deleteDialog, setDeleteDialog] = useState({ open: false, donation: null });
 
     useEffect(() => {
         fetchDonations();
@@ -101,56 +107,60 @@ export default function RestaurantDonations() {
                 </motion.div>
 
                 {/* Stats Cards */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-                >
-                    <div className="glass-card p-6 rounded-3xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                                <Package className="w-6 h-6 text-white" />
+                {loading ? (
+                    <StatsSkeleton count={4} className="mb-8" />
+                ) : (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+                    >
+                        <div className="glass-card p-6 rounded-3xl">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                                    <Package className="w-6 h-6 text-white" />
+                                </div>
+                                <TrendingUp className="w-5 h-5 text-purple-400" />
                             </div>
-                            <TrendingUp className="w-5 h-5 text-purple-400" />
+                            <h3 className="text-3xl font-bold mb-1">{stats.total}</h3>
+                            <p className="text-sm text-muted-foreground">Total Donations</p>
                         </div>
-                        <h3 className="text-3xl font-bold mb-1">{stats.total}</h3>
-                        <p className="text-sm text-muted-foreground">Total Donations</p>
-                    </div>
 
-                    <div className="glass-card p-6 rounded-3xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-                                <AlertCircle className="w-6 h-6 text-white" />
+                        <div className="glass-card p-6 rounded-3xl">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                                    <AlertCircle className="w-6 h-6 text-white" />
+                                </div>
+                                <Clock className="w-5 h-5 text-orange-400" />
                             </div>
-                            <Clock className="w-5 h-5 text-orange-400" />
+                            <h3 className="text-3xl font-bold mb-1">{stats.pending}</h3>
+                            <p className="text-sm text-muted-foreground">Pending</p>
                         </div>
-                        <h3 className="text-3xl font-bold mb-1">{stats.pending}</h3>
-                        <p className="text-sm text-muted-foreground">Pending</p>
-                    </div>
 
-                    <div className="glass-card p-6 rounded-3xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                                <CheckCircle className="w-6 h-6 text-white" />
+                        <div className="glass-card p-6 rounded-3xl">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                                    <CheckCircle className="w-6 h-6 text-white" />
+                                </div>
+                                <TrendingUp className="w-5 h-5 text-green-400" />
                             </div>
-                            <TrendingUp className="w-5 h-5 text-green-400" />
+                            <h3 className="text-3xl font-bold mb-1">{stats.distributed}</h3>
+                            <p className="text-sm text-muted-foreground">Distributed</p>
                         </div>
-                        <h3 className="text-3xl font-bold mb-1">{stats.distributed}</h3>
-                        <p className="text-sm text-muted-foreground">Distributed</p>
-                    </div>
 
-                    <div className="glass-card p-6 rounded-3xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-                                <Package className="w-6 h-6 text-white" />
+                        <div className="glass-card p-6 rounded-3xl">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+                                    <Package className="w-6 h-6 text-white" />
+                                </div>
+                                <TrendingUp className="w-5 h-5 text-cyan-400" />
                             </div>
-                            <TrendingUp className="w-5 h-5 text-cyan-400" />
+                            <h3 className="text-3xl font-bold mb-1">{stats.totalMeals}</h3>
+                            <p className="text-sm text-muted-foreground">Total Meals</p>
                         </div>
-                        <h3 className="text-3xl font-bold mb-1">{stats.totalMeals}</h3>
-                        <p className="text-sm text-muted-foreground">Total Meals</p>
-                    </div>
-                </motion.div>
+                    </motion.div>
+                )}
 
                 {/* Filter Buttons */}
                 <motion.div
@@ -194,9 +204,10 @@ export default function RestaurantDonations() {
                     <h2 className="text-2xl font-bold mb-6">Donation History</h2>
 
                     {loading ? (
-                        <div className="text-center py-12">
-                            <div className="w-12 h-12 border-4 border-orange-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                            <p className="text-muted-foreground">Loading donations...</p>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <CardSkeleton />
+                            <CardSkeleton />
+                            <CardSkeleton />
                         </div>
                     ) : filteredDonations.length === 0 ? (
                         <div className="text-center py-12">
@@ -258,11 +269,73 @@ export default function RestaurantDonations() {
                                             <p className="text-xs text-muted-foreground font-mono">QR: {donation.qr_code}</p>
                                         </div>
                                     )}
+
+                                    {donation.status === 'pending' && (
+                                        <button
+                                            onClick={() => setDeleteDialog({ open: true, donation })}
+                                            className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors text-sm font-medium"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                            Delete Donation
+                                        </button>
+                                    )}
                                 </motion.div>
                             ))}
                         </div>
                     )}
                 </motion.div>
+
+                {/* Delete Confirmation Dialog */}
+                <ConfirmDialog
+                    open={deleteDialog.open}
+                    onOpenChange={(open) => setDeleteDialog({ open, donation: null })}
+                    onConfirm={async () => {
+                        if (deleteDialog.donation?.id) {
+                            try {
+                                // Delete from database
+                                const { error } = await supabase
+                                    .from('food_packets')
+                                    .delete()
+                                    .eq('id', deleteDialog.donation.id);
+
+                                if (error) throw error;
+
+                                // Success: update UI and show feedback
+                                toast.success('Donation deleted successfully');
+                                confetti.deleted(); // 🎉 Subtle delete confetti
+                                setDonations(prev => prev.filter(d => d.id !== deleteDialog.donation.id));
+
+                                // Update stats
+                                setStats(prev => ({
+                                    total: prev.total - 1,
+                                    pending: deleteDialog.donation.status === 'pending' ? prev.pending - 1 : prev.pending,
+                                    distributed: deleteDialog.donation.status === 'distributed' ? prev.distributed - 1 : prev.distributed,
+                                    totalMeals: prev.totalMeals - deleteDialog.donation.quantity
+                                }));
+                            } catch (error) {
+                                console.error('Error deleting donation:', error);
+                                toast.error(error.message || 'Failed to delete donation');
+                            }
+                        }
+                        setDeleteDialog({ open: false, donation: null });
+                    }}
+                    title="Delete Donation?"
+                    description={`Are you sure you want to delete this ${deleteDialog.donation?.food_type || 'donation'}? This action cannot be undone.`}
+                    confirmText="Delete"
+                    variant="destructive"
+                    icon={<Package className="w-8 h-8" />}
+                >
+                    {deleteDialog.donation && (
+                        <div className="glass-card p-4 rounded-xl space-y-2 text-sm">
+                            <p><strong>Food Type:</strong> {deleteDialog.donation.food_type}</p>
+                            <p><strong>Quantity:</strong> {deleteDialog.donation.quantity} meals</p>
+                            <p><strong>Status:</strong> <span className="capitalize">{deleteDialog.donation.status}</span></p>
+                            {deleteDialog.donation.description && (
+                                <p><strong>Description:</strong> {deleteDialog.donation.description}</p>
+                            )}
+                        </div>
+                    )}
+                </ConfirmDialog>
             </div>
         </section>
     );

@@ -1,6 +1,6 @@
 import MagicBento from '@/components/ui/MagicBento';
 import { motion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { Sparkle } from "@phosphor-icons/react";
 
 export function FeaturesSection() {
     return (
@@ -21,7 +21,7 @@ export function FeaturesSection() {
                     className="text-center mb-16"
                 >
                     <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-4">
-                        <Sparkles className="w-4 h-4 text-purple-400" />
+                        <Sparkle className="w-4 h-4 text-purple-400" />
                         <span className="text-sm font-medium">Platform Features</span>
                     </div>
                     <h2 className="text-4xl md:text-6xl font-bold mb-4 text-white">

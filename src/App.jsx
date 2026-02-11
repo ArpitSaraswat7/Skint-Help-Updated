@@ -7,6 +7,9 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { PublicRoute } from "@/components/PublicRoute";
 import { GlobalBackground } from "@/components/GlobalBackground";
+import { CommandPalette } from "@/components/CommandPalette";
+import { lazy, Suspense } from "react";
+import "@/lib/scroll-handler"; // Import scroll optimization
 
 // Layouts
 import { CustomerLayout } from "@/layouts/CustomerLayout";
@@ -14,7 +17,7 @@ import { RestaurantLayout } from "@/layouts/RestaurantLayout";
 import { WorkerLayout } from "@/layouts/WorkerLayout";
 import { OwnerLayout } from "@/layouts/OwnerLayout";
 
-// Public Pages
+// Public Pages (loaded immediately)
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import JoinUs from "./pages/JoinUs";
@@ -23,22 +26,37 @@ import SelectRole from "./pages/SelectRole";
 import Login from "./pages/Login";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
-import HowItWorksPage from "./pages/HowItWorks";
-import ImpactPage from "./pages/Impact";
-import PublicFoodMap from "./pages/PublicFoodMap";
+import EmailConfirm from "./pages/EmailConfirm";
 
-// Protected Dashboards
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminRestaurants from "./pages/AdminRestaurants";
-import AdminWorkers from "./pages/AdminWorkers";
-import AdminAnalytics from "./pages/AdminAnalytics";
-import RestaurantDashboard from "./pages/RestaurantDashboard";
-import RestaurantDonations from "./pages/RestaurantDonations";
-import RestaurantCenters from "./pages/RestaurantCenters";
-import WorkerDashboard from "./pages/WorkerDashboard";
-import WorkerPickups from "./pages/WorkerPickups";
-import WorkerDistributions from "./pages/WorkerDistributions";
-import PublicDashboard from "./pages/PublicDashboard";
+// Lazy load heavy public pages
+const HowItWorksPage = lazy(() => import("./pages/HowItWorks"));
+const ImpactPage = lazy(() => import("./pages/Impact"));
+const PublicFoodMap = lazy(() => import("./pages/PublicFoodMap"));
+
+// Lazy load all protected dashboards (only load when needed)
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminRestaurants = lazy(() => import("./pages/AdminRestaurants"));
+const AdminWorkers = lazy(() => import("./pages/AdminWorkers"));
+const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
+const RestaurantDashboard = lazy(() => import("./pages/RestaurantDashboard"));
+const RestaurantDonations = lazy(() => import("./pages/RestaurantDonations"));
+const RestaurantCenters = lazy(() => import("./pages/RestaurantCenters"));
+const WorkerDashboard = lazy(() => import("./pages/WorkerDashboard"));
+const WorkerPickups = lazy(() => import("./pages/WorkerPickups"));
+const WorkerDistributions = lazy(() => import("./pages/WorkerDistributions"));
+const PublicDashboard = lazy(() => import("./pages/PublicDashboard"));
+
+// Loading fallback component
+const PageLoader = () => (
+    <div className="min-h-screen flex items-center justify-center">
+        <div className="glass-card p-8 rounded-2xl">
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-green-500/30 border-t-green-500 rounded-full animate-spin" />
+                <p className="text-muted-foreground">Loading...</p>
+            </div>
+        </div>
+    </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -48,6 +66,7 @@ const App = () => (
             <GlobalBackground />
             <AuthProvider>
                 <TooltipProvider>
+                    <CommandPalette />
                     <Toaster />
                     <Sonner />
                     <Routes>
@@ -56,9 +75,9 @@ const App = () => (
                             <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
                             <Route path="/join-us" element={<JoinUs />} />
                             <Route path="/contact" element={<Contact />} />
-                            <Route path="/how-it-works" element={<HowItWorksPage />} />
-                            <Route path="/impact" element={<ImpactPage />} />
-                            <Route path="/food-map" element={<PublicFoodMap />} />
+                            <Route path="/how-it-works" element={<Suspense fallback={<PageLoader />}><HowItWorksPage /></Suspense>} />
+                            <Route path="/impact" element={<Suspense fallback={<PageLoader />}><ImpactPage /></Suspense>} />
+                            <Route path="/food-map" element={<Suspense fallback={<PageLoader />}><PublicFoodMap /></Suspense>} />
                         </Route>
 
                         {/* Auth Routes */}
@@ -66,6 +85,7 @@ const App = () => (
                         <Route path="/login" element={<Login />} />
                         <Route path="/auth" element={<Navigate to="/select-role" replace />} />
                         <Route path="/auth/callback" element={<AuthCallback />} />
+                        <Route path="/auth/confirm" element={<EmailConfirm />} />
                         <Route path="/portal/:type/login" element={<Navigate to="/select-role" replace />} />
 
                         {/* Owner / Admin Portal */}
@@ -74,7 +94,9 @@ const App = () => (
                                 path="dashboard"
                                 element={
                                     <ProtectedRoute allowedRoles={['admin']}>
-                                        <AdminDashboard />
+                                        <Suspense fallback={<PageLoader />}>
+                                            <AdminDashboard />
+                                        </Suspense>
                                     </ProtectedRoute>
                                 }
                             />
@@ -82,7 +104,9 @@ const App = () => (
                                 path="restaurants"
                                 element={
                                     <ProtectedRoute allowedRoles={['admin']}>
-                                        <AdminRestaurants />
+                                        <Suspense fallback={<PageLoader />}>
+                                            <AdminRestaurants />
+                                        </Suspense>
                                     </ProtectedRoute>
                                 }
                             />
@@ -90,7 +114,9 @@ const App = () => (
                                 path="workers"
                                 element={
                                     <ProtectedRoute allowedRoles={['admin']}>
-                                        <AdminWorkers />
+                                        <Suspense fallback={<PageLoader />}>
+                                            <AdminWorkers />
+                                        </Suspense>
                                     </ProtectedRoute>
                                 }
                             />
@@ -98,7 +124,9 @@ const App = () => (
                                 path="analytics"
                                 element={
                                     <ProtectedRoute allowedRoles={['admin']}>
-                                        <AdminAnalytics />
+                                        <Suspense fallback={<PageLoader />}>
+                                            <AdminAnalytics />
+                                        </Suspense>
                                     </ProtectedRoute>
                                 }
                             />
@@ -113,7 +141,9 @@ const App = () => (
                                 path="dashboard"
                                 element={
                                     <ProtectedRoute allowedRoles={['restaurant', 'admin']}>
-                                        <RestaurantDashboard />
+                                        <Suspense fallback={<PageLoader />}>
+                                            <RestaurantDashboard />
+                                        </Suspense>
                                     </ProtectedRoute>
                                 }
                             />
@@ -121,7 +151,9 @@ const App = () => (
                                 path="donations"
                                 element={
                                     <ProtectedRoute allowedRoles={['restaurant', 'admin']}>
-                                        <RestaurantDonations />
+                                        <Suspense fallback={<PageLoader />}>
+                                            <RestaurantDonations />
+                                        </Suspense>
                                     </ProtectedRoute>
                                 }
                             />
@@ -129,7 +161,9 @@ const App = () => (
                                 path="centers"
                                 element={
                                     <ProtectedRoute allowedRoles={['restaurant', 'admin']}>
-                                        <RestaurantCenters />
+                                        <Suspense fallback={<PageLoader />}>
+                                            <RestaurantCenters />
+                                        </Suspense>
                                     </ProtectedRoute>
                                 }
                             />
@@ -141,7 +175,9 @@ const App = () => (
                                 path="dashboard"
                                 element={
                                     <ProtectedRoute allowedRoles={['worker', 'admin']}>
-                                        <WorkerDashboard />
+                                        <Suspense fallback={<PageLoader />}>
+                                            <WorkerDashboard />
+                                        </Suspense>
                                     </ProtectedRoute>
                                 }
                             />
@@ -149,7 +185,9 @@ const App = () => (
                                 path="pickups"
                                 element={
                                     <ProtectedRoute allowedRoles={['worker', 'admin']}>
-                                        <WorkerPickups />
+                                        <Suspense fallback={<PageLoader />}>
+                                            <WorkerPickups />
+                                        </Suspense>
                                     </ProtectedRoute>
                                 }
                             />
@@ -157,7 +195,9 @@ const App = () => (
                                 path="distributions"
                                 element={
                                     <ProtectedRoute allowedRoles={['worker', 'admin']}>
-                                        <WorkerDistributions />
+                                        <Suspense fallback={<PageLoader />}>
+                                            <WorkerDistributions />
+                                        </Suspense>
                                     </ProtectedRoute>
                                 }
                             />
@@ -169,7 +209,9 @@ const App = () => (
                                 path="dashboard"
                                 element={
                                     <ProtectedRoute allowedRoles={['public', 'customer', 'admin']}>
-                                        <PublicDashboard />
+                                        <Suspense fallback={<PageLoader />}>
+                                            <PublicDashboard />
+                                        </Suspense>
                                     </ProtectedRoute>
                                 }
                             />

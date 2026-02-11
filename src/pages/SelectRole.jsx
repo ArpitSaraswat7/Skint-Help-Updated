@@ -48,10 +48,10 @@ export default function SelectRole() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0a0a0a]">
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0a0a0a] noise-overlay">
             {/* Animated background particles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(20)].map((_, i) => (
+                {[...Array(8)].map((_, i) => (
                     <motion.div
                         key={i}
                         className="absolute w-2 h-2 rounded-full bg-white/10"
@@ -74,8 +74,8 @@ export default function SelectRole() {
             </div>
 
             {/* Gradient orbs */}
-            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-green-500/10 rounded-full blur-[100px] animate-pulse pointer-events-none" />
-            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px] animate-pulse delay-1000 pointer-events-none" />
+            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-green-500/10 rounded-full blur-xl animate-pulse pointer-events-none" />
+            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-xl animate-pulse delay-1000 pointer-events-none" />
 
             {/* Floating Home Button */}
             <motion.button
@@ -108,7 +108,7 @@ export default function SelectRole() {
                             </span>
                         </motion.div>
                         <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white tracking-tight">
-                            Choose Your <span className="text-[#F6CE71]">Portal</span>
+                            Choose Your <span className="text-[#DBEBC0] text-glow">Portal</span>
                         </h1>
                         <p className="text-xl text-white/50 max-w-2xl mx-auto font-light">
                             Select your role to access the dedicated dashboard and tools.
@@ -133,6 +133,7 @@ export default function SelectRole() {
                     relative h-full p-8 rounded-3xl border border-white/10 
                     backdrop-blur-xl bg-black/40 overflow-hidden transition-all duration-500
                     ${portal.glow} hover:border-white/20 hover:bg-white/5
+                    gradient-border gradient-border-animated
                   `}>
                                         {/* Hover Gradient Background */}
                                         <div className={`
@@ -164,7 +165,7 @@ export default function SelectRole() {
                         ))}
                     </div>
                 </motion.div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

@@ -17,7 +17,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Heart, CreditCard, Banknote, Gift } from "lucide-react";
+import { Heart, CreditCard, Money, Gift } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
 const donationAmounts = [
@@ -109,7 +109,7 @@ export function DonationForm() {
                         </Select>
                         {isCustomAmount && (
                             <div className="relative">
-                                <Banknote className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                <Money className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                 <Input
                                     type="number"
                                     placeholder="Enter amount"

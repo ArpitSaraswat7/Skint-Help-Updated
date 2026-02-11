@@ -8,15 +8,18 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, Settings } from "lucide-react";
+import { User, SignOut, Gear } from "@phosphor-icons/react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export function UserMenu() {
     const { user, profile, signOut } = useAuth();
+    const navigate = useNavigate();
 
     const handleSignOut = async () => {
         try {
             await signOut();
+            navigate('/select-role', { replace: true });
             toast.success("Signed out successfully");
         } catch (error) {
             toast.error("Failed to sign out");
@@ -49,12 +52,12 @@ export function UserMenu() {
                     <span>Profile</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
+                    <Gear className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
+                    <SignOut className="mr-2 h-4 w-4" />
                     <span>Sign out</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>

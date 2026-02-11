@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkle } from "@phosphor-icons/react";
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
@@ -19,7 +19,7 @@ export function CtaSection() {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
-                    className="glass-card rounded-3xl p-8 md:p-16 text-center relative overflow-hidden"
+                    className="glass-premium gradient-border gradient-border-animated rounded-3xl p-8 md:p-16 text-center relative overflow-hidden"
                 >
                     {/* Gradient overlay */}
                     <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-transparent to-orange-500/10 pointer-events-none" />
@@ -39,7 +39,7 @@ export function CtaSection() {
                                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                                 className="w-20 h-20 rounded-2xl glass-card flex items-center justify-center neon-glow"
                             >
-                                <Sparkles className="w-10 h-10 text-green-400" />
+                                <Sparkle className="w-10 h-10 text-green-400" />
                             </motion.div>
                         </motion.div>
 
@@ -52,7 +52,7 @@ export function CtaSection() {
                             className="text-4xl md:text-6xl font-bold mb-6"
                         >
                             Ready to Make a{' '}
-                            <span className="gradient-text">Difference?</span>
+                            <span className="gradient-text text-glow">Difference?</span>
                         </motion.h2>
 
                         {/* Description */}
@@ -74,15 +74,15 @@ export function CtaSection() {
                             transition={{ delay: 0.5 }}
                             className="grid grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto"
                         >
-                            <div className="glass-card p-4 rounded-xl">
+                            <div className="glass-card p-4 rounded-xl soft-glow-hover transition-all duration-300 hover-lift">
                                 <div className="text-3xl font-bold gradient-text">50K+</div>
                                 <div className="text-sm text-muted-foreground">Meals Saved</div>
                             </div>
-                            <div className="glass-card p-4 rounded-xl">
+                            <div className="glass-card p-4 rounded-xl soft-glow-hover transition-all duration-300 hover-lift">
                                 <div className="text-3xl font-bold gradient-text">500+</div>
                                 <div className="text-sm text-muted-foreground">Partners</div>
                             </div>
-                            <div className="glass-card p-4 rounded-xl">
+                            <div className="glass-card p-4 rounded-xl soft-glow-hover transition-all duration-300 hover-lift">
                                 <div className="text-3xl font-bold gradient-text">25</div>
                                 <div className="text-sm text-muted-foreground">Cities</div>
                             </div>

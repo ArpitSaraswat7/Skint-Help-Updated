@@ -1,6 +1,6 @@
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
-import { Check, ChevronDown, ChevronUp } from "lucide-react"
+import { Check, CaretDown, CaretUp } from "@phosphor-icons/react"
 
 import { cn } from "@/lib/utils"
 
@@ -21,7 +21,7 @@ const SelectTrigger = React.forwardRef(({ className, children, ...props }, ref) 
     >
         {children}
         <SelectPrimitive.Icon asChild>
-            <ChevronDown className="h-4 w-4 opacity-50" />
+            <CaretDown className="h-4 w-4 opacity-50" />
         </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
 ))
@@ -36,7 +36,7 @@ const SelectScrollUpButton = React.forwardRef(({ className, ...props }, ref) => 
         )}
         {...props}
     >
-        <ChevronUp className="h-4 w-4" />
+        <CaretUp className="h-4 w-4" />
     </SelectPrimitive.ScrollUpButton>
 ))
 SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName
@@ -50,7 +50,7 @@ const SelectScrollDownButton = React.forwardRef(({ className, ...props }, ref) =
         )}
         {...props}
     >
-        <ChevronDown className="h-4 w-4" />
+        <CaretDown className="h-4 w-4" />
     </SelectPrimitive.ScrollDownButton>
 ))
 SelectScrollDownButton.displayName =

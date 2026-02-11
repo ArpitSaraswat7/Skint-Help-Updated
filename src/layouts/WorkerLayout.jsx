@@ -1,12 +1,20 @@
-import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { Briefcase, LogOut, LayoutDashboard, Truck, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSignOut } from "@/hooks/useSignOut";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { useState } from "react";
+import { usePresence } from "@/hooks/usePresence";
 
 export function WorkerLayout() {
-    const { signOut, profile } = useAuth();
     const location = useLocation();
-    const navigate = useNavigate();
+    const { profile } = useAuth();
+    const handleSignOut = useSignOut();
+    const [showSignOutDialog, setShowSignOutDialog] = useState(false);
+
+    // Track presence (online/offline status)
+    usePresence();
 
     const sidebarLinks = [
         { icon: LayoutDashboard, label: "Dashboard", path: "/worker/dashboard" },
@@ -68,10 +76,7 @@ export function WorkerLayout() {
                     <Button
                         variant="ghost"
                         className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-300"
-                        onClick={async () => {
-                            await signOut();
-                            navigate('/select-role');
-                        }}
+                        onClick={() => setShowSignOutDialog(true)}
                     >
                         <LogOut className="w-5 h-5 mr-3" />
                         Sign Out
@@ -83,6 +88,19 @@ export function WorkerLayout() {
             <main className="flex-1 ml-64 relative z-10">
                 <Outlet />
             </main>
+
+            {/* Sign Out Confirmation Dialog */}
+            <ConfirmDialog
+                open={showSignOutDialog}
+                onOpenChange={setShowSignOutDialog}
+                onConfirm={handleSignOut}
+                title="Sign Out?"
+                description="Are you sure you want to sign out of your account?"
+                confirmText="Sign Out"
+                cancelText="Cancel"
+                variant="destructive"
+                icon={<LogOut className="w-8 h-8" />}
+            />
         </div>
     );
 }

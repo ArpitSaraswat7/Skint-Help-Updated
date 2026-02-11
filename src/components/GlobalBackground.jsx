@@ -5,13 +5,13 @@ export function GlobalBackground() {
         <div className="fixed inset-0 w-full h-screen z-0" style={{ pointerEvents: 'none', opacity: 0.8 }}>
             <FloatingLines
                 enabledWaves={["top", "middle", "bottom"]}
-                lineCount={10}
+                lineCount={6}  // Reduced from 10 to 6 for better performance
                 lineDistance={12}
                 bendRadius={5}
                 bendStrength={-0.5}
                 interactive={false}
                 parallax={true}
-                animationSpeed={1.2}
+                animationSpeed={0.8}  // Reduced from 1.2 to 0.8 for smoother performance
                 mixBlendMode="screen"
                 linesGradient={[
                     "#22c55e", // brighter green

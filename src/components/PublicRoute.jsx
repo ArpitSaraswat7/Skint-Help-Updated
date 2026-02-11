@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { CircleNotch } from '@phosphor-icons/react';
 
 export function PublicRoute({ children }) {
     const { user, profile, loading } = useAuth();
@@ -9,7 +9,7 @@ export function PublicRoute({ children }) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
-                    <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-green-400" />
+                    <CircleNotch className="w-12 h-12 animate-spin mx-auto mb-4 text-green-400" />
                     <p className="text-muted-foreground">Loading...</p>
                 </div>
             </div>

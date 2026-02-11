@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Utensils, Users, MapPin, ArrowRight, Heart } from 'lucide-react';
+import { ForkKnife, UsersThree, MapPin, ArrowRight, Heart } from "@phosphor-icons/react";
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import ElectricBorder from '@/components/ui/ElectricBorder';
@@ -7,7 +7,7 @@ import ElectricBorder from '@/components/ui/ElectricBorder';
 export function PortalSection() {
     const portals = [
         {
-            icon: <Utensils className="w-8 h-8" />,
+            icon: <ForkKnife className="w-8 h-8" />,
             title: 'Restaurant Portal',
             description: 'Manage donations, schedule pickups, and track your impact',
             color: 'from-orange-500 to-red-500',
@@ -16,7 +16,7 @@ export function PortalSection() {
             link: '/join-us',
         },
         {
-            icon: <Users className="w-8 h-8" />,
+            icon: <UsersThree className="w-8 h-8" />,
             title: 'Volunteer Portal',
             description: 'Find delivery routes, log hours, and see your contribution',
             color: 'from-green-500 to-emerald-500',

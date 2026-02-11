@@ -1,11 +1,13 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger";
+import { ENV } from "@/lib/env";
 
 const AuthContext = createContext(undefined);
 
-// DEMO ACCOUNTS - Only available in development mode for security
-export const DEMO_ACCOUNTS = import.meta.env.DEV ? {
+// DEMO ACCOUNTS - Only available when explicitly enabled
+export const DEMO_ACCOUNTS = ENV.ENABLE_DEMO_MODE ? {
     'admin@skinthelp.com': {
         password: 'admin123',
         profile: {
@@ -54,6 +56,7 @@ export function AuthProvider({ children }) {
     const [profile, setProfile] = useState(null);
     const [session, setSession] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [emailConfirmed, setEmailConfirmed] = useState(true);
 
     useEffect(() => {
         const abortController = new AbortController();
@@ -74,7 +77,7 @@ export function AuthProvider({ children }) {
                 setLoading(false);
                 // Don't return early - continue to register auth listener
             } catch (e) {
-                console.error('Failed to restore demo session:', e);
+                logger.error('Failed to restore demo session:', e);
                 localStorage.removeItem('demo_mode');
                 localStorage.removeItem('demo_profile');
             }
@@ -84,14 +87,21 @@ export function AuthProvider({ children }) {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (abortController.signal.aborted) return;
 
+            logger.debug('Auth state changed:', event, session?.user?.email);
+
             setSession(session);
             setUser(session?.user ?? null);
 
             if (session?.user) {
+                // Check email confirmation status
+                const isConfirmed = session.user.email_confirmed_at !== null;
+                setEmailConfirmed(isConfirmed);
+
                 // Fetch profile
                 await fetchProfile(session.user);
             } else {
                 setProfile(null);
+                setEmailConfirmed(true);
             }
             setLoading(false);
         });
@@ -102,33 +112,60 @@ export function AuthProvider({ children }) {
         };
     }, []);
 
-    const fetchProfile = async (currentUser) => {
+    const fetchProfile = async (currentUser, retryCount = 0) => {
         try {
             // First try to get from user_metadata (most reliable for simple role storage)
             const metaRole = currentUser.user_metadata?.role;
             const metaName = currentUser.user_metadata?.name;
 
+            logger.debug('Fetching profile for user:', currentUser.email, 'Role:', metaRole);
+
             if (metaRole) {
-                setProfile({
+                const userProfile = {
                     id: currentUser.id,
                     email: currentUser.email,
-                    name: metaName,
+                    name: metaName || currentUser.email?.split('@')[0],
                     role: metaRole,
                     // Add other fields if stored in metadata
-                });
+                };
+                setProfile(userProfile);
+                logger.debug('Profile set:', userProfile);
                 return;
             }
 
-            // If not in metadata, could fetch from a 'profiles' table if it existed
-            // For now, we'll default to 'public' if no role is found
-            setProfile({
+            // If no role in metadata and this is a new user, retry a few times
+            // (metadata might not be immediately available)
+            if (retryCount < 3) {
+                logger.debug(`No role found, retrying... (${retryCount + 1}/3)`);
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Refresh user data
+                const { data: { user: refreshedUser } } = await supabase.auth.getUser();
+                if (refreshedUser) {
+                    await fetchProfile(refreshedUser, retryCount + 1);
+                    return;
+                }
+            }
+
+            // If still no role after retries, default to 'public'
+            logger.debug('No role found after retries, defaulting to public');
+            const defaultProfile = {
                 id: currentUser.id,
                 email: currentUser.email,
+                name: currentUser.email?.split('@')[0],
                 role: 'public',
-            });
+            };
+            setProfile(defaultProfile);
 
         } catch (error) {
             console.error("Error fetching profile:", error);
+            // Set a default profile even on error with all required fields
+            setProfile({
+                id: currentUser.id,
+                email: currentUser.email,
+                name: currentUser.email?.split('@')[0] || '',
+                role: 'public',
+            });
         }
     };
 
@@ -182,13 +219,25 @@ export function AuthProvider({ children }) {
                         role: userData?.role || 'public',
                         name: userData?.name || email.split('@')[0],
                         ...userData // store other custom data in metadata
-                    }
+                    },
+                    emailRedirectTo: `${window.location.origin}/auth/callback`
                 }
             });
 
             if (error) throw error;
 
-            if (data.user) {
+            // Check if email confirmation is required
+            if (data.user && !data.session) {
+                // Email confirmation required
+                setEmailConfirmed(false);
+                const error = new Error('Please check your email to confirm your account before signing in.');
+                error.code = 'EMAIL_CONFIRMATION_REQUIRED';
+                throw error;
+            }
+
+            if (data.user && data.session) {
+                // Auto-login successful (email confirmation disabled)
+                setEmailConfirmed(true);
                 // Profile update will be handled by onAuthStateChange
             }
 
@@ -201,7 +250,6 @@ export function AuthProvider({ children }) {
     };
 
     const signOut = async () => {
-        setLoading(true);
         try {
             await supabase.auth.signOut();
 
@@ -210,14 +258,19 @@ export function AuthProvider({ children }) {
             localStorage.removeItem('demo_profile');
             localStorage.removeItem('selectedRole');
             localStorage.removeItem('pendingRole');
+
+            // Clear state
             setProfile(null);
             setUser(null);
             setSession(null);
+            setLoading(false);
+
+            // Navigation will be handled by the calling component
+            // This prevents breaking browser history
         } catch (error) {
             console.error('Sign out error:', error);
-            throw new Error('Failed to sign out');
-        } finally {
             setLoading(false);
+            throw new Error('Failed to sign out');
         }
     };
 
@@ -323,6 +376,7 @@ export function AuthProvider({ children }) {
             profile,
             session,
             loading,
+            emailConfirmed,
             signIn,
             signUp,
             signInWithGoogle,

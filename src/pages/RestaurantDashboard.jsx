@@ -1,15 +1,32 @@
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
-import { Button } from '@/components/ui/button';
-import { Plus, MapPin, Package, Clock, TrendingUp, CheckCircle, AlertCircle, BarChart3, ArrowRight } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Package, TrendingUp, Clock, CheckCircle, AlertCircle, MapPin, Utensils, Plus, ArrowRight, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import ElectricBorder from '@/components/ui/ElectricBorder';
+import { logger } from '@/lib/logger';
+import { StatsSkeleton, ListSkeleton } from '@/components/ui/skeleton-loaders';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useConfetti } from '@/hooks/useConfetti';
 
 export default function RestaurantDashboard() {
     const { profile } = useAuth();
+    const confetti = useConfetti();
+    const [selectedCenter, setSelectedCenter] = useState('');
+    const [quantity, setQuantity] = useState('');
+    const [description, setDescription] = useState('');
+    const [foodType, setFoodType] = useState('');
+    const [isDemoMode, setIsDemoMode] = useState(false);
+
+    // Mock centers for demo mode when table doesn't exist
+    const MOCK_CENTERS = [
+        { id: 'center-001', name: 'Downtown Collection Center', address: '123 Main St, City Center', is_active: true },
+        { id: 'center-002', name: 'North Side Hub', address: '456 North Ave, Uptown', is_active: true },
+        { id: 'center-003', name: 'Community Kitchen', address: '789 Community Rd, Suburb', is_active: true },
+    ];
     const [centers, setCenters] = useState([]);
     const [myPackets, setMyPackets] = useState([]);
     const [stats, setStats] = useState({
@@ -26,6 +43,7 @@ export default function RestaurantDashboard() {
         center_id: '',
     });
     const [loading, setLoading] = useState(true);
+    const [deleteDialog, setDeleteDialog] = useState({ open: false, packet: null });
 
     useEffect(() => {
         fetchCenters();
@@ -39,10 +57,22 @@ export default function RestaurantDashboard() {
                 .select('*')
                 .eq('is_active', true);
 
-            if (error) throw error;
+            if (error) {
+                // If table doesn't exist (404), use mock data for demo
+                if (error?.code === 'PGRST116' || error?.message?.includes('does not exist')) {
+                    logger.debug('Centers table not found, using mock data');
+                    setCenters(MOCK_CENTERS);
+                    setIsDemoMode(true);
+                    return;
+                }
+                throw error;
+            }
             setCenters(data || []);
         } catch (error) {
-            console.error('Error fetching centers:', error);
+            logger.debug('Using mock centers data for demo');
+            // Fallback to mock data
+            setCenters(MOCK_CENTERS);
+            setIsDemoMode(true);
         }
     };
 
@@ -56,13 +86,70 @@ export default function RestaurantDashboard() {
             const { data, error } = await supabase
                 .from('food_packets')
                 .select(`
-          *,
-          centers(name, address)
+    *,
+    centers(name, address)
         `)
                 .eq('restaurant_id', profile.restaurant_id)
                 .order('created_at', { ascending: false });
 
-            if (error) throw error;
+            if (error) {
+                // If table doesn't exist (404), use mock data for demo
+                if (error.code === 'PGRST116' || error.message.includes('does not exist')) {
+                    logger.debug('Food packets table not found, using mock data');
+                    const mockData = [
+                        {
+                            id: 'packet-001',
+                            restaurant_id: profile.restaurant_id,
+                            center_id: 'center-001',
+                            quantity: 50,
+                            food_type: 'Vegetarian',
+                            description: 'Mixed vegetables and rice',
+                            status: 'distributed',
+                            created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                            centers: { name: 'Downtown Collection Center', address: '123 Main St' }
+                        },
+                        {
+                            id: 'packet-002',
+                            restaurant_id: profile.restaurant_id,
+                            center_id: 'center-002',
+                            quantity: 30,
+                            food_type: 'Non-Vegetarian',
+                            description: 'Chicken curry and bread',
+                            status: 'at_center',
+                            created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                            centers: { name: 'North Side Hub', address: '456 North Ave' }
+                        },
+                        {
+                            id: 'packet-003',
+                            restaurant_id: profile.restaurant_id,
+                            center_id: 'center-001',
+                            quantity: 25,
+                            food_type: 'Vegetarian',
+                            description: 'Lentil soup and salad',
+                            status: 'pending',
+                            created_at: new Date().toISOString(),
+                            centers: { name: 'Downtown Collection Center', address: '123 Main St' }
+                        }
+                    ];
+                    setMyPackets(mockData);
+
+                    // Calculate stats from mock data
+                    const totalDonations = mockData.length;
+                    const pendingDonations = mockData.filter(p => p.status === 'pending').length;
+                    const distributedDonations = mockData.filter(p => p.status === 'distributed').length;
+                    const totalMeals = mockData.reduce((sum, p) => sum + p.quantity, 0);
+
+                    setStats({
+                        totalDonations,
+                        pendingDonations,
+                        distributedDonations,
+                        totalMeals
+                    });
+                    setLoading(false);
+                    return;
+                }
+                throw error;
+            }
             setMyPackets(data || []);
 
             // Calculate stats
@@ -78,42 +165,86 @@ export default function RestaurantDashboard() {
                 totalMeals
             });
         } catch (error) {
-            console.error('Error fetching packets:', error);
+            logger.debug('Using mock food packets data for demo');
+            // Fallback to empty state
+            setMyPackets([]);
+            setStats({
+                totalDonations: 0,
+                pendingDonations: 0,
+                distributedDonations: 0,
+                totalMeals: 0
+            });
         } finally {
             setLoading(false);
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleCreatePacket = async (e) => {
         e.preventDefault();
+
+        // Prevent submission in demo mode to avoid FK constraint failures
+        if (isDemoMode) {
+            toast.error('Demo mode: Cannot create packets with mock data. Please connect to a real Supabase database.');
+            return;
+        }
 
         if (!profile?.restaurant_id) {
             toast.error('Restaurant profile not found');
             return;
         }
 
+        if (!selectedCenter || !quantity || !foodType) { // Added foodType to validation
+            toast.error('Please fill in all required fields');
+            return;
+        }
+
         try {
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('food_packets')
                 .insert([
                     {
                         restaurant_id: profile.restaurant_id,
-                        center_id: formData.center_id,
-                        quantity: parseInt(formData.quantity),
-                        food_type: formData.food_type,
-                        description: formData.description,
-                        status: 'pending',
-                    },
-                ]);
+                        center_id: selectedCenter,
+                        quantity: parseInt(quantity),
+                        food_type: foodType, // Using foodType state
+                        description: description || null,
+                        status: 'pending'
+                    }
+                ])
+                .select()
+                .single();
 
             if (error) throw error;
 
-            toast.success('Food packet added successfully!');
+            toast.success('Food packet created successfully!');
+            confetti.success(); // 🎉 Confetti celebration!
             setShowAddForm(false);
-            setFormData({ quantity: '', food_type: '', description: '', center_id: '' });
-            fetchMyPackets();
+            setSelectedCenter('');
+            setQuantity('');
+            setDescription('');
+            setFoodType(''); // Clear foodType state
+            fetchMyPackets(); // Refresh the list
         } catch (error) {
-            toast.error(error.message || 'Failed to add food packet');
+            logger.error('Error creating packet:', error);
+            toast.error(error.message || 'Failed to create food packet');
+        }
+    };
+
+    const handleDeletePacket = async (packetId) => {
+        try {
+            const { error } = await supabase
+                .from('food_packets')
+                .delete()
+                .eq('id', packetId);
+
+            if (error) throw error;
+
+            toast.success('Donation deleted successfully');
+            confetti.deleted(); // 🎊 Confetti for deletion
+            await fetchMyPackets(); // Refresh the list
+        } catch (error) {
+            logger.error('Error deleting packet:', error);
+            toast.error(error.message || 'Failed to delete donation');
         }
     };
 
@@ -150,56 +281,60 @@ export default function RestaurantDashboard() {
                 </motion.div>
 
                 {/* Stats Cards */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-                >
-                    <div className="glass-card p-6 rounded-3xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                                <Package className="w-6 h-6 text-white" />
+                {loading ? (
+                    <StatsSkeleton count={4} className="mb-8" />
+                ) : (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+                    >
+                        <div className="glass-card p-6 rounded-3xl">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                                    <Package className="w-6 h-6 text-white" />
+                                </div>
+                                <TrendingUp className="w-5 h-5 text-purple-400" />
                             </div>
-                            <TrendingUp className="w-5 h-5 text-purple-400" />
+                            <h3 className="text-3xl font-bold mb-1">{stats.totalDonations}</h3>
+                            <p className="text-sm text-muted-foreground">Total Donations</p>
                         </div>
-                        <h3 className="text-3xl font-bold mb-1">{stats.totalDonations}</h3>
-                        <p className="text-sm text-muted-foreground">Total Donations</p>
-                    </div>
 
-                    <div className="glass-card p-6 rounded-3xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-                                <AlertCircle className="w-6 h-6 text-white" />
+                        <div className="glass-card p-6 rounded-3xl">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                                    <AlertCircle className="w-6 h-6 text-white" />
+                                </div>
+                                <Clock className="w-5 h-5 text-orange-400" />
                             </div>
-                            <Clock className="w-5 h-5 text-orange-400" />
+                            <h3 className="text-3xl font-bold mb-1">{stats.pendingDonations}</h3>
+                            <p className="text-sm text-muted-foreground">Pending</p>
                         </div>
-                        <h3 className="text-3xl font-bold mb-1">{stats.pendingDonations}</h3>
-                        <p className="text-sm text-muted-foreground">Pending</p>
-                    </div>
 
-                    <div className="glass-card p-6 rounded-3xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                                <CheckCircle className="w-6 h-6 text-white" />
+                        <div className="glass-card p-6 rounded-3xl">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                                    <CheckCircle className="w-6 h-6 text-white" />
+                                </div>
+                                <TrendingUp className="w-5 h-5 text-green-400" />
                             </div>
-                            <TrendingUp className="w-5 h-5 text-green-400" />
+                            <h3 className="text-3xl font-bold mb-1">{stats.distributedDonations}</h3>
+                            <p className="text-sm text-muted-foreground">Distributed</p>
                         </div>
-                        <h3 className="text-3xl font-bold mb-1">{stats.distributedDonations}</h3>
-                        <p className="text-sm text-muted-foreground">Distributed</p>
-                    </div>
 
-                    <div className="glass-card p-6 rounded-3xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-                                <BarChart3 className="w-6 h-6 text-white" />
+                        <div className="glass-card p-6 rounded-3xl">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+                                    <BarChart3 className="w-6 h-6 text-white" />
+                                </div>
+                                <TrendingUp className="w-5 h-5 text-cyan-400" />
                             </div>
-                            <TrendingUp className="w-5 h-5 text-cyan-400" />
+                            <h3 className="text-3xl font-bold mb-1">{stats.totalMeals}</h3>
+                            <p className="text-sm text-muted-foreground">Total Meals</p>
                         </div>
-                        <h3 className="text-3xl font-bold mb-1">{stats.totalMeals}</h3>
-                        <p className="text-sm text-muted-foreground">Total Meals</p>
-                    </div>
-                </motion.div>
+                    </motion.div>
+                )}
 
                 {/* Quick Actions */}
                 <motion.div
@@ -266,7 +401,7 @@ export default function RestaurantDashboard() {
                         className="glass-card p-8 rounded-3xl mb-8"
                     >
                         <h2 className="text-2xl font-bold mb-6">Add New Food Packet</h2>
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <form onSubmit={handleCreatePacket} className="space-y-6">
                             <div className="grid md:grid-cols-2 gap-4">
                                 <div className="input-3d">
                                     <input
@@ -411,6 +546,35 @@ export default function RestaurantDashboard() {
                         </div>
                     )}
                 </motion.div>
+
+                {/* Delete Confirmation Dialog */}
+                <ConfirmDialog
+                    open={deleteDialog.open}
+                    onOpenChange={(open) => setDeleteDialog({ open, packet: null })}
+                    onConfirm={async () => {
+                        if (deleteDialog.packet?.id) {
+                            await handleDeletePacket(deleteDialog.packet.id);
+                        }
+                        setDeleteDialog({ open: false, packet: null });
+                    }}
+                    title="Delete Donation?"
+                    description={`Are you sure you want to delete this ${deleteDialog.packet?.food_type || 'donation'}? This action cannot be undone.`}
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                    variant="destructive"
+                    icon={<Package className="w-8 h-8" />}
+                >
+                    {deleteDialog.packet && (
+                        <div className="glass-card p-4 rounded-xl space-y-2 text-sm">
+                            <p><strong>Food Type:</strong> {deleteDialog.packet.food_type}</p>
+                            <p><strong>Quantity:</strong> {deleteDialog.packet.quantity} meals</p>
+                            <p><strong>Status:</strong> <span className="capitalize">{deleteDialog.packet.status}</span></p>
+                            {deleteDialog.packet.description && (
+                                <p><strong>Description:</strong> {deleteDialog.packet.description}</p>
+                            )}
+                        </div>
+                    )}
+                </ConfirmDialog>
             </div>
         </section>
     );

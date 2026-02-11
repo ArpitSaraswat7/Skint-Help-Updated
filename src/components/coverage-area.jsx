@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, Users, Utensils, Clock, ArrowRight } from "lucide-react";
+import { MapPin, UsersThree, ForkKnife, Clock, ArrowRight } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
+import { ENV } from "@/lib/env";
 
 // Sample data - In a real app, this would come from your backend
 const coverageAreas = [
@@ -81,7 +82,7 @@ export function CoverageArea() {
                         ) : (
                             <div className="h-[400px] relative">
                                 <iframe
-                                    src={`https://www.google.com/maps/embed/v1/place?key=YOUR_GOOGLE_MAPS_API_KEY&q=${selectedArea.coordinates.lat},${selectedArea.coordinates.lng}&zoom=12`}
+                                    src={`https://www.google.com/maps/embed/v1/place?key=${ENV.GOOGLE_MAPS_API_KEY}&q=${selectedArea.coordinates.lat},${selectedArea.coordinates.lng}&zoom=12`}
                                     className="w-full h-full rounded-lg shadow-lg"
                                     style={{ border: 0 }}
                                     allowFullScreen
@@ -108,8 +109,8 @@ export function CoverageArea() {
                             >
                                 <Card
                                     className={`p-6 cursor-pointer transition-all duration-300 hover:shadow-lg ${selectedArea.id === area.id
-                                            ? "border-2 border-skint-green-500"
-                                            : "hover:border-skint-green-200"
+                                        ? "border-2 border-skint-green-500"
+                                        : "hover:border-skint-green-200"
                                         }`}
                                     onClick={() => setSelectedArea(area)}
                                 >
@@ -123,13 +124,13 @@ export function CoverageArea() {
                                             </div>
                                             <div className="grid grid-cols-3 gap-4">
                                                 <div className="flex items-center gap-2">
-                                                    <Users className="h-4 w-4 text-gray-500" />
+                                                    <UsersThree className="h-4 w-4 text-gray-500" />
                                                     <span className="text-sm text-gray-600">
                                                         {area.activeVolunteers} Volunteers
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <Utensils className="h-4 w-4 text-gray-500" />
+                                                    <ForkKnife className="h-4 w-4 text-gray-500" />
                                                     <span className="text-sm text-gray-600">
                                                         {area.mealsDelivered} Meals
                                                     </span>
@@ -174,7 +175,7 @@ export function CoverageArea() {
                                 <p className="text-sm opacity-80">Active Volunteers</p>
                                 <h3 className="text-2xl font-bold mt-1">695+</h3>
                             </div>
-                            <Users className="h-8 w-8 opacity-80" />
+                            <UsersThree className="h-8 w-8 opacity-80" />
                         </div>
                     </Card>
                     <Card className="p-6 bg-gradient-to-r from-purple-500 to-purple-600 text-white">
@@ -183,7 +184,7 @@ export function CoverageArea() {
                                 <p className="text-sm opacity-80">Meals Delivered</p>
                                 <h3 className="text-2xl font-bold mt-1">37,000+</h3>
                             </div>
-                            <Utensils className="h-8 w-8 opacity-80" />
+                            <ForkKnife className="h-8 w-8 opacity-80" />
                         </div>
                     </Card>
                 </div>

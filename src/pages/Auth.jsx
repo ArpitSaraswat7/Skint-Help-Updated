@@ -33,12 +33,27 @@ export default function Auth() {
 
         try {
             if (isSignUp) {
-                await signUp(email, password, { role: selectedPortal || 'public' });
-                toast.success('Account created! Please sign in.');
-                setIsSignUp(false);
+                try {
+                    await signUp(email, password, { role: selectedPortal || 'public' });
+                    // If we get here, signup was successful and email confirmation is disabled
+                    toast.success('Account created successfully! You can now sign in.');
+                    setIsSignUp(false);
+                    setPassword(''); // Clear password for security
+                } catch (signupError) {
+                    // Check if it's an email confirmation error using stable code
+                    if (signupError.code === 'EMAIL_CONFIRMATION_REQUIRED') {
+                        toast.info(signupError.message, { duration: 6000 });
+                        toast.info('After confirming, return here to sign in.', { duration: 6000 });
+                        setIsSignUp(false);
+                        setPassword(''); // Clear password
+                    } else {
+                        throw signupError;
+                    }
+                }
             } else {
                 await signIn(email, password);
                 toast.success('Welcome back!');
+                // Navigation will be handled by AuthContext
             }
         } catch (error) {
             toast.error(error.message || 'Authentication failed');
@@ -126,7 +141,7 @@ export default function Auth() {
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0a0a0a]">
             {/* Animated background particles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(20)].map((_, i) => (
+                {[...Array(8)].map((_, i) => (
                     <motion.div
                         key={i}
                         className="absolute w-2 h-2 rounded-full bg-white/10"
@@ -149,8 +164,8 @@ export default function Auth() {
             </div>
 
             {/* Gradient orbs */}
-            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-green-500/10 rounded-full blur-[100px] animate-pulse pointer-events-none" />
-            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px] animate-pulse delay-1000 pointer-events-none" />
+            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-green-500/10 rounded-full blur-xl animate-pulse pointer-events-none" />
+            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-xl animate-pulse delay-1000 pointer-events-none" />
 
             <div className="container mx-auto px-4 relative z-10">
                 <AnimatePresence mode="wait">
@@ -176,7 +191,7 @@ export default function Auth() {
                                     </span>
                                 </motion.div>
                                 <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white tracking-tight">
-                                    Choose Your <span className="text-[#F6CE71]">Portal</span>
+                                    Choose Your <span className="text-[#DBEBC0]">Portal</span>
                                 </h1>
                                 <p className="text-xl text-white/50 max-w-2xl mx-auto font-light">
                                     Select your role to access the dedicated dashboard and tools.

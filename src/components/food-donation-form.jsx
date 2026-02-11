@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarClock, Clock, Utensils } from "lucide-react";
+import { CalendarCheck, Clock, ForkKnife } from "@phosphor-icons/react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
@@ -85,7 +85,7 @@ export function FoodDonationForm() {
                             <FormLabel>Food Type</FormLabel>
                             <FormControl>
                                 <div className="relative">
-                                    <Utensils className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                                    <ForkKnife className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                                     <Input placeholder="e.g., Cooked meals, Fresh produce" className="pl-10" {...field} />
                                 </div>
                             </FormControl>
@@ -154,7 +154,7 @@ export function FoodDonationForm() {
                                             ) : (
                                                 <span>Pick a date</span>
                                             )}
-                                            <CalendarClock className="ml-auto h-4 w-4 opacity-50" />
+                                            <CalendarCheck className="ml-auto h-4 w-4 opacity-50" />
                                         </Button>
                                     </FormControl>
                                 </PopoverTrigger>

@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Users, MapPin, Phone, Mail, CheckCircle, XCircle, UserCheck, UserX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { CardSkeleton } from '@/components/ui/skeleton-loaders';
 
 export default function AdminWorkers() {
     const [workers, setWorkers] = useState([]);
@@ -198,7 +199,11 @@ export default function AdminWorkers() {
                         </h2>
 
                         {loading ? (
-                            <p className="text-muted-foreground">Loading...</p>
+                            <div className="space-y-4">
+                                <CardSkeleton />
+                                <CardSkeleton />
+                                <CardSkeleton />
+                            </div>
                         ) : workers.length === 0 ? (
                             <p className="text-muted-foreground">No workers found</p>
                         ) : (

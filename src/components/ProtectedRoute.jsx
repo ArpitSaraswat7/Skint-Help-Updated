@@ -1,6 +1,18 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { CircleNotch } from '@phosphor-icons/react';
+
+// Helper to get correct dashboard for a role
+function getDashboardForRole(role) {
+    const dashboards = {
+        'admin': '/owner/dashboard',
+        'restaurant': '/restaurant/dashboard',
+        'worker': '/worker/dashboard',
+        'public': '/customer/dashboard',
+        'customer': '/customer/dashboard'
+    };
+    return dashboards[role] || '/';
+}
 
 export function ProtectedRoute({ children, allowedRoles }) {
     const { user, profile, loading } = useAuth();
@@ -10,7 +22,7 @@ export function ProtectedRoute({ children, allowedRoles }) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
-                    <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-green-400" />
+                    <CircleNotch className="w-12 h-12 animate-spin mx-auto mb-4 text-green-400" />
                     <p className="text-muted-foreground">Loading...</p>
                 </div>
             </div>
@@ -23,17 +35,27 @@ export function ProtectedRoute({ children, allowedRoles }) {
     }
 
     // Check role-based access
-    if (allowedRoles) {
-        // If profile is still loading or missing, treat as unauthorized
-        if (!profile) {
-            return <Navigate to="/unauthorized" replace />;
-        }
+    if (allowedRoles && profile) {
         // Check if user's role is in allowed roles
-        if (!allowedRoles.includes(profile.role || 'public')) {
-            return <Navigate to="/unauthorized" replace />;
+        const userRole = profile.role || 'public';
+        if (!allowedRoles.includes(userRole)) {
+            // Redirect to the user's correct dashboard instead of select-role
+            const correctDashboard = getDashboardForRole(userRole);
+            return <Navigate to={correctDashboard} replace />;
         }
     }
 
+    // If profile is missing but user exists, wait for it (show loading)
+    if (!profile) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <CircleNotch className="w-12 h-12 animate-spin mx-auto mb-4 text-green-400" />
+                    <p className="text-muted-foreground">Loading profile...</p>
+                </div>
+            </div>
+        );
+    }
 
     return <>{children}</>;
 }

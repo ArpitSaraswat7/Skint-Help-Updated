@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
-import { Utensils, MapPin, Users, TrendingUp, ArrowRight, CheckCircle } from 'lucide-react';
+import { ForkKnife, MapPin, UsersThree, TrendUp, ArrowRight, CheckCircle } from "@phosphor-icons/react";
 
 export function HowItWorks() {
     const steps = [
         {
-            icon: <Utensils className="w-8 h-8" />,
+            icon: <ForkKnife className="w-8 h-8" />,
             title: 'Restaurants Donate',
             description: 'Partner restaurants notify us about surplus food through our smart dashboard.',
             color: 'from-orange-500 to-red-500',
@@ -26,7 +26,7 @@ export function HowItWorks() {
             ],
         },
         {
-            icon: <Users className="w-8 h-8" />,
+            icon: <UsersThree className="w-8 h-8" />,
             title: 'Volunteers Deliver',
             description: 'Our dedicated volunteers deliver meals to people in need using optimized routes.',
             color: 'from-cyan-500 to-blue-500',
@@ -37,7 +37,7 @@ export function HowItWorks() {
             ],
         },
         {
-            icon: <TrendingUp className="w-8 h-8" />,
+            icon: <TrendUp className="w-8 h-8" />,
             title: 'Impact Measured',
             description: 'Every meal is tracked, creating transparency and measurable social impact.',
             color: 'from-purple-500 to-pink-500',
@@ -128,9 +128,9 @@ export function HowItWorks() {
 
 function StepCard({ icon, title, description, color, features, number }) {
     return (
-        <div className="depth-card p-6 h-full relative group">
+        <div className="depth-card p-6 h-full relative group overflow-visible">
             {/* Step Number */}
-            <div className="absolute -top-4 -right-4 w-12 h-12 rounded-full glass-card flex items-center justify-center font-bold text-xl gradient-text neon-glow">
+            <div className="absolute -top-3 -right-3 w-12 h-12 rounded-full glass-card flex items-center justify-center font-bold text-xl gradient-text neon-glow z-10">
                 {number}
             </div>
 

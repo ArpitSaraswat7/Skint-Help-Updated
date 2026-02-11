@@ -1,12 +1,20 @@
-import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { Building2, LogOut, LayoutDashboard, Users, Store as StoreIcon, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSignOut } from "@/hooks/useSignOut";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { useState } from "react";
+import { usePresence } from "@/hooks/usePresence";
 
 export function OwnerLayout() {
-    const { signOut, profile } = useAuth();
+    const { user, profile } = useAuth();
     const location = useLocation();
-    const navigate = useNavigate();
+    const handleSignOut = useSignOut();
+    const [showSignOutDialog, setShowSignOutDialog] = useState(false);
+
+    // Track presence (online/offline status)
+    usePresence();
 
     const sidebarLinks = [
         { icon: LayoutDashboard, label: "Overview", path: "/owner/dashboard" },
@@ -63,14 +71,12 @@ export function OwnerLayout() {
                 {/* Sign Out Button */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
                     <Button
-                        variant="ghost"
-                        className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10 glass-card transition-all"
-                        onClick={async () => {
-                            await signOut();
-                            navigate('/select-role');
-                        }}
+                        onClick={() => setShowSignOutDialog(true)}
+                        variant="outline"
+                        size="sm"
+                        className="glass-card border-white/20 hover:bg-white/10 w-full justify-start"
                     >
-                        <LogOut className="w-5 h-5 mr-3" />
+                        <LogOut className="w-4 h-4 mr-2" />
                         Sign Out
                     </Button>
                 </div>
@@ -80,6 +86,19 @@ export function OwnerLayout() {
             <main className="flex-1 ml-64 min-h-screen">
                 <Outlet />
             </main>
+
+            {/* Sign Out Confirmation Dialog */}
+            <ConfirmDialog
+                open={showSignOutDialog}
+                onOpenChange={setShowSignOutDialog}
+                onConfirm={handleSignOut}
+                title="Sign Out?"
+                description="Are you sure you want to sign out of your account?"
+                confirmText="Sign Out"
+                cancelText="Cancel"
+                variant="destructive"
+                icon={<LogOut className="w-8 h-8" />}
+            />
         </div>
     );
 }
