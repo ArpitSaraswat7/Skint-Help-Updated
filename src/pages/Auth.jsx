@@ -59,7 +59,7 @@ export default function Auth() {
                 // Navigate to role-specific dashboard
                 setTimeout(() => {
                     const roleRoutes = {
-                        'admin': '/owner/dashboard',
+                        'admin': '/sysadmin/dashboard',
                         'restaurant': '/restaurant/dashboard',
                         'worker': '/worker/dashboard',
                         'public': '/customer/dashboard'

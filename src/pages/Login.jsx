@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, Utensils, Users as UsersIcon, MapPin, Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, ArrowLeft, Home } from 'lucide-react';
+import { Utensils, Users as UsersIcon, MapPin, Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, ArrowLeft, Home } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,12 +57,6 @@ export default function Login() {
             name: 'Customer Portal',
             icon: <UsersIcon className="w-10 h-10" />,
             color: 'from-purple-500 to-pink-500',
-        },
-        {
-            id: 'admin',
-            name: 'Admin Portal',
-            icon: <Shield className="w-10 h-10" />,
-            color: 'from-cyan-500 to-blue-500',
         }
     ];
 
