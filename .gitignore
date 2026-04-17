@@ -61,3 +61,13 @@ supabase/.temp
 # Misc
 *.pem
 *.key
+
+.env
+.env.local
+.env.development
+.env.production
+
+claude/
+.codex/
+opencode/
+agents/
