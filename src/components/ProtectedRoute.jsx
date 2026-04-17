@@ -8,13 +8,21 @@ export function ProtectedRoute({ children, allowedRoles }) {
     // During sign-out transition, render nothing (navigation already happening)
     if (isSigningOut) return null;
 
-    // Wait until everything loads
-    if (loading || !user || !profile) {
+    // Wait until loading is finished
+    if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <p>Loading...</p>
             </div>
         );
+    }
+
+    // If completely unauthenticated, immediately bounce them out.
+    // This prevents the "back button" from showing cached protected content after logout.
+    if (!user || !profile) {
+        // If they were trying to access admin, send to admin login. Otherwise send to public role selector.
+        const isAdminRoute = window.location.pathname.startsWith('/sysadmin');
+        return <Navigate to={isAdminRoute ? '/sysadmin' : '/select-role'} replace />;
     }
 
     // Role check
