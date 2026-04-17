@@ -62,12 +62,22 @@ supabase/.temp
 *.pem
 *.key
 
+# Environment files
 .env
-.env.local
-.env.development
-.env.production
+.env.*
+!.env.example
 
+# AI / temp folders
 claude/
 .codex/
 opencode/
 agents/
+
+# Node
+node_modules/
+
+# Build
+dist/
+
+# Logs
+*.log
