@@ -9,20 +9,21 @@ export function Footer() {
         product: [
             { name: 'How It Works', path: '/how-it-works' },
             { name: 'Impact', path: '/impact' },
+            { name: 'Food Map', path: '/food-map' },
             { name: 'Join Us', path: '/join-us' },
             { name: 'Contact', path: '/contact' },
         ],
         company: [
-            { name: 'About Us', path: '/about' },
-            { name: 'Our Team', path: '/team' },
-            { name: 'Careers', path: '/careers' },
-            { name: 'Press', path: '/press' },
+            { name: 'About Us' },
+            { name: 'Our Team' },
+            { name: 'Careers' },
+            { name: 'Press' },
         ],
         resources: [
-            { name: 'Blog', path: '/blog' },
-            { name: 'Help Center', path: '/help' },
-            { name: 'Privacy Policy', path: '/privacy' },
-            { name: 'Terms of Service', path: '/terms' },
+            { name: 'Blog' },
+            { name: 'Help Center' },
+            { name: 'Privacy Policy' },
+            { name: 'Terms of Service' },
         ],
     };
 
@@ -90,7 +91,7 @@ export function Footer() {
                             <h3 className="font-semibold mb-4 text-white">Product</h3>
                             <ul className="space-y-2">
                                 {footerLinks.product.map((link) => (
-                                    <li key={link.path}>
+                                    <li key={link.name}>
                                         <Link
                                             to={link.path}
                                             className="text-sm text-white hover:text-white/80 hover:translate-x-1 inline-block transition-all"
@@ -106,13 +107,10 @@ export function Footer() {
                             <h3 className="font-semibold mb-4 text-white">Company</h3>
                             <ul className="space-y-2">
                                 {footerLinks.company.map((link) => (
-                                    <li key={link.path}>
-                                        <Link
-                                            to={link.path}
-                                            className="text-sm text-white hover:text-white/80 hover:translate-x-1 inline-block transition-all"
-                                        >
+                                    <li key={link.name}>
+                                        <span className="text-sm text-white/40 cursor-default">
                                             {link.name}
-                                        </Link>
+                                        </span>
                                     </li>
                                 ))}
                             </ul>
@@ -122,13 +120,10 @@ export function Footer() {
                             <h3 className="font-semibold mb-4 text-white">Resources</h3>
                             <ul className="space-y-2">
                                 {footerLinks.resources.map((link) => (
-                                    <li key={link.path}>
-                                        <Link
-                                            to={link.path}
-                                            className="text-sm text-white hover:text-white/80 hover:translate-x-1 inline-block transition-all"
-                                        >
+                                    <li key={link.name}>
+                                        <span className="text-sm text-white/40 cursor-default">
                                             {link.name}
-                                        </Link>
+                                        </span>
                                     </li>
                                 ))}
                             </ul>
@@ -173,7 +168,7 @@ export function Footer() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "100px" }}
                     className="text-center pb-8"
                 >
                     <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full text-sm">

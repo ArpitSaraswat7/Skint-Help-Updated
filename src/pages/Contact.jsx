@@ -1,10 +1,49 @@
 import { motion } from 'framer-motion';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
-import { Mail, Phone, MapPin, Send, MessageSquare } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageSquare, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { Meteors } from '@/components/ui/meteors';
+import { useState } from 'react';
+
+const faqData = [
+    {
+        question: 'What is Skint Help?',
+        answer: 'Skint Help is a food rescue platform that connects restaurants with surplus food to communities in need. We reduce food waste while fighting hunger by coordinating pickups, deliveries, and distribution through our network of volunteers and collection centers.',
+    },
+    {
+        question: 'How can I donate food through Skint Help?',
+        answer: 'If you\'re a restaurant or food business, you can sign up as a Restaurant Partner through our portal. Once registered, you can schedule food pickups, track your donations, and see the real-time impact of your contributions on your dashboard.',
+    },
+    {
+        question: 'How do I receive food from Skint Help?',
+        answer: 'Sign up as a Public Receiver through our portal. You\'ll be able to see available food near you on our interactive map (coming soon), visit collection centers, and request deliveries based on availability in your area.',
+    },
+    {
+        question: 'Is there a cost to use Skint Help?',
+        answer: 'No! Skint Help is completely free for both food donors and receivers. Our mission is to eliminate food waste and ensure everyone has access to nutritious meals.',
+    },
+    {
+        question: 'How can I volunteer as a delivery driver?',
+        answer: 'You can join as a Volunteer Driver through our portal. We provide optimized delivery routes, flexible scheduling, and a rewards program. You\'ll also receive hour tracking and certificates for your community service.',
+    },
+    {
+        question: 'What areas does Skint Help currently cover?',
+        answer: 'We are currently operating in 25 cities across India, with our primary base in Mathura, Uttar Pradesh. We\'re expanding rapidly — check our Food Map page for the latest coverage areas.',
+    },
+    {
+        question: 'How is the food kept safe during transport?',
+        answer: 'All our partner restaurants follow strict food safety guidelines. Our volunteer drivers are trained in safe food handling, and we use temperature-monitored containers for transport. Each delivery is tracked and verified via QR codes.',
+    },
+    {
+        question: 'Can I track my impact on the platform?',
+        answer: 'Absolutely! Every user gets access to an impact dashboard showing meals saved, CO₂ reduced, and communities served. Restaurant partners can also download impact reports for tax deduction purposes.',
+    },
+];
 
 export default function Contact() {
+    const [showFaq, setShowFaq] = useState(false);
     const contactInfo = [
         {
             icon: <Mail className="w-6 h-6" />,
@@ -148,15 +187,16 @@ export default function Contact() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                                 whileHover={{ scale: 1.02 }}
-                                className="depth-card p-6 flex items-start gap-4 group cursor-pointer block"
+                                className="depth-card p-6 flex items-start gap-4 group cursor-pointer block relative overflow-hidden"
                             >
-                                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${info.color} flex items-center justify-center text-white flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${info.color} flex items-center justify-center text-white flex-shrink-0 group-hover:scale-110 transition-transform relative z-10`}>
                                     {info.icon}
                                 </div>
-                                <div>
+                                <div className="relative z-10">
                                     <h3 className="font-semibold mb-1">{info.title}</h3>
                                     <p className="text-muted-foreground">{info.value}</p>
                                 </div>
+                                <Meteors number={6} />
                             </motion.a>
                         ))}
 
@@ -191,18 +231,66 @@ export default function Contact() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5 }}
-                            className="glass-card p-6 rounded-2xl"
+                            className="glass-card p-6 rounded-2xl relative overflow-hidden"
                         >
-                            <h3 className="font-bold mb-2">Looking for quick answers?</h3>
-                            <p className="text-sm text-muted-foreground mb-4">
+                            <h3 className="font-bold mb-2 relative z-10">Looking for quick answers?</h3>
+                            <p className="text-sm text-muted-foreground mb-4 relative z-10">
                                 Check out our FAQ section for common questions and instant answers.
                             </p>
-                            <Button variant="outline" className="glass-card border-white/20 hover:bg-white/10">
-                                View FAQ
+                            <Button
+                                variant="outline"
+                                className="glass-card border-white/20 hover:bg-white/10 relative z-10"
+                                onClick={() => setShowFaq(!showFaq)}
+                            >
+                                {showFaq ? 'Hide FAQ' : 'View FAQ'}
                             </Button>
+                            <Meteors number={6} />
                         </motion.div>
                     </motion.div>
                 </div>
+
+                {/* FAQ Section */}
+                {showFaq && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="max-w-4xl mx-auto mt-16"
+                    >
+                        <div className="text-center mb-10">
+                            <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-4">
+                                <HelpCircle className="w-4 h-4 text-green-400" />
+                                <span className="text-sm font-medium">FAQ</span>
+                            </div>
+                            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                                Frequently Asked <span className="gradient-text">Questions</span>
+                            </h2>
+                            <p className="text-muted-foreground max-w-2xl mx-auto">
+                                Everything you need to know about Skint Help and how it works.
+                            </p>
+                        </div>
+
+                        <div className="glass-card p-6 md:p-8 rounded-3xl relative overflow-hidden">
+                            <Accordion type="single" collapsible className="space-y-2">
+                                {faqData.map((faq, index) => (
+                                    <AccordionItem
+                                        key={index}
+                                        value={`faq-${index}`}
+                                        className="border-white/10 rounded-xl overflow-hidden"
+                                    >
+                                        <AccordionTrigger className="text-left text-base font-semibold text-white hover:text-[#DBEBC0] hover:no-underline px-4 py-4">
+                                            {faq.question}
+                                        </AccordionTrigger>
+                                        <AccordionContent className="text-muted-foreground px-4 text-sm leading-relaxed">
+                                            {faq.answer}
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                ))}
+                            </Accordion>
+                            <Meteors number={10} />
+                        </div>
+                    </motion.div>
+                )}
             </div>
         </section>
     );

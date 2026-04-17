@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Shield, Utensils, Users as UsersIcon, MapPin, Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, ArrowLeft, Home } from 'lucide-react';
@@ -6,10 +6,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { getDashboardForRole } from '@/lib/role-routes';
 
 export default function Login() {
     const navigate = useNavigate();
-    const { signIn, signUp, signInWithGoogle, signInWithPhone, verifyOTP } = useAuth();
+    const { signIn, signUp, signInWithGoogle } = useAuth();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -18,12 +19,21 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedRole, setSelectedRole] = useState(null);
 
+    const particlePositions = useMemo(() =>
+        [...Array(8)].map(() => ({
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            duration: 3 + Math.random() * 2,
+            delay: Math.random() * 2,
+        })),
+    []);
+
     // Load selected role from localStorage
     useEffect(() => {
         const role = localStorage.getItem('selectedRole');
         if (!role) {
             // If no role selected, redirect to role selection
-            navigate('/select-role');
+            navigate('/select-role', { replace: true });
             return;
         }
         setSelectedRole(role);
@@ -31,32 +41,44 @@ export default function Login() {
 
     const portals = [
         {
-            id: 'public',
-            name: 'Public Receiver',
-            icon: <UsersIcon className="w-10 h-10" />,
-            color: 'from-green-500 to-emerald-500',
-        },
-        {
             id: 'restaurant',
-            name: 'Restaurant Partner',
+            name: 'Restaurant Portal',
             icon: <Utensils className="w-10 h-10" />,
             color: 'from-orange-500 to-red-500',
         },
         {
             id: 'worker',
-            name: 'Delivery Worker',
+            name: 'Volunteer Portal',
             icon: <MapPin className="w-10 h-10" />,
-            color: 'from-cyan-500 to-blue-500',
+            color: 'from-green-500 to-emerald-500',
+        },
+        {
+            id: 'public',
+            name: 'Customer Portal',
+            icon: <UsersIcon className="w-10 h-10" />,
+            color: 'from-purple-500 to-pink-500',
         },
         {
             id: 'admin',
-            name: 'Admin / Owner',
+            name: 'Admin Portal',
             icon: <Shield className="w-10 h-10" />,
-            color: 'from-purple-500 to-pink-500',
+            color: 'from-cyan-500 to-blue-500',
         }
     ];
 
     const currentPortal = portals.find(p => p.id === selectedRole);
+
+    // Validate that we have a valid portal
+    if (selectedRole && !currentPortal) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+                <div className="text-center">
+                    <Loader2 className="w-12 h-12 text-white/40 animate-spin mx-auto mb-4" />
+                    <p className="text-white/50">Invalid role selected. Redirecting...</p>
+                </div>
+            </div>
+        );
+    }
 
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -82,69 +104,28 @@ export default function Login() {
         setIsLoading(true);
         try {
             if (isSignUp) {
-                // Map portal type to role
-                const mappedRole = selectedRole === 'owner' ? 'admin' : selectedRole;
-                await signUp(email, password, { role: mappedRole });
-                toast.success('Account created successfully!');
+                await signUp(email, password, { role: selectedRole });
+                toast.success('Account created! Check your email to confirm.');
+                setEmail('');
+                setPassword('');
+                setIsSignUp(false);
+                setIsLoading(false);
             } else {
                 await signIn(email, password);
                 toast.success('Welcome back!');
+                // For demo accounts, signIn resolves immediately — navigate now.
+                // For real Supabase accounts onAuthStateChange handles the redirect,
+                // but we also navigate here as a safety-net fallback.
+                const destination = getDashboardForRole(selectedRole);
+                localStorage.removeItem('selectedRole');
+                navigate(destination, { replace: true });
             }
-
-            // Clear selected role from localStorage after successful login
-            localStorage.removeItem('selectedRole');
-
-            // Redirect to role-specific dashboard
-            setTimeout(() => {
-                const roleRoutes = {
-                    'admin': '/owner/dashboard',
-                    'restaurant': '/restaurant/dashboard',
-                    'worker': '/worker/dashboard',
-                    'public': '/customer/dashboard'
-                };
-                const mappedRole = selectedRole === 'owner' ? 'admin' : selectedRole;
-                const redirectPath = roleRoutes[mappedRole] || '/';
-                navigate(redirectPath);
-            }, 500);
         } catch (error) {
             toast.error(error.message || 'Authentication failed. Please try again.');
             setIsLoading(false);
         }
     };
 
-    const quickLogin = async () => {
-        if (!selectedRole) return;
-
-        const demoCredentials = {
-            admin: { email: 'admin@skinthelp.com', password: 'admin123' },
-            restaurant: { email: 'restaurant@skinthelp.com', password: 'rest123' },
-            worker: { email: 'worker@skinthelp.com', password: 'worker123' },
-            public: { email: 'public@skinthelp.com', password: 'public123' },
-        };
-
-        const creds = demoCredentials[selectedRole];
-        if (!creds) return;
-
-        setIsLoading(true);
-        try {
-            await signIn(creds.email, creds.password);
-            toast.success('Welcome!');
-            localStorage.removeItem('selectedRole');
-            setTimeout(() => {
-                const roleRoutes = {
-                    'admin': '/owner/dashboard',
-                    'restaurant': '/restaurant/dashboard',
-                    'worker': '/worker/dashboard',
-                    'public': '/customer/dashboard'
-                };
-                const redirectPath = roleRoutes[selectedRole === 'owner' ? 'admin' : selectedRole] || '/';
-                navigate(redirectPath);
-            }, 500);
-        } catch (error) {
-            toast.error('Login failed');
-            setIsLoading(false);
-        }
-    };
 
     const handleGoogleSignIn = async () => {
         setIsLoading(true);
@@ -157,20 +138,11 @@ export default function Login() {
         }
     };
 
-    const handlePhoneSignIn = async (phone) => {
-        setIsLoading(true);
-        try {
-            await signInWithPhone(phone);
-            setIsLoading(false);
-        } catch (error) {
-            toast.error(error.message || 'Failed to send OTP');
-            setIsLoading(false);
-        }
-    };
+
 
     const handleBack = () => {
         localStorage.removeItem('selectedRole');
-        navigate('/select-role');
+        navigate('/select-role', { replace: true });
     };
 
     if (!currentPortal) {
@@ -188,23 +160,20 @@ export default function Login() {
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0a0a0a] noise-overlay">
             {/* Animated background particles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(8)].map((_, i) => (
+                {particlePositions.map((pos, i) => (
                     <motion.div
                         key={i}
                         className="absolute w-2 h-2 rounded-full bg-white/10"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                        }}
+                        style={{ left: pos.left, top: pos.top }}
                         animate={{
                             y: [0, -30, 0],
                             opacity: [0.1, 0.3, 0.1],
                             scale: [1, 1.5, 1],
                         }}
                         transition={{
-                            duration: 3 + Math.random() * 2,
+                            duration: pos.duration,
                             repeat: Infinity,
-                            delay: Math.random() * 2,
+                            delay: pos.delay,
                         }}
                     />
                 ))}
@@ -223,7 +192,7 @@ export default function Login() {
                 className="fixed top-8 left-8 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/70 hover:text-white transition-all backdrop-blur-md group"
             >
                 <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                <span className="text-sm font-medium">Back to Portals</span>
+                <span className="text-sm font-medium">Back</span>
             </motion.button>
 
             {/* Floating Home Button */}
@@ -329,20 +298,7 @@ export default function Login() {
                             </div>
                         </div>
 
-                        {/* Quick Demo Login Option for Testing */}
-                        {!isSignUp && (
-                            <div className="mt-8 p-4 rounded-xl border border-white/5 bg-white/5 backdrop-blur-sm">
-                                <p className="text-xs text-center text-white/40 mb-3 uppercase tracking-widest">Dev / Demo Mode</p>
-                                <button
-                                    type="button"
-                                    onClick={quickLogin}
-                                    disabled={isLoading}
-                                    className="w-full py-2 px-4 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 hover:text-white text-xs font-medium transition-all disabled:opacity-50"
-                                >
-                                    Auto-fill & Login as {currentPortal.name}
-                                </button>
-                            </div>
-                        )}
+
                     </div>
                 </motion.div>
             </div>

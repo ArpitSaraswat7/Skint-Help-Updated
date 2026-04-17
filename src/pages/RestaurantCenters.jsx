@@ -1,12 +1,14 @@
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
-import { MapPin, Phone, Clock, Navigation, Building2, CheckCircle, AlertCircle, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { MapPin, Phone, Clock, Navigation, Building2, CheckCircle, AlertCircle, Search, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function RestaurantCenters() {
     const { profile } = useAuth();
+    const navigate = useNavigate();
     const [centers, setCenters] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');

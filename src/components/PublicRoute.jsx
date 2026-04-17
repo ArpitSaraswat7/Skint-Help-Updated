@@ -1,6 +1,8 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { CircleNotch } from '@phosphor-icons/react';
+import { getDashboardForRole } from '@/lib/role-routes';
+
 
 export function PublicRoute({ children }) {
     const { user, profile, loading } = useAuth();
@@ -16,9 +18,9 @@ export function PublicRoute({ children }) {
         );
     }
 
-    // If user is logged in, redirect to their dashboard
+    // If user is logged in, redirect directly to their role-based dashboard
     if (user && profile) {
-        return <Navigate to="/dashboard" replace />;
+        return <Navigate to={getDashboardForRole(profile.role)} replace />;
     }
 
     return <>{children}</>;

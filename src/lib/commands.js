@@ -3,13 +3,12 @@ import {
     Package,
     Truck,
     Users,
-    MapPin,
     FileText,
     SignOut,
     Plus,
     User,
     Gear,
-    ChartBarHorizontal,
+    ChartBar,
     Heart
 } from '@phosphor-icons/react';
 
@@ -32,7 +31,7 @@ export const createCommands = (navigate, user, signOut) => {
                 id: 'nav-public-dashboard',
                 label: 'Public Dashboard',
                 icon: House,
-                action: () => navigate('/public/dashboard'),
+                action: () => navigate('/customer/dashboard'),
                 keywords: ['home', 'public', 'dashboard', 'main'],
                 group: 'Navigation',
                 role: 'public'
@@ -41,7 +40,7 @@ export const createCommands = (navigate, user, signOut) => {
                 id: 'nav-public-requests',
                 label: 'My Food Requests',
                 icon: FileText,
-                action: () => navigate('/public/requests'),
+                action: () => navigate('/customer/dashboard'),
                 keywords: ['requests', 'food', 'my requests', 'history'],
                 group: 'Navigation',
                 role: 'public'
@@ -98,52 +97,43 @@ export const createCommands = (navigate, user, signOut) => {
     }
 
     // Admin/Owner Portal Commands
-    if (user?.role === 'owner') {
+    if (user?.role === 'admin') {
         commands.push(
             {
                 id: 'nav-owner-dashboard',
                 label: 'Admin Dashboard',
                 icon: House,
-                action: () => navigate('/owner/dashboard'),
-                keywords: ['home', 'admin', 'owner', 'dashboard', 'main'],
+                action: () => navigate('/admin/dashboard'),
+                keywords: ['home', 'admin', 'dashboard', 'main'],
                 group: 'Navigation',
-                role: 'owner'
+                role: 'admin'
             },
             {
                 id: 'nav-owner-restaurants',
                 label: 'Manage Restaurants',
                 icon: Package,
-                action: () => navigate('/owner/restaurants'),
+                action: () => navigate('/admin/restaurants'),
                 keywords: ['restaurants', 'manage', 'partners', 'donors'],
                 group: 'Navigation',
-                role: 'owner'
+                role: 'admin'
             },
             {
                 id: 'nav-owner-workers',
                 label: 'Manage Workers',
                 icon: Users,
-                action: () => navigate('/owner/workers'),
+                action: () => navigate('/admin/workers'),
                 keywords: ['workers', 'manage', 'team', 'staff'],
                 group: 'Navigation',
-                role: 'owner'
+                role: 'admin'
             },
             {
-                id: 'nav-owner-centers',
-                label: 'Manage Centers',
-                icon: MapPin,
-                action: () => navigate('/owner/centers'),
-                keywords: ['centers', 'manage', 'locations', 'distribution'],
-                group: 'Navigation',
-                role: 'owner'
-            },
-            {
-                id: 'nav-owner-analytics',
+                id: 'nav-admin-analytics',
                 label: 'Analytics',
                 icon: ChartBar,
-                action: () => navigate('/owner/analytics'),
+                action: () => navigate('/admin/analytics'),
                 keywords: ['analytics', 'stats', 'reports', 'insights'],
                 group: 'Navigation',
-                role: 'owner'
+                role: 'admin'
             }
         );
     }

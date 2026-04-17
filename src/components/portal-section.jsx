@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
 import { ForkKnife, UsersThree, MapPin, ArrowRight, Heart } from "@phosphor-icons/react";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import ElectricBorder from '@/components/ui/ElectricBorder';
+import { Meteors } from '@/components/ui/meteors';
 
 export function PortalSection() {
     const portals = [
@@ -13,7 +14,7 @@ export function PortalSection() {
             color: 'from-orange-500 to-red-500',
             electricColor: '#ff6b35',
             features: ['Smart scheduling', 'Tax benefits', 'Impact dashboard'],
-            link: '/join-us',
+            portalId: 'restaurant',
         },
         {
             icon: <UsersThree className="w-8 h-8" />,
@@ -22,16 +23,16 @@ export function PortalSection() {
             color: 'from-green-500 to-emerald-500',
             electricColor: '#10b981',
             features: ['Route optimizer', 'Hour tracking', 'Rewards program'],
-            link: '/join-us',
+            portalId: 'worker',
         },
         {
             icon: <MapPin className="w-8 h-8" />,
-            title: 'Collection Center',
-            description: 'Manage inventory, coordinate pickups, and track distribution',
+            title: 'Admin Portal',
+            description: 'Platform management, analytics, and system administration',
             color: 'from-cyan-500 to-blue-500',
             electricColor: '#06b6d4',
-            features: ['Inventory system', 'QR verification', 'Analytics'],
-            link: '/join-us',
+            features: ['System analytics', 'User management', 'Resource oversight'],
+            portalId: 'admin',
         },
         {
             icon: <Heart className="w-8 h-8" />,
@@ -40,7 +41,7 @@ export function PortalSection() {
             color: 'from-purple-500 to-pink-500',
             electricColor: '#a855f7',
             features: ['Food requests', 'Center locator', 'Order tracking'],
-            link: '/public-dashboard',
+            portalId: 'public',
         },
     ];
 
@@ -56,7 +57,7 @@ export function PortalSection() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "100px" }}
                     transition={{ duration: 0.6 }}
                     className="text-center mb-16"
                 >
@@ -79,7 +80,7 @@ export function PortalSection() {
                             key={index}
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, margin: "100px" }}
                             transition={{ duration: 0.6, delay: index * 0.1 }}
                         >
                             <PortalCard {...portal} />
@@ -91,7 +92,14 @@ export function PortalSection() {
     );
 }
 
-function PortalCard({ icon, title, description, color, electricColor, features, link }) {
+function PortalCard({ icon, title, description, color, electricColor, features, portalId }) {
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        localStorage.setItem('selectedRole', portalId);
+        navigate('/login');
+    };
+
     return (
         <ElectricBorder
             color={electricColor}
@@ -100,7 +108,7 @@ function PortalCard({ icon, title, description, color, electricColor, features, 
             borderRadius={16}
             thickness={2}
         >
-            <div className="depth-card p-6 h-full flex flex-col group">
+            <div className="depth-card p-6 h-full flex flex-col group overflow-hidden">
                 {/* Icon */}
                 <motion.div
                     whileHover={{ scale: 1.05 }}
@@ -125,23 +133,23 @@ function PortalCard({ icon, title, description, color, electricColor, features, 
                 </ul>
 
                 {/* CTA Button */}
-                <Link to={link} className="mt-auto">
-                    <Button
-                        variant="outline"
-                        className="w-full glass-card border-white/20 hover:bg-white/10 group/btn"
-                    >
-                        <span className="flex items-center justify-center gap-2">
-                            Access Portal
-                            <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                        </span>
-                    </Button>
-                </Link>
+                <Button
+                    variant="outline"
+                    className="w-full glass-card border-white/20 hover:bg-white/10 group/btn mt-auto"
+                    onClick={handleClick}
+                >
+                    <span className="flex items-center justify-center gap-2">
+                        Access Portal
+                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                    </span>
+                </Button>
 
                 {/* Gradient overlay on hover */}
                 <div
                     className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-2xl pointer-events-none"
                     style={{ background: `linear-gradient(135deg, ${color})` }}
                 />
+                <Meteors number={8} />
             </div>
         </ElectricBorder>
     );

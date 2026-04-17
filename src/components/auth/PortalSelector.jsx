@@ -6,35 +6,35 @@ import { useState } from "react";
 
 const portals = [
     {
-        id: "public",
-        title: "Public Receiver",
-        description: "Find food & help community",
-        icon: User,
-        color: "from-green-400 to-emerald-600",
-        path: "/login",
-    },
-    {
         id: "restaurant",
-        title: "Restaurant Partner",
-        description: "Donate food & reduce waste",
+        title: "Restaurant Portal",
+        description: "Manage donations, schedule pickups, and track your impact",
         icon: Storefront,
         color: "from-orange-400 to-red-600",
         path: "/login",
     },
     {
         id: "worker",
-        title: "Delivery Worker",
-        description: "Pickup & drop-off logistics",
+        title: "Volunteer Portal",
+        description: "Find delivery routes, log hours, and see your contribution",
         icon: Briefcase,
-        color: "from-blue-400 to-indigo-600",
+        color: "from-green-400 to-emerald-600",
+        path: "/login",
+    },
+    {
+        id: "public",
+        title: "Customer Portal",
+        description: "Request food assistance, find nearby centers, and track orders",
+        icon: User,
+        color: "from-purple-400 to-pink-600",
         path: "/login",
     },
     {
         id: "admin",
-        title: "Admin / Owner",
-        description: "Platform management",
+        title: "Admin Portal",
+        description: "Platform management, analytics, and system administration",
         icon: Buildings,
-        color: "from-purple-400 to-pink-600",
+        color: "from-blue-400 to-indigo-600",
         path: "/login",
     },
 ];
@@ -71,7 +71,7 @@ export function PortalSelector({ children, onOpenChange }) {
                         Select Your Portal
                     </DialogTitle>
                     <DialogDescription className="sr-only">
-                        Choose which portal you want to access: Public Receiver, Restaurant Partner, Delivery Worker, or Admin
+                        Choose which portal you want to access: Customer Portal, Restaurant Portal, Volunteer Portal, or Admin Portal
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

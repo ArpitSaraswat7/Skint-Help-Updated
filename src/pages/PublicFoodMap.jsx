@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Package, Clock, Bell, Sparkles, Navigation, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Meteors } from '@/components/ui/meteors';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -129,7 +130,7 @@ export default function PublicFoodMap() {
                     transition={{ delay: 0.6 }}
                     className="mb-16"
                 >
-                    <div className="depth-card p-8 rounded-3xl relative overflow-hidden">
+                    <div className="depth-card p-8 rounded-3xl relative overflow-hidden" style={{ isolation: 'isolate' }}>
                         {/* Map Preview Background */}
                         <div className="absolute inset-0 opacity-10">
                             <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-cyan-500/20" />
@@ -207,13 +208,14 @@ export default function PublicFoodMap() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.9 + index * 0.1 }}
                                 whileHover={{ y: -5 }}
-                                className="depth-card p-6 group"
+                                className="depth-card p-6 group relative overflow-hidden"
                             >
-                                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform`}>
+                                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform relative z-10`}>
                                     {feature.icon}
                                 </div>
-                                <h3 className="text-xl font-bold mb-2 text-white">{feature.title}</h3>
-                                <p className="text-white/60 text-sm">{feature.description}</p>
+                                <h3 className="text-xl font-bold mb-2 text-white relative z-10">{feature.title}</h3>
+                                <p className="text-white/60 text-sm relative z-10">{feature.description}</p>
+                                <Meteors number={8} />
                             </motion.div>
                         ))}
                     </div>

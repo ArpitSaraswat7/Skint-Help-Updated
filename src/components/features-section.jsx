@@ -16,7 +16,7 @@ export function FeaturesSection() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "100px" }}
                     transition={{ duration: 0.6 }}
                     className="text-center mb-16"
                 >
@@ -36,7 +36,7 @@ export function FeaturesSection() {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "100px" }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                     className="flex justify-center"
                 >

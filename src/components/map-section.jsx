@@ -48,7 +48,7 @@ export function MapSection() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "100px" }}
                     transition={{ duration: 0.6 }}
                     className="text-center mb-16"
                 >
@@ -56,7 +56,7 @@ export function MapSection() {
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0 }}
                         whileInView={{ scale: 1, opacity: 1 }}
-                        viewport={{ once: true }}
+                        viewport={{ once: true, margin: "100px" }}
                         transition={{ delay: 0.2 }}
                         className="inline-block mb-4"
                     >
@@ -77,7 +77,7 @@ export function MapSection() {
                     <motion.form
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
+                        viewport={{ once: true, margin: "100px" }}
                         transition={{ delay: 0.4 }}
                         onSubmit={handleNotifyMe}
                         className="max-w-md mx-auto"
@@ -109,7 +109,7 @@ export function MapSection() {
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "100px" }}
                     transition={{ duration: 0.8 }}
                 >
                     <div className="depth-card p-8 h-[500px] relative overflow-hidden">
@@ -140,7 +140,7 @@ export function MapSection() {
                                     key={index}
                                     initial={{ opacity: 0, scale: 0 }}
                                     whileInView={{ opacity: 0.5, scale: 1 }}
-                                    viewport={{ once: true }}
+                                    viewport={{ once: true, margin: "100px" }}
                                     transition={{ delay: marker.delay + 0.5, duration: 0.5 }}
                                     className="absolute"
                                     style={{ top: marker.top, left: marker.left }}

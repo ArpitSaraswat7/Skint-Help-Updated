@@ -13,6 +13,11 @@ export function usePresence() {
     useEffect(() => {
         if (!user?.id) return;
 
+        // Guard: demo users have non-UUID IDs (e.g. 'demo-admin-001') which
+        // would cause Supabase upsert to throw a database error on every heartbeat.
+        const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!UUID_REGEX.test(user.id)) return;
+
         // Mark user as online (upsert to handle first-time users)
         const markOnline = async () => {
             try {

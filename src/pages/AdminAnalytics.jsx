@@ -1,9 +1,13 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { BarChart, TrendingUp, Package, Users, Utensils, MapPin, Calendar, Activity } from 'lucide-react';
+import { BarChart, TrendingUp, Package, Users, Utensils, MapPin, Calendar, Activity, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 export default function AdminAnalytics() {
+    const navigate = useNavigate();
     const [analytics, setAnalytics] = useState({
         totalFoodCollected: 0,
         totalFoodDistributed: 0,
@@ -103,6 +107,7 @@ export default function AdminAnalytics() {
             });
         } catch (error) {
             console.error('Error fetching analytics:', error);
+            toast.error('Failed to load analytics');
         } finally {
             setLoading(false);
         }
@@ -159,6 +164,16 @@ export default function AdminAnalytics() {
                 <div className="absolute inset-0 animated-gradient opacity-20" />
 
                 <div className="relative z-10">
+                    {/* Back Button */}
+                    <Button
+                        onClick={() => navigate('/owner/dashboard')}
+                        variant="ghost"
+                        className="mb-4 text-muted-foreground hover:text-foreground"
+                    >
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Back to Dashboard
+                    </Button>
+
                     {/* Header */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}

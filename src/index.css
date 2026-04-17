@@ -330,11 +330,10 @@
     }
   }
 
-  /* Pause animations during scroll to prevent jitter */
+  /* Pause heavy animations during scroll to prevent jitter */
   html.scrolling .floating,
   html.scrolling .animated-gradient,
-  html.scrolling .pulse-glow,
-  html.scrolling .rgb-ring::before {
+  html.scrolling .pulse-glow {
     animation-play-state: paused !important;
   }
 }

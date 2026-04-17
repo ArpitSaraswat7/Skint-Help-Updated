@@ -1,12 +1,14 @@
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { MapPin, Search, Package, Clock, CheckCircle } from 'lucide-react';
+import { MapPin, Search, Package, Clock, CheckCircle, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function PublicDashboard() {
     const { profile } = useAuth();
+    const navigate = useNavigate();
     const [selectedLocation, setSelectedLocation] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -82,6 +84,14 @@ export default function PublicDashboard() {
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-12"
                 >
+                    <Button
+                        onClick={() => navigate('/customer/dashboard')}
+                        variant="ghost"
+                        className="mb-4 text-muted-foreground hover:text-foreground"
+                    >
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Back to Dashboard
+                    </Button>
                     <h1 className="text-4xl md:text-6xl font-bold mb-4">
                         Public <span className="gradient-text">Portal</span>
                     </h1>

@@ -1,15 +1,16 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Store, MapPin, Phone, Mail, CheckCircle, XCircle, Ban, Clock } from 'lucide-react';
+import { Store, MapPin, Phone, Mail, CheckCircle, XCircle, Ban, Clock, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { CardSkeleton } from '@/components/ui/skeleton-loaders';
 
 export default function AdminRestaurants() {
+    const navigate = useNavigate();
     const [restaurants, setRestaurants] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { toast } = useToast();
 
     useEffect(() => {
         fetchRestaurants();
@@ -39,11 +40,7 @@ export default function AdminRestaurants() {
             setRestaurants(data || []);
         } catch (error) {
             console.error('Error fetching restaurants:', error);
-            toast({
-                title: 'Error',
-                description: 'Failed to load restaurants',
-                variant: 'destructive',
-            });
+            toast.error('Failed to load restaurants');
         } finally {
             setLoading(false);
         }
@@ -58,19 +55,12 @@ export default function AdminRestaurants() {
 
             if (error) throw error;
 
-            toast({
-                title: 'Success',
-                description: `Restaurant ${status === 'active' ? 'approved' : status === 'blocked' ? 'blocked' : 'set to pending'}`,
-            });
+            toast.success(`Restaurant ${status === 'active' ? 'approved' : status === 'blocked' ? 'blocked' : 'set to pending'}`);
 
             fetchRestaurants();
         } catch (error) {
             console.error('Error updating restaurant:', error);
-            toast({
-                title: 'Error',
-                description: 'Failed to update restaurant status',
-                variant: 'destructive',
-            });
+            toast.error('Failed to update restaurant status');
         }
     };
 

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ForkKnife, MapPin, UsersThree, TrendUp, ArrowRight, CheckCircle } from "@phosphor-icons/react";
+import { Meteors } from '@/components/ui/meteors';
 
 export function HowItWorks() {
     const steps = [
@@ -62,7 +63,7 @@ export function HowItWorks() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "100px" }}
                     transition={{ duration: 0.6 }}
                     className="text-center mb-16"
                 >
@@ -85,7 +86,7 @@ export function HowItWorks() {
                             key={index}
                             initial={{ opacity: 0, y: 50 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, margin: "100px" }}
                             transition={{ duration: 0.6, delay: index * 0.1 }}
                         >
                             <StepCard {...step} number={index + 1} />
@@ -100,7 +101,7 @@ export function HowItWorks() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "100px" }}
                     transition={{ duration: 0.6, delay: 0.8 }}
                     className="text-center"
                 >
@@ -128,9 +129,9 @@ export function HowItWorks() {
 
 function StepCard({ icon, title, description, color, features, number }) {
     return (
-        <div className="depth-card p-6 h-full relative group overflow-visible">
+        <div className="depth-card p-6 h-full relative group overflow-hidden">
             {/* Step Number */}
-            <div className="absolute -top-3 -right-3 w-12 h-12 rounded-full glass-card flex items-center justify-center font-bold text-xl gradient-text neon-glow z-10">
+            <div className="absolute top-2 right-2 w-10 h-10 rounded-full glass-card flex items-center justify-center font-bold text-lg gradient-text neon-glow z-10">
                 {number}
             </div>
 
@@ -154,7 +155,7 @@ function StepCard({ icon, title, description, color, features, number }) {
                         key={index}
                         initial={{ opacity: 0, x: -10 }}
                         whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
+                        viewport={{ once: true, margin: "100px" }}
                         transition={{ delay: index * 0.1 }}
                         className="flex items-center gap-2 text-sm"
                     >
@@ -167,6 +168,7 @@ function StepCard({ icon, title, description, color, features, number }) {
             {/* Hover Glow Effect */}
             <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-2xl pointer-events-none"
                 style={{ background: `linear-gradient(135deg, ${color})` }} />
+            <Meteors number={8} />
         </div>
     );
 }

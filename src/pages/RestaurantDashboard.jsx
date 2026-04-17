@@ -2,9 +2,9 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Package, TrendingUp, Clock, CheckCircle, AlertCircle, MapPin, Utensils, Plus, ArrowRight, BarChart3 } from 'lucide-react';
+import { Package, TrendingUp, Clock, CheckCircle, AlertCircle, MapPin, Utensils, Plus, ArrowRight, ArrowLeft, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import ElectricBorder from '@/components/ui/ElectricBorder';
 import { logger } from '@/lib/logger';
@@ -14,6 +14,7 @@ import { useConfetti } from '@/hooks/useConfetti';
 
 export default function RestaurantDashboard() {
     const { profile } = useAuth();
+    const navigate = useNavigate();
     const confetti = useConfetti();
     const [selectedCenter, setSelectedCenter] = useState('');
     const [quantity, setQuantity] = useState('');
@@ -46,35 +47,25 @@ export default function RestaurantDashboard() {
     const [deleteDialog, setDeleteDialog] = useState({ open: false, packet: null });
 
     useEffect(() => {
-        fetchCenters();
         fetchMyPackets();
     }, [profile]);
 
-    const fetchCenters = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('centers')
-                .select('*')
-                .eq('is_active', true);
+    useEffect(() => {
+        console.log("FETCH RUNNING...");
 
-            if (error) {
-                // If table doesn't exist (404), use mock data for demo
-                if (error?.code === 'PGRST116' || error?.message?.includes('does not exist')) {
-                    logger.debug('Centers table not found, using mock data');
-                    setCenters(MOCK_CENTERS);
-                    setIsDemoMode(true);
-                    return;
-                }
-                throw error;
-            }
-            setCenters(data || []);
-        } catch (error) {
-            logger.debug('Using mock centers data for demo');
-            // Fallback to mock data
-            setCenters(MOCK_CENTERS);
-            setIsDemoMode(true);
-        }
-    };
+        const fetchCenters = async () => {
+            const { data, error } = await supabase
+                .from("collection_centers")
+                .select("*");
+
+            console.log("DATA:", data);
+            console.log("ERROR:", error);
+
+            if (data) setCenters(data);
+        };
+
+        fetchCenters();
+    }, []);
 
     const fetchMyPackets = async () => {
         if (!profile?.restaurant_id) {
@@ -255,6 +246,14 @@ export default function RestaurantDashboard() {
             <div className="absolute inset-0 animated-gradient opacity-20" />
 
             <div className="container mx-auto px-4 relative z-10">
+                <Button
+                    onClick={() => navigate('/')}
+                    variant="ghost"
+                    className="mb-4 text-muted-foreground hover:text-foreground"
+                >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to Home
+                </Button>
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -434,9 +433,9 @@ export default function RestaurantDashboard() {
                                     required
                                 >
                                     <option value="">Select Collection Center</option>
-                                    {centers.map((center) => (
-                                        <option key={center.id} value={center.id} className="bg-gray-900">
-                                            {center.name} - {center.address}
+                                    {centers?.map((center, index) => (
+                                        <option key={center.id || index} value={center.id} className="bg-gray-900">
+                                            {center.name || center.address || 'Mathura'} {center.name && center.address ? `- ${center.address}` : ''}
                                         </option>
                                     ))}
                                 </select>

@@ -1,43 +1,45 @@
 import { useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Utensils, Users as UsersIcon, MapPin, ArrowRight, Home } from 'lucide-react';
+import { Utensils, Users as UsersIcon, MapPin, ArrowRight, Home } from 'lucide-react';
 
 export default function SelectRole() {
     const navigate = useNavigate();
 
+    const particlePositions = useMemo(() =>
+        [...Array(8)].map(() => ({
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            duration: 3 + Math.random() * 2,
+            delay: Math.random() * 2,
+        })),
+    []);
+
     const portals = [
         {
-            id: 'public',
-            name: 'Public Receiver',
-            icon: <UsersIcon className="w-10 h-10" />,
-            description: 'Find food & help community',
-            color: 'from-green-500 to-emerald-500',
-            glow: 'group-hover:shadow-green-500/50'
-        },
-        {
             id: 'restaurant',
-            name: 'Restaurant Partner',
+            name: 'Restaurant Portal',
             icon: <Utensils className="w-10 h-10" />,
-            description: 'Donate food & reduce waste',
+            description: 'Manage donations, schedule pickups, and track your impact',
             color: 'from-orange-500 to-red-500',
             glow: 'group-hover:shadow-orange-500/50'
         },
         {
             id: 'worker',
-            name: 'Delivery Worker',
+            name: 'Volunteer Portal',
             icon: <MapPin className="w-10 h-10" />,
-            description: 'Pickup & drop-off logistics',
-            color: 'from-cyan-500 to-blue-500',
-            glow: 'group-hover:shadow-cyan-500/50'
+            description: 'Find delivery routes, log hours, and see your contribution',
+            color: 'from-green-500 to-emerald-500',
+            glow: 'group-hover:shadow-green-500/50'
         },
         {
-            id: 'admin',
-            name: 'Admin / Owner',
-            icon: <Shield className="w-10 h-10" />,
-            description: 'Platform management',
+            id: 'public',
+            name: 'Customer Portal',
+            icon: <UsersIcon className="w-10 h-10" />,
+            description: 'Request food assistance, find nearby centers, and track orders',
             color: 'from-purple-500 to-pink-500',
             glow: 'group-hover:shadow-purple-500/50'
-        }
+        },
     ];
 
     const handlePortalSelect = (portalId) => {
@@ -51,23 +53,20 @@ export default function SelectRole() {
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0a0a0a] noise-overlay">
             {/* Animated background particles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(8)].map((_, i) => (
+                {particlePositions.map((pos, i) => (
                     <motion.div
                         key={i}
                         className="absolute w-2 h-2 rounded-full bg-white/10"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                        }}
+                        style={{ left: pos.left, top: pos.top }}
                         animate={{
                             y: [0, -30, 0],
                             opacity: [0.1, 0.3, 0.1],
                             scale: [1, 1.5, 1],
                         }}
                         transition={{
-                            duration: 3 + Math.random() * 2,
+                            duration: pos.duration,
                             repeat: Infinity,
-                            delay: Math.random() * 2,
+                            delay: pos.delay,
                         }}
                     />
                 ))}

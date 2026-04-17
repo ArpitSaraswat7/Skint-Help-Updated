@@ -1,12 +1,11 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="16" fill="url(#grad1)"/>
-  <path d="M32 8L36.12 21.06C36.75 23.05 38.35 24.65 40.34 25.28L53.4 29.4L40.34 33.52C38.35 34.15 36.75 35.75 36.12 37.74L32 50.8L27.88 37.74C27.25 35.75 25.65 34.15 23.66 33.52L10.6 29.4L23.66 25.28C25.65 24.65 27.25 23.05 27.88 21.06L32 8Z" fill="white"/>
-  <path d="M50 10V14M52 12H48" stroke="white" stroke-width="3" stroke-linecap="round"/>
-  <path d="M14 50V54M16 52H12" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <!-- Solid rounded square background - skint-green-700 -->
+  <rect width="64" height="64" rx="14" fill="#3e7a2c"/>
+  <!-- Subtle inner highlight -->
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="#4f9d35" stroke-width="1.5" stroke-opacity="0.35"/>
+  <!-- "S" letter as path — bold, geometric, hand-crafted -->
+  <path d="M38.5 17.5C36.3 15.3 33.2 14 30 14C24.5 14 20 17.5 20 22.5C20 27 23 29.5 28 31L33 32.5C36 33.5 37.5 35 37.5 37.5C37.5 40.5 35 43 31.5 43C28.5 43 26 41.5 24.5 39L20 42C22.5 46 26.5 48.5 31.5 48.5C38 48.5 43 44.5 43 38.5C43 33.5 40 30.5 34.5 29L30 27.5C27.5 26.8 25.5 25.5 25.5 23C25.5 20.2 28 18 31 18C33 18 35 19 36.5 20.5L38.5 17.5Z" fill="white"/>
+  <!-- Leaf accent (top-right corner) -->
+  <path d="M46 13C46 13 50 8 55 13C55 13 50 18 46 13Z" fill="#a9e896" opacity="0.8"/>
+  <line x1="50.5" y1="13" x2="47" y2="16.5" stroke="#a9e896" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
 </svg>

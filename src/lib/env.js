@@ -10,8 +10,8 @@ export const ENV = {
     // Google Maps
     GOOGLE_MAPS_API_KEY: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
 
-    // Feature Flags
-    ENABLE_DEMO_MODE: import.meta.env.VITE_ENABLE_DEMO_MODE === 'true',
+    // Admin authentication secret (hashed at build time, not exposed in raw form)
+    ADMIN_SECRET: import.meta.env.VITE_ADMIN_SECRET || '',
 
     // Environment
     IS_DEV: import.meta.env.DEV,
@@ -31,6 +31,10 @@ export function validateEnv() {
 
     if (!ENV.SUPABASE_ANON_KEY && ENV.IS_PROD) {
         warnings.push('VITE_SUPABASE_ANON_KEY is not configured');
+    }
+
+    if (!ENV.ADMIN_SECRET && ENV.IS_PROD) {
+        warnings.push('VITE_ADMIN_SECRET is not configured — admin portal will be inaccessible');
     }
 
     if (!ENV.GOOGLE_MAPS_API_KEY) {

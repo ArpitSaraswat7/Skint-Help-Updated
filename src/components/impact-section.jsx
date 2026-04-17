@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { TrendUp, UsersThree, ForkKnife, MapPin, Medal, Heart } from "@phosphor-icons/react";
-import { useEffect, useState } from 'react';
+
+import { Meteors } from '@/components/ui/meteors';
 
 export function ImpactSection() {
     return (
@@ -13,7 +14,7 @@ export function ImpactSection() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "100px" }}
                     transition={{ duration: 0.6 }}
                     className="text-center mb-16"
                 >
@@ -84,7 +85,7 @@ export function ImpactSection() {
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "100px" }}
                     transition={{ duration: 0.8, delay: 0.6 }}
                     className="glass-card p-8 rounded-3xl"
                 >
@@ -144,38 +145,13 @@ export function ImpactSection() {
 }
 
 function ImpactCard({ icon, value, suffix = '', label, color, delay }) {
-    const [count, setCount] = useState(0);
-    const [isVisible, setIsVisible] = useState(false);
-
-    useEffect(() => {
-        if (!isVisible) return;
-
-        const duration = 2000;
-        const steps = 60;
-        const increment = value / steps;
-        let current = 0;
-
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= value) {
-                setCount(value);
-                clearInterval(timer);
-            } else {
-                setCount(Math.floor(current));
-            }
-        }, duration / steps);
-
-        return () => clearInterval(timer);
-    }, [value, isVisible]);
-
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            onViewportEnter={() => setIsVisible(true)}
+            viewport={{ once: true, margin: "100px" }}
             transition={{ duration: 0.5, delay }}
-            className="depth-card p-6 group"
+            className="depth-card p-6 group overflow-hidden"
         >
             <div className="flex items-start justify-between mb-4">
                 <motion.div
@@ -187,11 +163,12 @@ function ImpactCard({ icon, value, suffix = '', label, color, delay }) {
                 </motion.div>
                 <div className="text-right">
                     <div className="text-4xl font-bold gradient-text">
-                        {count.toLocaleString()}{suffix}
+                        {value.toLocaleString()}{suffix}
                     </div>
                 </div>
             </div>
             <p className="text-muted-foreground font-medium">{label}</p>
+            <Meteors number={8} />
         </motion.div>
     );
 }
@@ -207,14 +184,15 @@ function StatBar({ label, percentage, color }) {
                 <motion.div
                     initial={{ width: 0 }}
                     whileInView={{ width: `${percentage}%` }}
-                    viewport={{ once: true }}
+                    viewport={{ once: true, margin: "100px" }}
                     transition={{ duration: 1.5, ease: "easeOut" }}
                     className={`h-full bg-gradient-to-r ${color} rounded-full relative`}
                 >
                     <motion.div
-                        animate={{ x: ['-100%', '100%'] }}
+                        initial={{ x: '-100%' }}
+                        animate={{ x: ['0%', '100%'] }}
                         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                        className="absolute inset-0 -w-full bg-gradient-to-r from-transparent via-white/30 to-transparent"
                     />
                 </motion.div>
             </div>
@@ -226,7 +204,7 @@ function HighlightCard({ title, value, description, icon }) {
     return (
         <motion.div
             whileHover={{ scale: 1.02 }}
-            className="glass-card p-4 rounded-xl flex items-start gap-4 group cursor-pointer"
+            className="glass-card p-4 rounded-xl flex items-start gap-4 group cursor-pointer overflow-hidden"
         >
             <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-cyan-500 flex items-center justify-center text-white flex-shrink-0 group-hover:scale-110 transition-transform">
                 {icon}
@@ -236,6 +214,7 @@ function HighlightCard({ title, value, description, icon }) {
                 <div className="text-2xl font-bold gradient-text mb-1">{value}</div>
                 <p className="text-xs text-muted-foreground">{description}</p>
             </div>
+            <Meteors number={6} />
         </motion.div>
     );
 }

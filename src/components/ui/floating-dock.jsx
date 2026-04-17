@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { IconLayoutNavbarCollapse } from "@tabler/icons-react";
+import { List } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import {
     AnimatePresence,
@@ -66,7 +66,7 @@ const FloatingDockMobile = ({ items, className }) => {
                 onClick={() => setOpen(!open)}
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 dark:bg-neutral-800"
             >
-                <IconLayoutNavbarCollapse className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
+                <List className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
             </button>
         </div>
     );

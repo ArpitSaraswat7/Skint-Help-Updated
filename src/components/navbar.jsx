@@ -1,24 +1,25 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { List, X, UserCircle, SignOut } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSignOut } from '@/hooks/useSignOut';
 import { PortalSelector } from '@/components/auth/PortalSelector';
 
 export function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const location = useLocation();
-    const navigate = useNavigate();
-    const { user, signOut } = useAuth();
+    const { user } = useAuth();
+    const handleSignOut = useSignOut();
 
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
         };
 
-        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -72,8 +73,10 @@ export function Navbar() {
                                 </span>
                                 {location.pathname === link.path && (
                                     <motion.div
-                                        layoutId="activeNavIndicator"
-                                        className="absolute bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-gradient-to-r from-[#DBEBC0] to-[#a8d48a] rounded-full"
+                                        initial={{ opacity: 0, scaleX: 0 }}
+                                        animate={{ opacity: 1, scaleX: 1 }}
+                                        exit={{ opacity: 0, scaleX: 0 }}
+                                        className="absolute bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-gradient-to-r from-[#DBEBC0] to-[#a8d48a] rounded-full origin-center"
                                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
                                     />
                                 )}
@@ -90,10 +93,7 @@ export function Navbar() {
                                     <span className="text-sm font-medium">{user.email}</span>
                                 </div>
                                 <Button
-                                    onClick={async () => {
-                                        await signOut();
-                                        navigate('/select-role', { replace: true });
-                                    }}
+                                    onClick={handleSignOut}
                                     variant="outline"
                                     size="sm"
                                     className="glass-card border-white/20 hover:bg-white/10"
@@ -132,9 +132,9 @@ export function Navbar() {
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.3 }}
                         className="lg:hidden mt-4 glass-card rounded-2xl overflow-hidden"
                     >
@@ -167,10 +167,9 @@ export function Navbar() {
                                             <span className="text-sm font-medium">{user.email}</span>
                                         </div>
                                         <Button
-                                            onClick={async () => {
-                                                await signOut();
+                                            onClick={() => {
                                                 setIsMobileMenuOpen(false);
-                                                navigate('/select-role', { replace: true });
+                                                handleSignOut();
                                             }}
                                             variant="outline"
                                             className="w-full glass-card border-white/20 hover:bg-white/10"

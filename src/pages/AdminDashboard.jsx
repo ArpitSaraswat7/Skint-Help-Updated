@@ -1,14 +1,17 @@
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { TrendingUp, Users, Utensils, MapPin, Package, Activity } from 'lucide-react';
+import { TrendingUp, Users, Utensils, MapPin, Package, Activity, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { logger } from '@/lib/logger';
 import { StatsSkeleton, ListSkeleton } from '@/components/ui/skeleton-loaders';
 import { ActivityFeed } from '@/components/ActivityFeed';
 
 export default function AdminDashboard() {
     const { profile } = useAuth();
+    const navigate = useNavigate();
     const [metrics, setMetrics] = useState(null);
     const [recentActivity, setRecentActivity] = useState([]);
     const [loading, setLoading] = useState(true);

@@ -1,15 +1,16 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Users, MapPin, Phone, Mail, CheckCircle, XCircle, UserCheck, UserX } from 'lucide-react';
+import { Users, MapPin, Phone, Mail, CheckCircle, XCircle, UserCheck, UserX, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { CardSkeleton } from '@/components/ui/skeleton-loaders';
 
 export default function AdminWorkers() {
+    const navigate = useNavigate();
     const [workers, setWorkers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { toast } = useToast();
 
     useEffect(() => {
         fetchWorkers();
@@ -39,11 +40,7 @@ export default function AdminWorkers() {
             setWorkers(data || []);
         } catch (error) {
             console.error('Error fetching workers:', error);
-            toast({
-                title: 'Error',
-                description: 'Failed to load workers',
-                variant: 'destructive',
-            });
+            toast.error('Failed to load workers');
         } finally {
             setLoading(false);
         }
@@ -58,19 +55,12 @@ export default function AdminWorkers() {
 
             if (error) throw error;
 
-            toast({
-                title: 'Success',
-                description: 'Worker status updated successfully',
-            });
+            toast.success('Worker status updated successfully');
 
             fetchWorkers();
         } catch (error) {
             console.error('Error updating worker:', error);
-            toast({
-                title: 'Error',
-                description: 'Failed to update worker status',
-                variant: 'destructive',
-            });
+            toast.error('Failed to update worker status');
         }
     };
 

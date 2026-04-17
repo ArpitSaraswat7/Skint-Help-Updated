@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useAuth, DEMO_ACCOUNTS } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -37,8 +37,11 @@ export default function Auth() {
                     await signUp(email, password, { role: selectedPortal || 'public' });
                     // If we get here, signup was successful and email confirmation is disabled
                     toast.success('Account created successfully! You can now sign in.');
-                    setIsSignUp(false);
-                    setPassword(''); // Clear password for security
+                    setTimeout(() => {
+                        setIsSignUp(false);
+                        setEmail('');
+                        setPassword('');
+                    }, 1000);
                 } catch (signupError) {
                     // Check if it's an email confirmation error using stable code
                     if (signupError.code === 'EMAIL_CONFIRMATION_REQUIRED') {
@@ -53,30 +56,25 @@ export default function Auth() {
             } else {
                 await signIn(email, password);
                 toast.success('Welcome back!');
-                // Navigation will be handled by AuthContext
+                // Navigate to role-specific dashboard
+                setTimeout(() => {
+                    const roleRoutes = {
+                        'admin': '/owner/dashboard',
+                        'restaurant': '/restaurant/dashboard',
+                        'worker': '/worker/dashboard',
+                        'public': '/customer/dashboard'
+                    };
+                    const finalRole = selectedPortal === 'owner' ? 'admin' : selectedPortal;
+                    const redirectPath = roleRoutes[finalRole] || '/';
+                    navigate(redirectPath);
+                }, 500);
             }
         } catch (error) {
             toast.error(error.message || 'Authentication failed');
-        } finally {
             setIsLoading(false);
         }
     };
 
-    // Quick Login for Demo
-    const quickLogin = async (demoEmail, demoPassword) => {
-        setEmail(demoEmail);
-        setPassword(demoPassword);
-        setIsLoading(true);
-
-        try {
-            await signIn(demoEmail, demoPassword);
-            toast.success('Demo login successful!');
-        } catch (error) {
-            toast.error(error.message || 'Demo login failed');
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     // Update selected portal if URL param changes
     useEffect(() => {
@@ -87,55 +85,60 @@ export default function Auth() {
 
     const portals = [
         {
-            id: 'public',
-            name: 'Public Receiver',
-            icon: <UsersIcon className="w-10 h-10" />,
-            description: 'Find food & help community',
-            color: 'from-green-500 to-emerald-500',
-            shadow: 'shadow-green-500/20',
-            glow: 'group-hover:shadow-green-500/50'
-        },
-        {
             id: 'restaurant',
-            name: 'Restaurant Partner',
+            name: 'Restaurant Portal',
             icon: <Utensils className="w-10 h-10" />,
-            description: 'Donate food & reduce waste',
+            description: 'Manage donations, schedule pickups, and track your impact',
             color: 'from-orange-500 to-red-500',
             shadow: 'shadow-orange-500/20',
             glow: 'group-hover:shadow-orange-500/50'
         },
         {
             id: 'worker',
-            name: 'Delivery Worker',
+            name: 'Volunteer Portal',
             icon: <MapPin className="w-10 h-10" />,
-            description: 'Pickup & drop-off logistics',
-            color: 'from-cyan-500 to-blue-500',
-            shadow: 'shadow-cyan-500/20',
-            glow: 'group-hover:shadow-cyan-500/50'
+            description: 'Find delivery routes, log hours, and see your contribution',
+            color: 'from-green-500 to-emerald-500',
+            shadow: 'shadow-green-500/20',
+            glow: 'group-hover:shadow-green-500/50'
         },
         {
-            id: 'admin', // Mapped to 'owner' internally in some places, but UI shows Admin
-            name: 'Admin / Owner',
-            icon: <Shield className="w-10 h-10" />,
-            description: 'Platform management',
+            id: 'public',
+            name: 'Customer Portal',
+            icon: <UsersIcon className="w-10 h-10" />,
+            description: 'Request food assistance, find nearby centers, and track orders',
             color: 'from-purple-500 to-pink-500',
             shadow: 'shadow-purple-500/20',
             glow: 'group-hover:shadow-purple-500/50'
-        }
+        },
     ];
 
     const handlePortalSelect = (portalId) => {
+        if (!portalId) {
+            toast.error('Invalid portal selected');
+            return;
+        }
         setSelectedPortal(portalId);
-        // Optional: Update URL without navigation to keep state in sync
-        // navigate(`/portal/${portalId}/login`, { replace: true });
     };
 
     const handleBackToPortals = () => {
         setSelectedPortal(null);
-        navigate('/auth');
     };
 
     const currentPortal = portals.find(p => p.id === (selectedPortal === 'owner' ? 'admin' : selectedPortal));
+
+    if (selectedPortal && !currentPortal) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-white mb-4">Portal Not Found</h2>
+                    <Button onClick={() => setSelectedPortal(null)} className="bg-white/10 hover:bg-white/20">
+                        Back to Portal Selection
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0a0a0a]">
@@ -348,20 +351,6 @@ export default function Auth() {
                                         </button>
                                     </div>
                                 </div>
-
-                                {/* Quick Demo Login Option for Testing */}
-                                {!isSignUp && (
-                                    <div className="mt-8 p-4 rounded-xl border border-white/5 bg-white/5 backdrop-blur-sm">
-                                        <p className="text-xs text-center text-white/40 mb-3 uppercase tracking-widest">Dev / Demo Mode</p>
-                                        <button
-                                            type="button"
-                                            onClick={() => quickLogin(`${selectedPortal === 'admin' ? 'admin' : selectedPortal}@skinthelp.com`, `${selectedPortal === 'admin' ? 'admin' : selectedPortal === 'restaurant' ? 'rest' : selectedPortal}123`)}
-                                            className="w-full py-2 px-4 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 hover:text-white text-xs font-medium transition-all"
-                                        >
-                                            Auto-fill & Login as {currentPortal?.name}
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                         </motion.div>
                     )}
