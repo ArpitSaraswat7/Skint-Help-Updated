@@ -136,14 +136,14 @@ function AppRoutes() {
             <Route path="/portal/:type/login" element={<Navigate to="/select-role" replace />} />
 
             {/* ═══════════════════════════════════════════
-                ADMIN PORTAL — path intentionally non-obvious (/cp)
-                Login: /cp    |   Portal: /cp/dashboard etc.
+                ADMIN PORTAL — hidden path: /sysadmin
+                Login: /sysadmin  |  Portal: /sysadmin/dashboard
                 ═══════════════════════════════════════════ */}
-            {/* Admin standalone login — no layout wrapper */}
-            <Route path="/cp" element={<AdminLogin />} />
+            {/* Admin standalone login page — no layout wrapper */}
+            <Route path="/sysadmin" element={<AdminLogin />} />
 
-            {/* Admin portal with sidebar layout — requires admin role */}
-            <Route path="/cp" element={<AdminLayout />}>
+            {/* Admin portal — requires admin role in profile */}
+            <Route path="/sysadmin" element={<AdminLayout />}>
                 <Route path="dashboard" element={
                     <ProtectedRoute allowedRoles={['admin']}>
                         <Lazy><AdminDashboard /></Lazy>
@@ -238,13 +238,15 @@ function AppRoutes() {
             {/* ═══════════════════════════════════════════
                 LEGACY / ALIAS REDIRECTS
                 ═══════════════════════════════════════════ */}
-            {/* Old /admin paths redirect to non-obvious /cp equivalent */}
-            <Route path="/admin" element={<Navigate to="/cp" replace />} />
-            <Route path="/admin/*" element={<Navigate to="/cp" replace />} />
-            <Route path="/admin-dashboard" element={<Navigate to="/cp/dashboard" replace />} />
+            {/* Old /admin and /cp paths redirect to hidden /sysadmin */}
+            <Route path="/admin"           element={<Navigate to="/sysadmin" replace />} />
+            <Route path="/admin/*"          element={<Navigate to="/sysadmin" replace />} />
+            <Route path="/cp"              element={<Navigate to="/sysadmin" replace />} />
+            <Route path="/cp/*"            element={<Navigate to="/sysadmin" replace />} />
+            <Route path="/admin-dashboard" element={<Navigate to="/sysadmin/dashboard" replace />} />
             <Route path="/restaurant-dashboard" element={<Navigate to="/restaurant/dashboard" replace />} />
-            <Route path="/worker-dashboard" element={<Navigate to="/worker/dashboard" replace />} />
-            <Route path="/public-dashboard" element={<Navigate to="/customer/dashboard" replace />} />
+            <Route path="/worker-dashboard"     element={<Navigate to="/worker/dashboard" replace />} />
+            <Route path="/public-dashboard"     element={<Navigate to="/customer/dashboard" replace />} />
 
             {/* Smart redirect: /dashboard → user's portal */}
             <Route path="/dashboard" element={<DashboardRedirect />} />

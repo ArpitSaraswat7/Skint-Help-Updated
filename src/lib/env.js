@@ -1,17 +1,21 @@
 /**
  * Environment variable configuration and validation
+ * All VITE_ prefixed vars are injected at build time by Vite.
+ * They are NOT secret at runtime — keep passwords strong & rotate them.
  */
 
 export const ENV = {
-    // Supabase
+    // Supabase (used by non-admin portals)
     SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || '',
     SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
 
     // Google Maps
     GOOGLE_MAPS_API_KEY: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
 
-    // Admin authentication secret (hashed at build time, not exposed in raw form)
-    ADMIN_SECRET: import.meta.env.VITE_ADMIN_SECRET || '',
+    // Admin single-owner credentials
+    // Both ID and PASSWORD must match exactly — no signup, no DB, no multi-user
+    ADMIN_ID: import.meta.env.VITE_ADMIN_ID || '',
+    ADMIN_PASSWORD: import.meta.env.VITE_ADMIN_PASSWORD || '',
 
     // Environment
     IS_DEV: import.meta.env.DEV,
@@ -20,7 +24,7 @@ export const ENV = {
 };
 
 /**
- * Validate required environment variables
+ * Validate required environment variables on startup
  */
 export function validateEnv() {
     const warnings = [];
@@ -28,28 +32,24 @@ export function validateEnv() {
     if (!ENV.SUPABASE_URL && ENV.IS_PROD) {
         warnings.push('VITE_SUPABASE_URL is not configured');
     }
-
     if (!ENV.SUPABASE_ANON_KEY && ENV.IS_PROD) {
         warnings.push('VITE_SUPABASE_ANON_KEY is not configured');
     }
-
-    if (!ENV.ADMIN_SECRET && ENV.IS_PROD) {
-        warnings.push('VITE_ADMIN_SECRET is not configured — admin portal will be inaccessible');
+    if (!ENV.ADMIN_ID) {
+        warnings.push('VITE_ADMIN_ID is not set — admin portal will be inaccessible');
     }
-
-    if (!ENV.GOOGLE_MAPS_API_KEY) {
-        warnings.push('VITE_GOOGLE_MAPS_API_KEY is not configured - maps will not work');
+    if (!ENV.ADMIN_PASSWORD) {
+        warnings.push('VITE_ADMIN_PASSWORD is not set — admin portal will be inaccessible');
     }
 
     if (warnings.length > 0 && ENV.IS_PROD) {
         console.warn('⚠️ Environment Configuration Warnings:');
-        warnings.forEach(warning => console.warn(`  - ${warning}`));
+        warnings.forEach(w => console.warn(`  - ${w}`));
     }
 
     return warnings;
 }
 
-// Validate on module load
 if (ENV.IS_PROD) {
     validateEnv();
 }

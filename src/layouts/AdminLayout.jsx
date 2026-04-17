@@ -39,7 +39,7 @@ export function AdminLayout() {
 
     // Not authenticated — redirect to admin login
     if (!user && !loading) {
-        return <Navigate to="/cp" replace />;
+        return <Navigate to="/sysadmin" replace />;
     }
 
     // User exists but profile not yet loaded
@@ -60,12 +60,12 @@ export function AdminLayout() {
     }
 
     const sidebarLinks = [
-        { icon: SquaresFour, label: "Overview",      path: "/cp/dashboard" },
-        { icon: Envelope,    label: "Applications",  path: "/cp/applications" },
-        { icon: Storefront,  label: "Restaurants",   path: "/cp/restaurants" },
-        { icon: Users,       label: "Workers",       path: "/cp/workers" },
-        { icon: Buildings,   label: "Centers",       path: "/cp/centers" },
-        { icon: ChartBar,    label: "Analytics",     path: "/cp/analytics" },
+        { icon: SquaresFour, label: "Overview",      path: "/sysadmin/dashboard" },
+        { icon: Envelope,    label: "Applications",  path: "/sysadmin/applications" },
+        { icon: Storefront,  label: "Restaurants",   path: "/sysadmin/restaurants" },
+        { icon: Users,       label: "Workers",       path: "/sysadmin/workers" },
+        { icon: Buildings,   label: "Centers",       path: "/sysadmin/centers" },
+        { icon: ChartBar,    label: "Analytics",     path: "/sysadmin/analytics" },
     ];
 
     return (

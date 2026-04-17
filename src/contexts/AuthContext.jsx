@@ -398,60 +398,73 @@ export function AuthProvider({ children }) {
     };
 
     /**
-     * Admin-only sign-in using the environment secret.
-     * Uses sessionStorage (cleared on tab close) for security.
-     * Includes brute-force protection with lockout.
+     * Single-owner admin sign-in.
+     * Checks VITE_ADMIN_ID and VITE_ADMIN_PASSWORD from env.
+     * No signup, no database, no multi-user — only one admin exists.
+     *
+     * Security:
+     *  - Max 3 failed attempts → 10-minute lockout (stored in sessionStorage)
+     *  - Session stored in sessionStorage (auto-clears on tab/browser close)
+     *  - Credentials never logged or stored anywhere
      */
-    const signInAsAdmin = async (password) => {
-        // Brute-force protection
-        const lockoutKey = '_sh_admin_lockout';
-        const attemptsKey = '_sh_admin_attempts';
-        const lockoutUntil = sessionStorage.getItem(lockoutKey);
+    const signInAsAdmin = async (adminId, password) => {
+        const LOCKOUT_KEY  = '_sh_adm_lock';
+        const ATTEMPTS_KEY = '_sh_adm_att';
+        const MAX_ATTEMPTS = 3;
+        const LOCKOUT_MS   = 10 * 60 * 1000; // 10 minutes
 
+        // ── Lockout check ──────────────────────────────────────────
+        const lockoutUntil = sessionStorage.getItem(LOCKOUT_KEY);
         if (lockoutUntil && Date.now() < parseInt(lockoutUntil, 10)) {
-            const remainingSec = Math.ceil((parseInt(lockoutUntil, 10) - Date.now()) / 1000);
-            throw new Error(`Too many failed attempts. Try again in ${remainingSec}s.`);
+            const remaining = Math.ceil((parseInt(lockoutUntil, 10) - Date.now()) / 60000);
+            throw new Error(`Too many failed attempts. Try again in ${remaining} minute(s).`);
         }
 
-        const secret = ENV.ADMIN_SECRET;
-        if (!secret) {
-            throw new Error('Admin authentication is not configured.');
+        // ── Credential validation ───────────────────────────────────
+        const validId  = ENV.ADMIN_ID;
+        const validPwd = ENV.ADMIN_PASSWORD;
+
+        if (!validId || !validPwd) {
+            throw new Error('Admin credentials are not configured on this server.');
         }
 
-        if (password !== secret) {
-            // Increment failed attempts
-            const attempts = parseInt(sessionStorage.getItem(attemptsKey) || '0', 10) + 1;
-            sessionStorage.setItem(attemptsKey, String(attempts));
+        const credentialsMatch = (adminId === validId) && (password === validPwd);
 
-            if (attempts >= 5) {
-                // Lock out for 5 minutes
-                sessionStorage.setItem(lockoutKey, String(Date.now() + 5 * 60 * 1000));
-                sessionStorage.removeItem(attemptsKey);
-                throw new Error('Too many failed attempts. Account locked for 5 minutes.');
+        if (!credentialsMatch) {
+            const prev     = parseInt(sessionStorage.getItem(ATTEMPTS_KEY) || '0', 10);
+            const attempts = prev + 1;
+            sessionStorage.setItem(ATTEMPTS_KEY, String(attempts));
+
+            if (attempts >= MAX_ATTEMPTS) {
+                // Trigger lockout
+                sessionStorage.setItem(LOCKOUT_KEY, String(Date.now() + LOCKOUT_MS));
+                sessionStorage.removeItem(ATTEMPTS_KEY);
+                throw new Error(`Maximum attempts reached. Access locked for 10 minutes.`);
             }
 
-            throw new Error(`Invalid credentials. ${5 - attempts} attempt(s) remaining.`);
+            const left = MAX_ATTEMPTS - attempts;
+            throw new Error(`Invalid credentials. ${left} attempt${left === 1 ? '' : 's'} remaining.`);
         }
 
-        // Success — clear attempts
-        sessionStorage.removeItem(attemptsKey);
-        sessionStorage.removeItem(lockoutKey);
+        // ── Success ─────────────────────────────────────────────────
+        sessionStorage.removeItem(ATTEMPTS_KEY);
+        sessionStorage.removeItem(LOCKOUT_KEY);
 
-        // Store admin session in sessionStorage (dies on tab close)
+        // Store session — cleared automatically on tab close
         sessionStorage.setItem('_sh_admin_auth', 'authenticated');
 
         const adminProfile = {
-            id: 'admin-session',
+            id:    'admin-owner',
             email: 'admin@skinthelp.com',
-            name: 'Administrator',
-            role: 'admin',
+            name:  'Administrator',
+            role:  'admin',
         };
 
         setProfile(adminProfile);
         setUser({
-            id: adminProfile.id,
-            email: adminProfile.email,
-            user_metadata: { role: 'admin' }
+            id:             adminProfile.id,
+            email:          adminProfile.email,
+            user_metadata:  { role: 'admin' },
         });
         setLoading(false);
     };

@@ -5,7 +5,7 @@
 
 /** Dashboard paths per role */
 const ROLE_DASHBOARDS = Object.freeze({
-    admin: '/cp/dashboard',
+    admin: '/sysadmin/dashboard',
     restaurant: '/restaurant/dashboard',
     worker: '/worker/dashboard',
     public: '/customer/dashboard',
@@ -14,7 +14,7 @@ const ROLE_DASHBOARDS = Object.freeze({
 
 /** Portal base paths per role (for layout-level guards) */
 const ROLE_PORTALS = Object.freeze({
-    admin: '/cp',
+    admin: '/sysadmin',
     restaurant: '/restaurant',
     worker: '/worker',
     public: '/customer',
