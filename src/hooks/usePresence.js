@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { logger } from '@/lib/logger';
 
 /**
  * Hook to track user presence (online/offline status)
@@ -32,7 +33,7 @@ export function usePresence() {
                         onConflict: 'user_id'
                     });
             } catch (error) {
-                console.error('Error marking online:', error);
+                logger.error('Error marking online:', error);
             }
         };
 
@@ -50,7 +51,7 @@ export function usePresence() {
                         onConflict: 'user_id'
                     });
             } catch (error) {
-                console.error('Error marking offline:', error);
+                logger.error('Error marking offline:', error);
             }
         };
 

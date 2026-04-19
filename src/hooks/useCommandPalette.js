@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { logger } from '@/lib/logger';
 
 /**
  * Custom hook for managing command palette state
@@ -36,7 +37,7 @@ export const useCommandPalette = () => {
             try {
                 localStorage.setItem('recent_commands', JSON.stringify(updated));
             } catch (error) {
-                console.error('Failed to save recent commands:', error);
+                logger.error('Failed to save recent commands:', error);
             }
 
             return updated;

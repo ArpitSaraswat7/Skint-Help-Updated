@@ -208,7 +208,7 @@ export default function Auth() {
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: index * 0.1 + 0.3 }}
-                                        whileHover={{ y: -10, rotateX: 5, rotateY: 5 }}
+                                        whileHover={{ y: -10, scale: 1.02 }}
                                         className="perspective-1000"
                                     >
                                         <button

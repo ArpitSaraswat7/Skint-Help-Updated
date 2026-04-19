@@ -46,7 +46,7 @@ export function Navbar() {
                             className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-black/20"
                         >
                             <img
-                                src="/New logo.png"
+                                src="/favicon.png"
                                 alt="Skint Help Logo"
                                 className="w-full h-full object-cover"
                             />
@@ -118,6 +118,8 @@ export function Navbar() {
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         className="lg:hidden glass-card p-2 rounded-lg"
+                        aria-label="Toggle navigation menu"
+                        aria-expanded={isMobileMenuOpen}
                     >
                         {isMobileMenuOpen ? (
                             <X className="w-6 h-6" />

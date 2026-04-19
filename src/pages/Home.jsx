@@ -6,6 +6,7 @@ import { CoverageArea } from "@/components/coverage-area";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, X } from "lucide-react";
+import { logger } from "@/lib/logger";
 
 export default function Home() {
     const [showNotification, setShowNotification] = useState(false);
@@ -30,7 +31,7 @@ export default function Home() {
                 
                 return () => clearTimeout(timer);
             } catch (e) {
-                console.error('Error parsing submission data:', e);
+                logger.error('Error parsing submission data:', e);
             }
         }
     }, []);

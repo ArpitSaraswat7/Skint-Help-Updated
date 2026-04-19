@@ -6,6 +6,7 @@ import { Store, MapPin, Phone, Mail, CheckCircle, XCircle, Ban, Clock, ArrowLeft
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { CardSkeleton } from '@/components/ui/skeleton-loaders';
+import { logger } from '@/lib/logger';
 
 export default function AdminRestaurants() {
     const navigate = useNavigate();
@@ -39,7 +40,7 @@ export default function AdminRestaurants() {
             if (error) throw error;
             setRestaurants(data || []);
         } catch (error) {
-            console.error('Error fetching restaurants:', error);
+            logger.error('Error fetching restaurants:', error);
             toast.error('Failed to load restaurants');
         } finally {
             setLoading(false);
@@ -59,7 +60,7 @@ export default function AdminRestaurants() {
 
             fetchRestaurants();
         } catch (error) {
-            console.error('Error updating restaurant:', error);
+            logger.error('Error updating restaurant:', error);
             toast.error('Failed to update restaurant status');
         }
     };

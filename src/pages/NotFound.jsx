@@ -3,13 +3,14 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { logger } from "@/lib/logger";
 
 const NotFound = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.error(
+        logger.warn(
             "404 Error: User attempted to access non-existent route:",
             location.pathname
         );

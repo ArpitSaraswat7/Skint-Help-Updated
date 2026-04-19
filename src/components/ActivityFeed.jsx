@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package, CheckCircle, Clock, TrendingUp, Users } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 /**
  * ActivityFeed - Shows real-time activity updates
@@ -33,7 +34,7 @@ export function ActivityFeed({ limit = 5, className = '' }) {
                 if (error) throw error;
                 setActivities(data || []);
             } catch (error) {
-                console.error('Error fetching activities:', error);
+                logger.error('Error fetching activities:', error);
             } finally {
                 setLoading(false);
             }
@@ -66,7 +67,7 @@ export function ActivityFeed({ limit = 5, className = '' }) {
                         .single();
 
                     if (error) {
-                        console.error('Error fetching new activity:', error);
+                        logger.error('Error fetching new activity:', error);
                         return;
                     }
 
@@ -90,7 +91,7 @@ export function ActivityFeed({ limit = 5, className = '' }) {
                         .single();
 
                     if (error) {
-                        console.error('Error fetching updated activity:', error);
+                        logger.error('Error fetching updated activity:', error);
                         return;
                     }
 
@@ -191,7 +192,7 @@ export function ActivityFeed({ limit = 5, className = '' }) {
                                 className="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group"
                             >
                                 <div className="mt-0.5">
-                                    {getIcon(activity.status)}
+                                    {getIcon(activity.status || 'unknown')}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium truncate group-hover:text-white transition-colors">
@@ -208,8 +209,8 @@ export function ActivityFeed({ limit = 5, className = '' }) {
                                             {activity.food_type}
                                         </p>
                                         <span className="text-muted-foreground">•</span>
-                                        <p className={`text-xs font-medium ${getStatusColor(activity.status)}`}>
-                                            {activity.status.replace('_', ' ')}
+                                        <p className={`text-xs font-medium ${getStatusColor(activity.status || 'unknown')}`}>
+                                            {(activity.status || 'unknown').replace('_', ' ')}
                                         </p>
                                         <span className="text-muted-foreground">•</span>
                                         <p className="text-xs text-muted-foreground">

@@ -193,7 +193,8 @@ export default function AdminLogin() {
                                             value={adminId}
                                             onChange={(e) => { setAdminId(e.target.value); setError(''); }}
                                             placeholder="Enter your admin ID"
-                                            className="h-11 pl-10 bg-white/4 border-white/10 text-white text-sm placeholder:text-white/20 focus:border-cyan-500/50 rounded-xl transition-all"
+                                            className="h-11 pl-10 !bg-white/[0.04] border-white/10 !text-white text-sm placeholder:text-white/20 focus:border-cyan-500/50 rounded-xl transition-all"
+                                            style={{ backgroundColor: 'rgba(255,255,255,0.04)', color: '#fff' }}
                                             disabled={isLoading || isLocked}
                                             autoComplete="off"
                                             spellCheck={false}
@@ -213,7 +214,8 @@ export default function AdminLogin() {
                                             value={password}
                                             onChange={(e) => { setPassword(e.target.value); setError(''); }}
                                             placeholder="Enter your password"
-                                            className="h-11 pl-10 pr-11 bg-white/4 border-white/10 text-white text-sm placeholder:text-white/20 focus:border-cyan-500/50 rounded-xl transition-all"
+                                            className="h-11 pl-10 pr-11 !bg-white/[0.04] border-white/10 !text-white text-sm placeholder:text-white/20 focus:border-cyan-500/50 rounded-xl transition-all"
+                                            style={{ backgroundColor: 'rgba(255,255,255,0.04)', color: '#fff' }}
                                             disabled={isLoading || isLocked}
                                             autoComplete="current-password"
                                         />

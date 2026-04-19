@@ -17,6 +17,9 @@ export const ENV = {
     ADMIN_ID: import.meta.env.VITE_ADMIN_ID || '',
     ADMIN_PASSWORD: import.meta.env.VITE_ADMIN_PASSWORD || '',
 
+    // Admin lockout duration in ms (default: 30 000 = 30 s)
+    ADMIN_LOCKOUT_MS: parseInt(import.meta.env.VITE_ADMIN_LOCKOUT_MS || '30000', 10),
+
     // Environment
     IS_DEV: import.meta.env.DEV,
     IS_PROD: import.meta.env.PROD,

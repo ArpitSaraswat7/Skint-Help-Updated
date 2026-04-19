@@ -9,6 +9,7 @@ import { StatsSkeleton, CardSkeleton } from '@/components/ui/skeleton-loaders';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { toast } from 'sonner';
 import { useConfetti } from '@/hooks/useConfetti';
+import { logger } from '@/lib/logger';
 
 export default function RestaurantDonations() {
     const { profile } = useAuth();
@@ -27,15 +28,15 @@ export default function RestaurantDonations() {
     const [centers, setCenters] = useState([]);
 
     useEffect(() => {
-        console.log("FETCH RUNNING..."); // 👈 DEBUG
+        logger.debug('Fetching collection centers...');
 
         const fetchCenters = async () => {
             const { data, error } = await supabase
                 .from("collection_centers")
                 .select("*");
 
-            console.log("DATA:", data);
-            console.log("ERROR:", error);
+            logger.debug('Centers data:', data);
+            if (error) logger.error('Centers error:', error);
 
             if (data) setCenters(data);
         };
@@ -75,7 +76,7 @@ export default function RestaurantDonations() {
 
             setStats({ total, pending, distributed, totalMeals });
         } catch (error) {
-            console.error('Error fetching donations:', error);
+            logger.error('Error fetching donations:', error);
         } finally {
             setLoading(false);
         }
@@ -359,7 +360,7 @@ export default function RestaurantDonations() {
                                     totalMeals: prev.totalMeals - deleteDialog.donation.quantity
                                 }));
                             } catch (error) {
-                                console.error('Error deleting donation:', error);
+                                logger.error('Error deleting donation:', error);
                                 toast.error(error.message || 'Failed to delete donation');
                             }
                         }

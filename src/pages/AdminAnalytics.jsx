@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { BarChart, TrendingUp, Package, Users, Utensils, MapPin, Calendar, Activity, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 export default function AdminAnalytics() {
     const navigate = useNavigate();
@@ -106,7 +107,7 @@ export default function AdminAnalytics() {
                 recentTrends: [],
             });
         } catch (error) {
-            console.error('Error fetching analytics:', error);
+            logger.error('Error fetching analytics:', error);
             toast.error('Failed to load analytics');
         } finally {
             setLoading(false);

@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { User, Storefront, Briefcase, Buildings, ArrowRight } from "@phosphor-icons/react";
+import { User, Storefront, Briefcase, ArrowRight } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -29,14 +29,7 @@ const portals = [
         color: "from-purple-400 to-pink-600",
         path: "/login",
     },
-    {
-        id: "admin",
-        title: "Admin Portal",
-        description: "Platform management, analytics, and system administration",
-        icon: Buildings,
-        color: "from-blue-400 to-indigo-600",
-        path: "/login",
-    },
+
 ];
 
 export function PortalSelector({ children, onOpenChange }) {
@@ -71,7 +64,7 @@ export function PortalSelector({ children, onOpenChange }) {
                         Select Your Portal
                     </DialogTitle>
                     <DialogDescription className="sr-only">
-                        Choose which portal you want to access: Customer Portal, Restaurant Portal, Volunteer Portal, or Admin Portal
+                        Choose which portal you want to access: Customer Portal, Restaurant Portal, or Volunteer Portal
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

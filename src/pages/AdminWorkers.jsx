@@ -6,6 +6,7 @@ import { Users, MapPin, Phone, Mail, CheckCircle, XCircle, UserCheck, UserX, Arr
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { CardSkeleton } from '@/components/ui/skeleton-loaders';
+import { logger } from '@/lib/logger';
 
 export default function AdminWorkers() {
     const navigate = useNavigate();
@@ -39,7 +40,7 @@ export default function AdminWorkers() {
             if (error) throw error;
             setWorkers(data || []);
         } catch (error) {
-            console.error('Error fetching workers:', error);
+            logger.error('Error fetching workers:', error);
             toast.error('Failed to load workers');
         } finally {
             setLoading(false);
@@ -59,7 +60,7 @@ export default function AdminWorkers() {
 
             fetchWorkers();
         } catch (error) {
-            console.error('Error updating worker:', error);
+            logger.error('Error updating worker:', error);
             toast.error('Failed to update worker status');
         }
     };

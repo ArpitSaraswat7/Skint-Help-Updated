@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 export function MapSection() {
     const [email, setEmail] = useState('');
@@ -31,7 +32,7 @@ export function MapSection() {
             toast.success('Thanks! We\'ll notify you when the heat map launches.');
             setEmail('');
         } catch (error) {
-            console.error('Notification subscription error:', error);
+            logger.error('Notification subscription error:', error);
             toast.error('Failed to subscribe. Please try again later.');
         } finally {
             setIsSubmitting(false);

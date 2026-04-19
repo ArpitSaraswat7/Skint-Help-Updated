@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/lib/logger';
 
 export default function EmailConfirm() {
     const navigate = useNavigate();
@@ -45,7 +46,7 @@ export default function EmailConfirm() {
                     setMessage('Verification link expired or invalid. Please try signing up again.');
                 }
             } catch (error) {
-                console.error('Email confirmation error:', error);
+                logger.error('Email confirmation error:', error);
                 setStatus('error');
                 setMessage(error.message || 'Failed to verify email. Please try again.');
             }

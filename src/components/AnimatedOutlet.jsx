@@ -5,7 +5,7 @@ export function AnimatedOutlet() {
     const location = useLocation();
 
     return (
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence mode="wait">
             <motion.div
                 key={location.pathname}
                 initial={{ opacity: 0, y: 5 }}

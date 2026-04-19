@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { StatsSkeleton, CardSkeleton } from '@/components/ui/skeleton-loaders';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useConfetti } from '@/hooks/useConfetti';
+import { logger } from '@/lib/logger';
 
 export default function WorkerPickups() {
     const { profile } = useAuth();
@@ -61,7 +62,7 @@ export default function WorkerPickups() {
             if (error) throw error;
             setPickups(data || []);
         } catch (error) {
-            console.error('Error fetching pickups:', error);
+            logger.error('Error fetching pickups:', error);
             toast.error('Failed to load pickups');
         } finally {
             setLoading(false);
@@ -88,8 +89,10 @@ export default function WorkerPickups() {
     };
 
     const filteredPickups = pickups.filter(pickup => {
-        const matchesSearch = pickup.restaurants?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            pickup.food_type.toLowerCase().includes(searchQuery.toLowerCase());
+        const name = pickup.restaurants?.name ?? '';
+        const foodType = pickup.food_type ?? '';
+        const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            foodType.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesFilter = filter === 'all' ||
             (filter === 'pending' && pickup.status === 'pending') ||
             (filter === 'collected' && pickup.status === 'at_center');
@@ -345,7 +348,7 @@ export default function WorkerPickups() {
                                 // TODO: Trigger restaurant notification via backend function
                                 // This would typically call a Supabase Edge Function or backend API
                             } catch (error) {
-                                console.error('Error canceling pickup:', error);
+                                logger.error('Error canceling pickup:', error);
                                 toast.error(error.message || 'Failed to cancel pickup');
                             }
                             setCancelDialog({ open: false, pickup: null, reason: '' });

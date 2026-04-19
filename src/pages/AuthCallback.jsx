@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { getDashboardForRole } from '@/lib/role-routes';
+import { logger } from '@/lib/logger';
 
 export default function AuthCallback() {
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function AuthCallback() {
 
                 // Handle OAuth errors
                 if (error) {
-                    console.error('OAuth error:', error, errorDescription);
+                    logger.error('OAuth error:', error, errorDescription);
                     toast.error(errorDescription || 'Authentication failed');
                     navigate('/select-role', { replace: true });
                     return;
@@ -61,7 +62,7 @@ export default function AuthCallback() {
                     });
 
                     if (updateError) {
-                        console.error('Failed to update user role:', updateError);
+                        logger.error('Failed to update user role:', updateError);
                     }
                 }
 
@@ -80,13 +81,13 @@ export default function AuthCallback() {
 
                         // Validate response shape before accessing data
                         if (response.error) {
-                            console.error('Error fetching user:', response.error);
+                            logger.error('Error fetching user:', response.error);
                             setStatus(`Retry ${retryCount + 1}/${maxRetries} failed`);
                         } else if (response.data?.user) {
                             userRole = response.data.user.user_metadata?.role;
                         }
                     } catch (error) {
-                        console.error('Exception during user fetch:', error);
+                        logger.error('Exception during user fetch:', error);
                         setStatus(`Retry ${retryCount + 1}/${maxRetries} failed`);
                     }
 
@@ -106,7 +107,7 @@ export default function AuthCallback() {
                 // Redirect based on role using centralized mapping
                 navigate(getDashboardForRole(finalRole), { replace: true });
             } catch (error) {
-                console.error('Auth callback error:', error);
+                logger.error('Auth callback error:', error);
                 toast.error(error.message || 'Sign in failed. Please try again.');
                 navigate('/select-role', { replace: true });
             }

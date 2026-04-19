@@ -1,6 +1,7 @@
 import React from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/lib/logger';
 
 /**
  * Error Boundary Component
@@ -29,7 +30,7 @@ export class ErrorBoundary extends React.Component {
         // Log to error reporting service in production
         if (import.meta.env.PROD) {
             // TODO: Send to Sentry or other error tracking service
-            console.error('Error caught by boundary:', error, errorInfo);
+            logger.error('Error caught by boundary:', error, errorInfo);
         }
     }
 

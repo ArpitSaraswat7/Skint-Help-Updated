@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Mail, MapPin, Phone, User, Calendar, Eye, Trash2, Search, Filter, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/lib/logger';
 
 export default function AdminApplications() {
     const { profile } = useAuth();
@@ -57,14 +58,14 @@ export default function AdminApplications() {
                 .order('created_at', { ascending: false });
 
             if (error) {
-                console.error('Fetch error:', error);
+                logger.error('Fetch error:', error);
                 alert('Failed to load applications');
                 return;
             }
 
             setApplications(data || []);
         } catch (err) {
-            console.error('Error:', err);
+            logger.error('Error:', err);
         } finally {
             setLoading(false);
         }
@@ -86,7 +87,7 @@ export default function AdminApplications() {
             setSelectedApp(null);
             alert('Application deleted successfully');
         } catch (err) {
-            console.error('Delete error:', err);
+            logger.error('Delete error:', err);
             alert('Failed to delete application');
         } finally {
             setDeleting(null);

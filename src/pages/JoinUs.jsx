@@ -7,9 +7,15 @@ import { Meteors } from '@/components/ui/meteors';
 import { useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 
-// Initialize EmailJS (do this once when app loads)
-emailjs.init('g5r-QCF_54ZoNfzqH');
+// Initialize EmailJS
+const emailJsKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+if (emailJsKey) {
+    emailjs.init(emailJsKey);
+} else {
+    logger.warn('VITE_EMAILJS_PUBLIC_KEY is not defined. Form submissions may fail.');
+}
 
 export default function JoinUs() {
     const [selectedRole, setSelectedRole] = useState(null);
@@ -17,6 +23,8 @@ export default function JoinUs() {
     const [submitted, setSubmitted] = useState(false);
     const [error, setError] = useState(null);
     
+    const [submittedEmail, setSubmittedEmail] = useState('');
+
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -103,7 +111,7 @@ export default function JoinUs() {
                 }]);
 
             if (dbError) {
-                console.error('Supabase Error:', dbError);
+                logger.error('Supabase Error:', dbError);
                 throw new Error('Database error: ' + (dbError.message || 'Failed to save to database. Please check if the table exists.'));
             }
 
@@ -111,10 +119,10 @@ export default function JoinUs() {
             const roleTitle = roles.find(r => r.id === selectedRole)?.title || selectedRole;
             
             try {
-                console.log('Sending admin notification...');
+                logger.debug('Sending admin notification...');
                 await emailjs.send(
-                    'service_li17zan',
-                    'template_abjbnct',
+                    import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_li17zan',
+                    import.meta.env.VITE_EMAILJS_ADMIN_TEMPLATE || 'template_abjbnct',
                     {
                         from_name: `${formData.firstName} ${formData.lastName}`,
                         from_email: formData.email,
@@ -123,30 +131,31 @@ export default function JoinUs() {
                         message: formData.message,
                     }
                 );
-                console.log('Admin notification sent successfully');
+                logger.debug('Admin notification sent successfully');
             } catch (adminEmailErr) {
-                console.error('Admin email failed:', adminEmailErr);
+                logger.error('Admin email failed:', adminEmailErr);
             }
 
             // 3. Send CONFIRMATION EMAIL to APPLICANT
             try {
-                console.log('Sending applicant confirmation email...');
+                logger.debug('Sending applicant confirmation email...');
                 await emailjs.send(
-                    'service_li17zan',
-                    'template_applicant_confirmation', // Different template for applicant
+                    import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_li17zan',
+                    import.meta.env.VITE_EMAILJS_APPLICANT_TEMPLATE || 'template_applicant_confirmation',
                     {
                         to_email: formData.email, // Send to applicant's email
                         applicant_name: formData.firstName,
                         role: roleTitle,
                     }
                 );
-                console.log('Applicant confirmation sent successfully');
+                logger.debug('Applicant confirmation sent successfully');
             } catch (applicantEmailErr) {
-                console.error('Applicant confirmation email failed:', applicantEmailErr);
-                console.warn('⚠️ Application saved but applicant confirmation email failed');
+                logger.error('Applicant confirmation email failed:', applicantEmailErr);
+                logger.warn('Application saved but applicant confirmation email failed');
             }
 
             // Success!
+            setSubmittedEmail(formData.email);
             setSubmitted(true);
             
             // Store success in localStorage for home page notification
@@ -173,7 +182,7 @@ export default function JoinUs() {
             // Reset success message after 5 seconds
             setTimeout(() => setSubmitted(false), 5000);
         } catch (err) {
-            console.error('Submission error:', err);
+            logger.error('Submission error:', err);
             setError(err.message || 'Failed to submit application. Please try again.');
         } finally {
             setLoading(false);
@@ -266,7 +275,7 @@ export default function JoinUs() {
                                 transition={{ delay: 0.6 }}
                                 className="text-white font-semibold text-sm mb-6 break-all"
                             >
-                                {formData.email}
+                                {submittedEmail}
                             </motion.p>
 
                             {/* Animated Progress Bar */}

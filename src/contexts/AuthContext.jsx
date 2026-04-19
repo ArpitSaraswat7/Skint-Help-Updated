@@ -183,7 +183,7 @@ export function AuthProvider({ children }) {
             setLoading(false);
 
         } catch (error) {
-            console.error("Error fetching profile:", error);
+            logger.error("Error fetching profile:", error);
             const defaultRole = localStorage.getItem('userRole') || 'public';
             setProfile({
                 id: currentUser.id,
@@ -232,7 +232,7 @@ export function AuthProvider({ children }) {
         } catch (error) {
             // Only set loading=false on error — success is handled by onAuthStateChange
             setLoading(false);
-            console.error('Sign in error:', error);
+            logger.error('Sign in error:', error);
             throw new Error(error.message || 'Failed to sign in');
         }
     };
@@ -267,7 +267,7 @@ export function AuthProvider({ children }) {
             }
 
         } catch (error) {
-            console.error('Sign up error:', error);
+            logger.error('Sign up error:', error);
             throw new Error(error.message || 'Failed to create account');
         } finally {
             setLoading(false);
@@ -306,7 +306,7 @@ export function AuthProvider({ children }) {
             supabaseKeys.forEach(key => localStorage.removeItem(key));
 
         } catch (error) {
-            console.error('Sign out error:', error);
+            logger.error('Sign out error:', error);
             // Still clear state even on error so the user isn't stuck
             setProfile(null);
             setUser(null);
@@ -338,7 +338,7 @@ export function AuthProvider({ children }) {
 
             localStorage.setItem('pendingRole', validatedRole);
         } catch (error) {
-            console.error('Google sign in error:', error);
+            logger.error('Google sign in error:', error);
             throw new Error(error.message || 'Failed to sign in with Google');
         }
     };
@@ -349,7 +349,7 @@ export function AuthProvider({ children }) {
             if (error) throw error;
             toast.success('OTP sent to your phone!');
         } catch (error) {
-            console.error('Phone sign in error:', error);
+            logger.error('Phone sign in error:', error);
             throw new Error(error.message || 'Failed to send OTP');
         }
     };
@@ -370,13 +370,13 @@ export function AuthProvider({ children }) {
             });
 
             if (updateError) {
-                console.error('Failed to update user role:', updateError);
+                logger.error('Failed to update user role:', updateError);
                 toast.error('Verification succeeded but role assignment failed');
             } else {
                 toast.success('Phone verified successfully!');
             }
         } catch (error) {
-            console.error('OTP verification error:', error);
+            logger.error('OTP verification error:', error);
             throw new Error(error.message || 'Failed to verify OTP');
         }
     };
@@ -392,7 +392,7 @@ export function AuthProvider({ children }) {
                 setProfile({ ...profile, ...data });
             }
         } catch (error) {
-            console.error('Update profile error:', error);
+            logger.error('Update profile error:', error);
             throw new Error('Failed to update profile');
         }
     };
@@ -403,7 +403,8 @@ export function AuthProvider({ children }) {
      * No signup, no database, no multi-user — only one admin exists.
      *
      * Security:
-     *  - Max 3 failed attempts → 10-minute lockout (stored in sessionStorage)
+     *  - Max 3 failed attempts → configurable lockout via VITE_ADMIN_LOCKOUT_MS
+     *    (default 30 s, stored in sessionStorage)
      *  - Session stored in sessionStorage (auto-clears on tab/browser close)
      *  - Credentials never logged or stored anywhere
      */
@@ -411,13 +412,15 @@ export function AuthProvider({ children }) {
         const LOCKOUT_KEY  = '_sh_adm_lock';
         const ATTEMPTS_KEY = '_sh_adm_att';
         const MAX_ATTEMPTS = 3;
-        const LOCKOUT_MS   = 10 * 60 * 1000; // 10 minutes
+        const DEFAULT_LOCKOUT = 30_000; // 30 s
+        const envLockout      = Number(ENV.ADMIN_LOCKOUT_MS);
+        const LOCKOUT_MS      = Number.isFinite(envLockout) ? envLockout : DEFAULT_LOCKOUT;
 
         // ── Lockout check ──────────────────────────────────────────
         const lockoutUntil = sessionStorage.getItem(LOCKOUT_KEY);
         if (lockoutUntil && Date.now() < parseInt(lockoutUntil, 10)) {
-            const remaining = Math.ceil((parseInt(lockoutUntil, 10) - Date.now()) / 60000);
-            throw new Error(`Too many failed attempts. Try again in ${remaining} minute(s).`);
+            const remaining = Math.ceil((parseInt(lockoutUntil, 10) - Date.now()) / 1000);
+            throw new Error(`Too many failed attempts. Try again in ${remaining} second(s).`);
         }
 
         // ── Credential validation ───────────────────────────────────
@@ -439,7 +442,8 @@ export function AuthProvider({ children }) {
                 // Trigger lockout
                 sessionStorage.setItem(LOCKOUT_KEY, String(Date.now() + LOCKOUT_MS));
                 sessionStorage.removeItem(ATTEMPTS_KEY);
-                throw new Error(`Maximum attempts reached. Access locked for 10 minutes.`);
+                const lockSecs = Math.ceil(LOCKOUT_MS / 1000);
+                throw new Error(`Maximum attempts reached. Access locked for ${lockSecs} second(s).`);
             }
 
             const left = MAX_ATTEMPTS - attempts;

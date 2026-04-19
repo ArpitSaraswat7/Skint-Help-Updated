@@ -5,6 +5,7 @@ import { Building2, Plus, MapPin, Phone, CheckCircle, Navigation, AlertCircle } 
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { CardSkeleton } from '@/components/ui/skeleton-loaders';
+import { logger } from '@/lib/logger';
 
 export default function AdminCenters() {
     const [centers, setCenters] = useState([]);
@@ -35,7 +36,7 @@ export default function AdminCenters() {
             if (error) throw error;
             setCenters(data || []);
         } catch (error) {
-            console.error('Error fetching centers:', error);
+            logger.error('Error fetching centers:', error);
             toast.error('Failed to load centers');
         } finally {
             setLoading(false);
@@ -53,7 +54,7 @@ export default function AdminCenters() {
             toast.success(`Center ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
             fetchCenters();
         } catch (error) {
-            console.error('Error toggling center status:', error);
+            logger.error('Error toggling center status:', error);
             toast.error('Failed to update center status');
         }
     };

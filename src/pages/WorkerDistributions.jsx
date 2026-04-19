@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Package, Users, TrendingUp, CheckCircle, Calendar, Search, ArrowLeft, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { logger } from '@/lib/logger';
 
 export default function WorkerDistributions() {
     const { profile } = useAuth();
@@ -60,7 +61,7 @@ export default function WorkerDistributions() {
 
             setStats({ total, totalMeals, thisWeek, thisMonth });
         } catch (error) {
-            console.error('Error fetching distributions:', error);
+            logger.error('Error fetching distributions:', error);
             toast.error('Failed to load distributions');
         } finally {
             setLoading(false);

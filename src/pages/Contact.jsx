@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Meteors } from '@/components/ui/meteors';
 import { useState } from 'react';
+import emailjs from '@emailjs/browser';
+import { logger } from '@/lib/logger';
 
 const faqData = [
     {
@@ -44,6 +46,52 @@ const faqData = [
 
 export default function Contact() {
     const [showFaq, setShowFaq] = useState(false);
+    const [formLoading, setFormLoading] = useState(false);
+    const [formSuccess, setFormSuccess] = useState(false);
+    const [formError, setFormError] = useState(null);
+    const [contactForm, setContactForm] = useState({
+        firstName: '', lastName: '', email: '', phone: '', subject: '', message: ''
+    });
+
+    const handleContactChange = (e) => {
+        setContactForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    const handleContactSubmit = async (e) => {
+        e.preventDefault();
+        setFormLoading(true);
+        setFormError(null);
+        try {
+            const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+            const templateId = import.meta.env.VITE_EMAILJS_ADMIN_TEMPLATE;
+            const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+            if (!serviceId || !templateId || !publicKey) {
+                throw new Error('EmailJS configuration is missing. Please contact support.');
+            }
+
+            await emailjs.send(
+                serviceId,
+                templateId,
+                {
+                    from_name: `${contactForm.firstName} ${contactForm.lastName}`,
+                    from_email: contactForm.email,
+                    phone: contactForm.phone,
+                    role: `Contact: ${contactForm.subject}`,
+                    message: contactForm.message,
+                },
+                publicKey
+            );
+            setFormSuccess(true);
+            setContactForm({ firstName: '', lastName: '', email: '', phone: '', subject: '', message: '' });
+            setTimeout(() => setFormSuccess(false), 5000);
+        } catch (err) {
+            logger.error('Contact form error:', err);
+            setFormError('Failed to send message. Please try again or email us directly.');
+        } finally {
+            setFormLoading(false);
+        }
+    };
     const contactInfo = [
         {
             icon: <Mail className="w-6 h-6" />,
@@ -106,12 +154,29 @@ export default function Contact() {
                         <div className="glass-card p-8 rounded-3xl">
                             <h2 className="text-3xl font-bold mb-6 text-white">Send us a Message</h2>
 
-                            <form className="space-y-6">
+                            {formSuccess && (
+                                <div className="mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded-xl flex items-center gap-3">
+                                    <Send className="w-5 h-5 text-green-400" />
+                                    <p className="text-green-300 text-sm">Message sent successfully! We'll get back to you soon.</p>
+                                </div>
+                            )}
+
+                            {formError && (
+                                <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-xl">
+                                    <p className="text-red-300 text-sm">{formError}</p>
+                                </div>
+                            )}
+
+                            <form onSubmit={handleContactSubmit} className="space-y-6">
                                 <div className="grid md:grid-cols-2 gap-4">
                                     <div className="input-3d">
                                         <input
                                             type="text"
+                                            name="firstName"
                                             placeholder="First Name"
+                                            aria-label="First Name"
+                                            value={contactForm.firstName}
+                                            onChange={handleContactChange}
                                             className="w-full bg-transparent border-0 focus:outline-none text-foreground placeholder:text-muted-foreground py-3"
                                             required
                                         />
@@ -119,7 +184,11 @@ export default function Contact() {
                                     <div className="input-3d">
                                         <input
                                             type="text"
+                                            name="lastName"
                                             placeholder="Last Name"
+                                            aria-label="Last Name"
+                                            value={contactForm.lastName}
+                                            onChange={handleContactChange}
                                             className="w-full bg-transparent border-0 focus:outline-none text-foreground placeholder:text-muted-foreground py-3"
                                             required
                                         />
@@ -129,7 +198,11 @@ export default function Contact() {
                                 <div className="input-3d">
                                     <input
                                         type="email"
+                                        name="email"
                                         placeholder="Email Address"
+                                        aria-label="Email Address"
+                                        value={contactForm.email}
+                                        onChange={handleContactChange}
                                         className="w-full bg-transparent border-0 focus:outline-none text-foreground placeholder:text-muted-foreground py-3"
                                         required
                                     />
@@ -138,7 +211,11 @@ export default function Contact() {
                                 <div className="input-3d">
                                     <input
                                         type="tel"
+                                        name="phone"
                                         placeholder="Phone Number (Optional)"
+                                        aria-label="Phone Number"
+                                        value={contactForm.phone}
+                                        onChange={handleContactChange}
                                         className="w-full bg-transparent border-0 focus:outline-none text-foreground placeholder:text-muted-foreground py-3"
                                     />
                                 </div>
@@ -146,7 +223,11 @@ export default function Contact() {
                                 <div className="input-3d">
                                     <input
                                         type="text"
+                                        name="subject"
                                         placeholder="Subject"
+                                        aria-label="Subject"
+                                        value={contactForm.subject}
+                                        onChange={handleContactChange}
                                         className="w-full bg-transparent border-0 focus:outline-none text-foreground placeholder:text-muted-foreground py-3"
                                         required
                                     />
@@ -154,17 +235,25 @@ export default function Contact() {
 
                                 <div className="input-3d">
                                     <textarea
+                                        name="message"
                                         placeholder="Your Message"
+                                        aria-label="Your Message"
                                         rows={6}
+                                        value={contactForm.message}
+                                        onChange={handleContactChange}
                                         className="w-full bg-transparent border-0 focus:outline-none text-foreground placeholder:text-muted-foreground py-3 resize-none"
                                         required
                                     />
                                 </div>
 
-                                <Button className="w-full rgb-ring h-14 text-lg font-semibold group text-white">
+                                <Button
+                                    type="submit"
+                                    disabled={formLoading}
+                                    className="w-full rgb-ring h-14 text-lg font-semibold group text-white disabled:opacity-50"
+                                >
                                     <span className="relative z-10 flex items-center justify-center gap-2">
-                                        Send Message
-                                        <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                        {formLoading ? 'Sending...' : formSuccess ? 'Sent!' : 'Send Message'}
+                                        {!formLoading && <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
                                     </span>
                                 </Button>
                             </form>

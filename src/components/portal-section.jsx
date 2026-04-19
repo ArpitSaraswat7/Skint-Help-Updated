@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ForkKnife, UsersThree, MapPin, ArrowRight, Heart } from "@phosphor-icons/react";
+import { ForkKnife, UsersThree, ArrowRight, Heart } from "@phosphor-icons/react";
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import ElectricBorder from '@/components/ui/ElectricBorder';
@@ -25,15 +25,7 @@ export function PortalSection() {
             features: ['Route optimizer', 'Hour tracking', 'Rewards program'],
             portalId: 'worker',
         },
-        {
-            icon: <MapPin className="w-8 h-8" />,
-            title: 'Admin Portal',
-            description: 'Platform management, analytics, and system administration',
-            color: 'from-cyan-500 to-blue-500',
-            electricColor: '#06b6d4',
-            features: ['System analytics', 'User management', 'Resource oversight'],
-            portalId: 'admin',
-        },
+
         {
             icon: <Heart className="w-8 h-8" />,
             title: 'Customer Portal',
@@ -74,7 +66,7 @@ export function PortalSection() {
                 </motion.div>
 
                 {/* Portals Grid */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {portals.map((portal, index) => (
                         <motion.div
                             key={index}

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { MapPin, Phone, Clock, Navigation, Building2, CheckCircle, AlertCircle, Search, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/lib/logger';
 
 export default function RestaurantCenters() {
     const { profile } = useAuth();
@@ -30,7 +31,7 @@ export default function RestaurantCenters() {
             if (error) throw error;
             setCenters(data || []);
         } catch (error) {
-            console.error('Error fetching centers:', error);
+            logger.error('Error fetching centers:', error);
         } finally {
             setLoading(false);
         }
@@ -56,7 +57,7 @@ export default function RestaurantCenters() {
             });
             setDonationStats(stats);
         } catch (error) {
-            console.error('Error fetching donation stats:', error);
+            logger.error('Error fetching donation stats:', error);
         }
     };
 

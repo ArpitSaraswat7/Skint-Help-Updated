@@ -28,10 +28,10 @@ export function Footer() {
     };
 
     const socialLinks = [
-        { icon: <FacebookLogo className="w-5 h-5" />, url: '#', name: 'Facebook' },
-        { icon: <TwitterLogo className="w-5 h-5" />, url: '#', name: 'Twitter' },
-        { icon: <InstagramLogo className="w-5 h-5" />, url: '#', name: 'Instagram' },
-        { icon: <LinkedinLogo className="w-5 h-5" />, url: '#', name: 'LinkedIn' },
+        { icon: <FacebookLogo className="w-5 h-5" />, url: 'https://facebook.com/skinthelp', name: 'Facebook' },
+        { icon: <TwitterLogo className="w-5 h-5" />, url: 'https://x.com/skinthelp', name: 'X' },
+        { icon: <InstagramLogo className="w-5 h-5" />, url: 'https://instagram.com/skinthelp', name: 'Instagram' },
+        { icon: <LinkedinLogo className="w-5 h-5" />, url: 'https://linkedin.com/company/skinthelp', name: 'LinkedIn' },
     ];
 
     return (
@@ -52,7 +52,7 @@ export function Footer() {
                                     className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center bg-black/20"
                                 >
                                     <img
-                                        src="/New logo.png"
+                                        src="/favicon.png"
                                         alt="Skint Help Logo"
                                         className="w-full h-full object-cover"
                                     />
@@ -108,8 +108,9 @@ export function Footer() {
                             <ul className="space-y-2">
                                 {footerLinks.company.map((link) => (
                                     <li key={link.name}>
-                                        <span className="text-sm text-white/40 cursor-default">
+                                        <span className="text-sm text-white/60 cursor-default flex items-center gap-1.5">
                                             {link.name}
+                                            <span className="text-[10px] text-white/30 italic">Soon</span>
                                         </span>
                                     </li>
                                 ))}
@@ -121,8 +122,9 @@ export function Footer() {
                             <ul className="space-y-2">
                                 {footerLinks.resources.map((link) => (
                                     <li key={link.name}>
-                                        <span className="text-sm text-white/40 cursor-default">
+                                        <span className="text-sm text-white/60 cursor-default flex items-center gap-1.5">
                                             {link.name}
+                                            <span className="text-[10px] text-white/30 italic">Soon</span>
                                         </span>
                                     </li>
                                 ))}

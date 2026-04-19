@@ -51,15 +51,15 @@ export default function RestaurantDashboard() {
     }, [profile]);
 
     useEffect(() => {
-        console.log("FETCH RUNNING...");
+        logger.debug('Fetching restaurant dashboard data...');
 
         const fetchCenters = async () => {
             const { data, error } = await supabase
                 .from("collection_centers")
                 .select("*");
 
-            console.log("DATA:", data);
-            console.log("ERROR:", error);
+            logger.debug('Dashboard data:', data);
+            if (error) logger.error('Dashboard error:', error);
 
             if (data) setCenters(data);
         };

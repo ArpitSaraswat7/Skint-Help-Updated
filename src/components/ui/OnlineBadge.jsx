@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
+import { logger } from '@/lib/logger';
 
 /**
  * OnlineBadge - Shows real-time online/offline status
@@ -32,7 +33,7 @@ export function OnlineBadge({ userId, size = 'sm', showPulse = true, className =
                     setIsOnline(data.is_online && diffSeconds < 60);
                 }
             } catch (error) {
-                console.error('Error fetching status:', error);
+                logger.error('Error fetching status:', error);
             }
         };
 
