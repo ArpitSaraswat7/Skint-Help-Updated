@@ -198,6 +198,7 @@ export const NoiseBackground = ({
                 <img
                     src="https://assets.aceternity.com/noise.webp"
                     alt=""
+                    loading="lazy"
                     className="h-full w-full object-cover opacity-[var(--noise-opacity)]"
                     style={{ mixBlendMode: "overlay" }}
                 />

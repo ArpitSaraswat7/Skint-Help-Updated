@@ -18,6 +18,7 @@ export const Meteors = ({ number, className }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
+            className="hidden md:block"
         >
             {meteorData.map((meteor, idx) => (
                 <span

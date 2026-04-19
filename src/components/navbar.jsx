@@ -48,6 +48,7 @@ export function Navbar() {
                             <img
                                 src="/favicon.png"
                                 alt="Skint Help Logo"
+                                loading="lazy"
                                 className="w-full h-full object-cover"
                             />
                         </motion.div>
@@ -138,7 +139,7 @@ export function Navbar() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.3 }}
-                        className="lg:hidden mt-4 glass-card rounded-2xl overflow-hidden"
+                        className="lg:hidden mt-4 glass-card rounded-2xl overflow-hidden max-h-[calc(100vh-100px)] overflow-y-auto"
                     >
                         <div className="p-6 space-y-4">
                             {navLinks.map((link, index) => (

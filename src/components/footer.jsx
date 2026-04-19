@@ -54,6 +54,7 @@ export function Footer() {
                                     <img
                                         src="/favicon.png"
                                         alt="Skint Help Logo"
+                                        loading="lazy"
                                         className="w-full h-full object-cover"
                                     />
                                 </motion.div>
