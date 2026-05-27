@@ -67,7 +67,7 @@ export function MapSection() {
                         </div>
                     </motion.div>
 
-                    <h2 className="text-4xl md:text-6xl font-bold mb-4 text-white">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-white">
                         Food <span className="gradient-text">Heat Map</span>
                     </h2>
                     <p className="text-xl text-white/60 max-w-2xl mx-auto mb-8">

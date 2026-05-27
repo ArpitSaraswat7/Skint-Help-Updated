@@ -136,7 +136,7 @@ export default function Contact() {
                         <MessageSquare className="w-4 h-4 text-green-400" />
                         <span className="text-sm font-medium">Get In Touch</span>
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-bold mb-6">
+                    <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6">
                         Let's <span className="gradient-text">Connect</span>
                     </h1>
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto">

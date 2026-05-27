@@ -49,7 +49,9 @@ export default function RestaurantDonations() {
     }, [profile]);
 
     const fetchDonations = async () => {
-        if (!profile?.restaurant_id) {
+        // Use profile.id — AuthContext never sets profile.restaurant_id,
+        // and food_packets.restaurant_id references profiles.id (the auth UUID)
+        if (!profile?.id) {
             setLoading(false);
             return;
         }
@@ -57,22 +59,35 @@ export default function RestaurantDonations() {
         try {
             const { data, error } = await supabase
                 .from('food_packets')
-                .select(`
-                    *,
-                    centers(name, address)
-                `)
-                .eq('restaurant_id', profile.restaurant_id)
+                // collection_centers has uppercase Name and Location columns
+                .select('*, collection_centers(Name, Location)')
+                .eq('restaurant_id', profile.id)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
 
-            setDonations(data || []);
+            // PostgREST join needs a real FK. Fallback: fetch centers manually if join returned null.
+            let donations = data || [];
+            const hasMissingCenter = donations.some(d => d.center_id && !d.collection_centers);
+            if (hasMissingCenter) {
+                const { data: centers } = await supabase
+                    .from('collection_centers')
+                    .select('id, Name, Location');
+                const centerMap = {};
+                centers?.forEach(c => { centerMap[String(c.id)] = c; });
+                donations = donations.map(d => ({
+                    ...d,
+                    collection_centers: d.collection_centers || centerMap[String(d.center_id)] || null,
+                }));
+            }
+
+            setDonations(donations);
 
             // Calculate stats
-            const total = data?.length || 0;
-            const pending = data?.filter(d => d.status === 'pending').length || 0;
-            const distributed = data?.filter(d => d.status === 'distributed').length || 0;
-            const totalMeals = data?.reduce((sum, d) => sum + d.quantity, 0) || 0;
+            const total = donations.length;
+            const pending = donations.filter(d => d.status === 'pending').length;
+            const distributed = donations.filter(d => d.status === 'distributed').length;
+            const totalMeals = donations.reduce((sum, d) => sum + d.quantity, 0);
 
             setStats({ total, pending, distributed, totalMeals });
         } catch (error) {
@@ -127,7 +142,7 @@ export default function RestaurantDonations() {
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to Dashboard
                     </Button>
-                    <h1 className="text-4xl md:text-6xl font-bold mb-4">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
                         My <span className="gradient-text">Donations</span>
                     </h1>
                     <p className="text-xl text-muted-foreground">
@@ -199,13 +214,22 @@ export default function RestaurantDonations() {
                     className="glass-card p-6 rounded-3xl mb-8"
                 >
                     <select className="bg-background/50 border border-white/20 rounded-xl px-4 py-2 w-full max-w-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50">
-                        <option>Select Collection Center</option>
-
-                        {centers.map((center, index) => (
-                            <option key={center.id || index} value={center.id}>
-                                {center.name || center.address || 'Designated Location'}
-                            </option>
-                        ))}
+                        <option value="">Select Collection Center</option>
+                        {centers
+                            // Deduplicate by id
+                            .filter((c, idx, arr) => arr.findIndex(x => x.id === c.id) === idx)
+                            .map((center) => {
+                                const displayName = (center.Name || '').trim();
+                                const displayLocation = (center.Location || '').trim();
+                                const label = displayName
+                                    ? (displayLocation ? `${displayName} — ${displayLocation}` : displayName)
+                                    : displayLocation || 'Centre';
+                                return (
+                                    <option key={center.id} value={center.id}>
+                                        {label}
+                                    </option>
+                                );
+                            })}
                     </select>
                 </motion.div>
 
@@ -295,10 +319,12 @@ export default function RestaurantDonations() {
                                         </p>
                                     )}
 
-                                    {donation.centers && (
+                                    {donation.collection_centers && (
                                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                                             <MapPin className="w-4 h-4 flex-shrink-0" />
-                                            <span className="truncate">{donation.centers.name}</span>
+                                            <span className="truncate">
+                                                {(donation.collection_centers.Name || '').trim() || (donation.collection_centers.Location || '').trim()}
+                                            </span>
                                         </div>
                                     )}
 

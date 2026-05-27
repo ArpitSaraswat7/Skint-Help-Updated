@@ -110,7 +110,7 @@ export default function Login() {
                 // For demo accounts, signIn resolves immediately — navigate now.
                 // For real Supabase accounts onAuthStateChange handles the redirect,
                 // but we also navigate here as a safety-net fallback.
-                const destination = getDashboardForRole(selectedRole);
+                const destination = getDashboardForRole(selectedRole) || '/';
                 localStorage.removeItem('selectedRole');
                 navigate(destination, { replace: true });
             }

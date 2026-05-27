@@ -160,7 +160,7 @@ export default function AdminAnalytics() {
     ];
 
     return (
-        <div className="min-h-screen p-8">
+        <div className="min-h-screen p-4 sm:p-6 md:p-8">
             <section className="relative overflow-hidden">
                 <div className="absolute inset-0 animated-gradient opacity-20" />
 

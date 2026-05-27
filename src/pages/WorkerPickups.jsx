@@ -121,7 +121,7 @@ export default function WorkerPickups() {
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to Dashboard
                     </Button>
-                    <h1 className="text-4xl md:text-6xl font-bold mb-4">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
                         Food <span className="gradient-text">Pickups</span>
                     </h1>
                     <p className="text-xl text-muted-foreground">

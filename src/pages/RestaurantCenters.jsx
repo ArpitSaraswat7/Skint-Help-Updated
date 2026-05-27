@@ -80,7 +80,7 @@ export default function RestaurantCenters() {
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-12"
                 >
-                    <h1 className="text-4xl md:text-6xl font-bold mb-4">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
                         Collection <span className="gradient-text">Centers</span>
                     </h1>
                     <p className="text-xl text-muted-foreground">

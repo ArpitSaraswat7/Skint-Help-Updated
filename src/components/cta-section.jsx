@@ -20,7 +20,7 @@ export function CtaSection() {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true, margin: "100px" }}
                     transition={{ duration: 0.8 }}
-                    className="glass-premium gradient-border gradient-border-animated rounded-3xl p-8 md:p-16 text-center relative overflow-hidden"
+                    className="glass-premium gradient-border gradient-border-animated rounded-3xl p-6 sm:p-8 md:p-16 text-center relative overflow-hidden"
                 >
                     {/* Gradient overlay */}
                     <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-transparent to-orange-500/10 pointer-events-none" />
@@ -51,7 +51,7 @@ export function CtaSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "100px" }}
                             transition={{ delay: 0.3 }}
-                            className="text-4xl md:text-6xl font-bold mb-6"
+                            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
                         >
                             Ready to Make a{' '}
                             <span className="gradient-text text-glow">Difference?</span>
@@ -74,7 +74,7 @@ export function CtaSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "100px" }}
                             transition={{ delay: 0.5 }}
-                            className="grid grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto"
+                            className="grid grid-cols-3 gap-2 sm:gap-4 mb-8 max-w-2xl mx-auto"
                         >
                             <div className="glass-card p-4 rounded-xl soft-glow-hover transition-all duration-300 hover-lift relative overflow-hidden">
                                 <div className="text-3xl font-bold gradient-text relative z-10">50K+</div>

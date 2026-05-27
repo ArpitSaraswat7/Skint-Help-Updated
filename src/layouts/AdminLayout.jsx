@@ -1,5 +1,5 @@
 import { Link, useLocation, Navigate } from "react-router-dom";
-import { Buildings, SignOut, SquaresFour, Users, Storefront, ChartBar, Envelope } from "@phosphor-icons/react";
+import { Buildings, SignOut, SquaresFour, Users, Storefront, ChartBar, Envelope, List, X } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSignOut } from "@/hooks/useSignOut";
@@ -13,6 +13,7 @@ export function AdminLayout() {
     const location = useLocation();
     const handleSignOut = useSignOut();
     const [showSignOutDialog, setShowSignOutDialog] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // Track presence (online/offline status)
     usePresence();
@@ -70,18 +71,39 @@ export function AdminLayout() {
 
     return (
         <div className="min-h-screen flex bg-[#0a0a0f]">
+            {/* Mobile Header */}
+            <div className="md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-3 border-b border-white/8 backdrop-blur-xl" style={{ background: 'rgba(10,10,20,0.92)' }}>
+                <Link to="/" className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                        <Buildings className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="font-bold text-white text-sm tracking-tight">Control Panel</span>
+                </Link>
+                <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-white/10 text-white transition-colors" aria-label="Open menu">
+                    <List className="w-5 h-5" />
+                </button>
+            </div>
+
+            {/* Mobile Backdrop */}
+            {sidebarOpen && (
+                <div className="md:hidden fixed inset-0 z-20 bg-black/60 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+            )}
+
             {/* Sidebar */}
-            <aside className="w-64 fixed h-full z-10 border-r border-white/8 backdrop-blur-xl"
+            <aside className={`w-64 fixed h-full z-30 border-r border-white/8 backdrop-blur-xl transition-transform duration-300 ease-in-out md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
                 style={{ background: 'rgba(10,10,20,0.85)' }}>
 
                 {/* Header */}
-                <div className="p-6 border-b border-white/8">
-                    <Link to="/" className="flex items-center gap-2 group">
+                <div className="p-6 border-b border-white/8 flex items-center justify-between">
+                    <Link to="/" className="flex items-center gap-2 group" onClick={() => setSidebarOpen(false)}>
                         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center transition-all group-hover:scale-110 shadow-lg shadow-cyan-500/20">
                             <Buildings className="w-4 h-4 text-white" />
                         </div>
                         <span className="font-bold text-white tracking-tight">Control Panel</span>
                     </Link>
+                    <button onClick={() => setSidebarOpen(false)} className="md:hidden p-1.5 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors" aria-label="Close menu">
+                        <X className="w-4 h-4" />
+                    </button>
                 </div>
 
                 {/* User Info */}
@@ -103,6 +125,7 @@ export function AdminLayout() {
                             <Link
                                 key={link.path}
                                 to={link.path}
+                                onClick={() => setSidebarOpen(false)}
                                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
                                     isActive
                                         ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/20"
@@ -131,7 +154,7 @@ export function AdminLayout() {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 ml-64 min-h-screen bg-transparent">
+            <main className="flex-1 md:ml-64 min-h-screen bg-transparent pt-14 md:pt-0">
                 <AnimatedOutlet />
             </main>
 

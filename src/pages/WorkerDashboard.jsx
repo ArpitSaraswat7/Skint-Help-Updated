@@ -161,12 +161,16 @@ export default function WorkerDashboard() {
             // Create distribution record if distributed
             if (newStatus === 'distributed') {
                 const packet = packets.find(p => p.id === packetId);
-                await supabase.from('distributions').insert([{
-                    worker_id: profile?.id,
-                    packet_id: packetId,
-                    center_id: profile?.center_id,
-                    quantity_distributed: packet?.quantity || 0,
-                }]);
+                if (!packet) {
+                    logger.error('Packet not found for distribution record:', packetId);
+                } else {
+                    await supabase.from('distributions').insert([{
+                        worker_id: profile?.id,
+                        packet_id: packetId,
+                        center_id: profile?.center_id,
+                        quantity_distributed: packet.quantity || 0,
+                    }]);
+                }
             }
 
             toast.success(`Packet ${newStatus === 'at_center' ? 'received' : 'distributed'}!`);
@@ -197,7 +201,7 @@ export default function WorkerDashboard() {
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to Home
                     </Button>
-                    <h1 className="text-4xl md:text-6xl font-bold mb-4">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
                         Worker <span className="gradient-text">Portal</span>
                     </h1>
                     <p className="text-xl text-muted-foreground">
@@ -285,7 +289,7 @@ export default function WorkerDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="glass-card p-8 rounded-3xl mb-8"
+                    className="glass-card p-4 sm:p-8 rounded-3xl mb-8"
                 >
                     <h2 className="text-2xl font-bold mb-6">Quick Actions</h2>
                     <div className="grid md:grid-cols-2 gap-4">
@@ -328,7 +332,7 @@ export default function WorkerDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="glass-card p-8 rounded-3xl mb-8"
+                    className="glass-card p-4 sm:p-8 rounded-3xl mb-8"
                 >
                     <div className="flex items-center justify-between">
                         <div>
@@ -346,7 +350,7 @@ export default function WorkerDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="glass-card p-8 rounded-3xl"
+                    className="glass-card p-4 sm:p-8 rounded-3xl"
                 >
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold">Recent Packets</h2>

@@ -25,7 +25,7 @@ const ImpactPage = () => {
                             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                             <span className="text-sm font-medium">Real Impact</span>
                         </div>
-                        <h1 className="text-5xl md:text-7xl font-bold mb-6">
+                        <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6">
                             Our <span className="gradient-text">Impact</span>
                         </h1>
                         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">

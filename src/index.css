@@ -64,6 +64,7 @@
   * {
     @apply border-border;
   }
+  *, *::before, *::after { box-sizing: border-box; }
 
   html {
     background: hsl(150 21% 15%);
@@ -577,31 +578,30 @@
 }
 
 /* ========================================
-   MOBILE PERFORMANCE OPTIMIZATIONS
+   COMPREHENSIVE MOBILE RESPONSIVENESS
+   Mobile-first. Breakpoints: 320, 375, 425, 768, 1024, 1440+
    ======================================== */
-@media (max-width: 768px) {
+
+/* ---- 320px - 424px: Extra Small Phones ---- */
+@media (max-width: 424px) {
+  /* Disable heavy CSS effects — saves battery & prevents jank */
   .glass-card, .glass-premium, .depth-card {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    background: rgba(34, 49, 39, 0.95) !important; /* Forest green base fallback */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    background: rgba(34, 49, 39, 0.95) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
     transform: none !important;
   }
-  
   .depth-card:hover {
     transform: none !important;
   }
-  
   .animated-gradient, .pulse-glow, .floating {
     animation: none !important;
   }
-  
   .rgb-ring::before {
     animation: none !important;
     background: hsl(var(--neon-green)) !important;
   }
-  
-  /* Disable 3D styling on mobile forms to save repaints */
   .input-3d {
     transform-style: flat !important;
   }
@@ -609,18 +609,186 @@
     transform: none !important;
     box-shadow: 0 0 0 2px rgba(var(--neon-green), 0.5) !important;
   }
-  
-  /* Ensure touch targets are adequately sized (min 44px) */
-  button, a, input, select {
-    min-height: 44px;
+
+  /* Fluid typography — scales between 320px and 424px */
+  h1 { font-size: clamp(1.75rem, 8vw, 2.25rem) !important; line-height: 1.15 !important; }
+  h2 { font-size: clamp(1.4rem, 6vw, 1.75rem) !important; }
+  h3 { font-size: clamp(1.1rem, 5vw, 1.4rem) !important; }
+
+  /* Containers on tiny screens need tighter padding */
+  .container { padding-left: 1rem !important; padding-right: 1rem !important; }
+
+  /* Stack all grids to single column */
+  [class*="grid-cols-"] {
+    grid-template-columns: 1fr !important;
   }
-  
-  /* Prevent horizontal scrolling */
-  body {
-    overflow-x: hidden;
-    width: 100vw;
+  [class*="md:grid-cols-"], [class*="lg:grid-cols-"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Prevent fixed-width elements from overflowing */
+  img, video, iframe, table {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Hero section: remove fixed heights */
+  .hero-section, [class*="hero"] {
+    min-height: auto !important;
+    padding-top: 5rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  /* Prevent horizontal overflow — root cause of scroll issues */
+  body, html {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+  * { box-sizing: border-box !important; }
+}
+
+/* ---- 425px - 767px: Standard Phones ---- */
+@media (min-width: 425px) and (max-width: 767px) {
+  .glass-card, .glass-premium, .depth-card {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    transform: none !important;
+  }
+  .depth-card:hover {
+    transform: translateY(-4px) !important; /* Reduced 3D on mobile */
+  }
+  h1 { font-size: clamp(2rem, 7vw, 2.75rem) !important; line-height: 1.15 !important; }
+  h2 { font-size: clamp(1.5rem, 5vw, 2rem) !important; }
+  [class*="grid-cols-"] { grid-template-columns: 1fr !important; }
+  .container { padding-left: 1.25rem !important; padding-right: 1.25rem !important; }
+}
+
+/* ---- Shared phone rules (up to 767px) ---- */
+@media (max-width: 767px) {
+  /* Touch targets: minimum 44x44px with proper vertical alignment */
+  /* Removed overly broad button/link rule – use component‑specific classes instead */
+  /* Re-allow inline links to flow naturally */
+  p a, li a, .text-link {
+    display: inline !important;
+    min-height: auto !important;
+    min-width: auto !important;
+  }
+
+  /* Form inputs: large enough to avoid Safari auto-zoom (min 16px font) */
+  input, select, textarea {
+    font-size: 16px !important;
+    min-height: 48px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  textarea { min-height: 100px !important; }
+
+  /* Fix input-3d on mobile */
+  .input-3d input, .input-3d select, .input-3d textarea {
+    min-height: 44px !important;
+  }
+
+  /* Prevent horizontal overflow from elements with fixed widths */
+  body { overflow-x: hidden !important; }
+  .container {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Flex wrapping: prevent children from overflowing */
+  [class*="flex"] {
+    flex-wrap: wrap !important;
+    min-width: 0 !important;
+  }
+  [class*="flex"] > * { min-width: 0 !important; }
+
+  /* Navbar: ensure logo + hamburger are on one line */
+  nav .container > div {
+    flex-wrap: nowrap !important;
+  }
+
+  /* Mobile menu: full-width overlay */
+  nav .glass-card {
+    width: 100% !important;
+    max-width: calc(100vw - 2rem) !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Section padding: reduce on mobile */
+  section { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+
+  /* py-16 override on mobile */
+  .py-16 { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+
+  /* Glass cards: full width on mobile */
+  .glass-card, .depth-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Stats grids: 2 columns on phones */
+  .grid.md\:grid-cols-2, .grid.md\:grid-cols-3, .grid.md\:grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* But 1-col on 320px handled above */
+
+  /* Buttons: full-width for primary CTAs only */
+  .btn-full-mobile {
+    width: 100% !important;
+  }
+
+  /* Text: prevent text overflow */
+  p, h1, h2, h3, h4 {
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+
+  /* Tables: horizontal scroll container */
+  table {
+    display: block !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Modals/dialogs: full-screen on mobile */
+  [role="dialog"] > div, [data-radix-dialog-content] {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    margin: 5vh auto !important;
   }
 }
+
+/* ---- 768px - 1023px: Tablet ---- */
+@media (min-width: 768px) and (max-width: 1023px) {
+  h1 { font-size: clamp(2.5rem, 6vw, 3.5rem) !important; }
+  .glass-card, .depth-card {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .depth-card:hover {
+    transform: translateY(-6px) rotateX(1deg);
+  }
+  /* 2-column grids on tablet */
+  .lg\:grid-cols-3, .lg\:grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ---- 1024px+: Desktop (restore all effects) ---- */
+@media (min-width: 1024px) {
+  .glass-card, .glass-premium, .depth-card {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .depth-card:hover {
+    transform: translateY(-8px) rotateX(2deg);
+  }
+}
+
 
 @layer utilities {
   .text-balance {

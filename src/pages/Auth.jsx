@@ -193,7 +193,7 @@ export default function Auth() {
                                         Welcome to Skint Help
                                     </span>
                                 </motion.div>
-                                <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white tracking-tight">
+                                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white tracking-tight">
                                     Choose Your <span className="text-[#DBEBC0]">Portal</span>
                                 </h1>
                                 <p className="text-xl text-white/50 max-w-2xl mx-auto font-light">

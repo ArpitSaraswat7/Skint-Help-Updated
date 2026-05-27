@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { GlobalBackground } from "@/components/GlobalBackground";
 import { CommandPalette } from "@/components/CommandPalette";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { ChatBot } from "@/components/ChatBot";
 import { lazy, Suspense } from "react";
 import { getDashboardForRole } from "@/lib/role-routes";
 import "@/lib/scroll-handler"; // Import scroll optimization
@@ -30,24 +31,24 @@ import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 
 // ─── Lazy-loaded Public Pages ───
-const JoinUsPage = lazy(() => import("./pages/JoinUs"));
-const ContactPage = lazy(() => import("./pages/Contact"));
-const HowItWorksPage = lazy(() => import("./pages/HowItWorks"));
-const ImpactPage = lazy(() => import("./pages/Impact"));
-const PublicFoodMap = lazy(() => import("./pages/PublicFoodMap"));
+const JoinUsPage = lazy(() => import("./pages/JoinUs.jsx"));
+const ContactPage = lazy(() => import("./pages/Contact.jsx"));
+const HowItWorksPage = lazy(() => import("./pages/HowItWorks.jsx"));
+const ImpactPage = lazy(() => import("./pages/Impact.jsx"));
+const PublicFoodMap = lazy(() => import("./pages/PublicFoodMap.jsx"));
 
 // ─── Lazy-loaded Admin Portal Pages ───
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const AdminApplications = lazy(() => import("./pages/AdminApplications"));
-const AdminRestaurants = lazy(() => import("./pages/AdminRestaurants"));
-const AdminWorkers = lazy(() => import("./pages/AdminWorkers"));
-const AdminCenters = lazy(() => import("./pages/AdminCenters"));
-const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard.jsx"));
+const AdminApplications = lazy(() => import("./pages/AdminApplications.jsx"));
+const AdminRestaurants = lazy(() => import("./pages/AdminRestaurants.jsx"));
+const AdminWorkers = lazy(() => import("./pages/AdminWorkers.jsx"));
+const AdminCenters = lazy(() => import("./pages/AdminCenters.jsx"));
+const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics.jsx"));
 
 // ─── Lazy-loaded Restaurant Portal Pages ───
-const RestaurantDashboard = lazy(() => import("./pages/RestaurantDashboard"));
-const RestaurantDonations = lazy(() => import("./pages/RestaurantDonations"));
-const RestaurantCenters = lazy(() => import("./pages/RestaurantCenters"));
+const RestaurantDashboard = lazy(() => import("./pages/RestaurantDashboard.jsx"));
+const RestaurantDonations = lazy(() => import("./pages/RestaurantDonations.jsx"));
+const RestaurantCenters = lazy(() => import("./pages/RestaurantCenters.jsx"));
 
 // ─── Lazy-loaded Worker Portal Pages ───
 const WorkerDashboard = lazy(() => import("./pages/WorkerDashboard"));
@@ -88,6 +89,7 @@ const App = () => (
                     <CommandPalette />
                     <Toaster />
                     <Sonner />
+                    <ChatBot />
                     <AppRoutes />
                 </TooltipProvider>
             </AuthProvider>

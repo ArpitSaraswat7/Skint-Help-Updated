@@ -16,11 +16,8 @@ export default function RestaurantDashboard() {
     const { profile } = useAuth();
     const navigate = useNavigate();
     const confetti = useConfetti();
-    const [selectedCenter, setSelectedCenter] = useState('');
-    const [quantity, setQuantity] = useState('');
-    const [description, setDescription] = useState('');
-    const [foodType, setFoodType] = useState('');
-    const [isDemoMode, setIsDemoMode] = useState(false);
+    // Single source of truth for form state
+    const [isDemoMode] = useState(false);
 
     // Mock centers for demo mode when table doesn't exist
     const MOCK_CENTERS = [
@@ -47,28 +44,76 @@ export default function RestaurantDashboard() {
     const [deleteDialog, setDeleteDialog] = useState({ open: false, packet: null });
 
     useEffect(() => {
+        if (!profile?.id) return;
         fetchMyPackets();
-    }, [profile]);
+
+        // Real-time subscription: get notified when packet status changes
+        const channel = supabase
+            .channel(`restaurant-packets-${profile.id}`)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'food_packets',
+                filter: `restaurant_id=eq.${profile.id}`,
+            }, (payload) => {
+                const updated = payload.new;
+                if (updated.status === 'at_center') {
+                    toast.info(`Your food packet has been collected!`, {
+                        description: `${updated.quantity} meals of ${updated.food_type} arrived at the collection center.`,
+                        duration: 6000,
+                    });
+                } else if (updated.status === 'distributed') {
+                    toast.success(`Your food packet has been distributed!`, {
+                        description: `${updated.quantity} meals of ${updated.food_type} reached people in need.`,
+                        duration: 6000,
+                    });
+                }
+                fetchMyPackets();
+            })
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'food_packets',
+                filter: `restaurant_id=eq.${profile.id}`,
+            }, () => {
+                fetchMyPackets();
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [profile?.id]);
 
     useEffect(() => {
         logger.debug('Fetching restaurant dashboard data...');
 
         const fetchCenters = async () => {
-            const { data, error } = await supabase
-                .from("collection_centers")
-                .select("*");
+            try {
+                const { data, error } = await supabase
+                    .from("collection_centers")
+                    .select("*");
 
-            logger.debug('Dashboard data:', data);
-            if (error) logger.error('Dashboard error:', error);
-
-            if (data) setCenters(data);
+                if (error) {
+                    logger.error('Failed to fetch centers:', error);
+                    setCenters(MOCK_CENTERS);
+                    return;
+                }
+                setCenters(data || MOCK_CENTERS);
+            } catch (err) {
+                logger.error('Centers fetch exception:', err);
+                setCenters(MOCK_CENTERS);
+            }
         };
 
         fetchCenters();
     }, []);
 
     const fetchMyPackets = async () => {
-        if (!profile?.restaurant_id) {
+        // Use profile.id as the restaurant_id — the food_packets table
+        // stores restaurant_id as the user's auth UUID (references profiles.id)
+        // profile.restaurant_id is not set by AuthContext, so we use profile.id
+        if (!profile?.id) {
             setLoading(false);
             return;
         }
@@ -76,11 +121,9 @@ export default function RestaurantDashboard() {
         try {
             const { data, error } = await supabase
                 .from('food_packets')
-                .select(`
-    *,
-    centers(name, address)
-        `)
-                .eq('restaurant_id', profile.restaurant_id)
+                // Join collection_centers using FK on center_id
+                .select('*, collection_centers(Name, Location)')
+                .eq('restaurant_id', profile.id)
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -139,22 +182,34 @@ export default function RestaurantDashboard() {
                     setLoading(false);
                     return;
                 }
-                throw error;
+                if (error) throw error;
             }
-            setMyPackets(data || []);
+
+            // PostgREST join only works with a real FK.
+            // If collection_centers is null on any packet, fetch center names manually.
+            let packets = data || [];
+            const hasMissingCenter = packets.some(p => p.center_id && !p.collection_centers);
+            if (hasMissingCenter) {
+                const { data: centers } = await supabase
+                    .from('collection_centers')
+                    .select('id, Name, Location');
+                const centerMap = {};
+                centers?.forEach(c => { centerMap[String(c.id)] = c; });
+                packets = packets.map(p => ({
+                    ...p,
+                    collection_centers: p.collection_centers || centerMap[String(p.center_id)] || null,
+                }));
+            }
+
+            setMyPackets(packets);
 
             // Calculate stats
-            const totalDonations = data?.length || 0;
-            const pendingDonations = data?.filter(p => p.status === 'pending').length || 0;
-            const distributedDonations = data?.filter(p => p.status === 'distributed').length || 0;
-            const totalMeals = data?.reduce((sum, p) => sum + p.quantity, 0) || 0;
+            const totalDonations = packets.length;
+            const pendingDonations = packets.filter(p => p.status === 'pending').length;
+            const distributedDonations = packets.filter(p => p.status === 'distributed').length;
+            const totalMeals = packets.reduce((sum, p) => sum + p.quantity, 0);
 
-            setStats({
-                totalDonations,
-                pendingDonations,
-                distributedDonations,
-                totalMeals
-            });
+            setStats({ totalDonations, pendingDonations, distributedDonations, totalMeals });
         } catch (error) {
             logger.debug('Using mock food packets data for demo');
             // Fallback to empty state
@@ -173,48 +228,44 @@ export default function RestaurantDashboard() {
     const handleCreatePacket = async (e) => {
         e.preventDefault();
 
-        // Prevent submission in demo mode to avoid FK constraint failures
-        if (isDemoMode) {
-            toast.error('Demo mode: Cannot create packets with mock data. Please connect to a real Supabase database.');
+        // Use profile.id — this is the auth UUID that food_packets.restaurant_id references
+        if (!profile?.id) {
+            toast.error('Restaurant profile not found. Please log in again.');
             return;
         }
 
-        if (!profile?.restaurant_id) {
-            toast.error('Restaurant profile not found');
-            return;
-        }
-
-        if (!selectedCenter || !quantity || !foodType) { // Added foodType to validation
+        // Validate required fields from formData (the actual controlled state)
+        if (!formData.center_id || !formData.quantity || !formData.food_type) {
             toast.error('Please fill in all required fields');
             return;
         }
 
         try {
-            const { data, error } = await supabase
+            const { error } = await supabase
                 .from('food_packets')
-                .insert([
-                    {
-                        restaurant_id: profile.restaurant_id,
-                        center_id: selectedCenter,
-                        quantity: parseInt(quantity),
-                        food_type: foodType, // Using foodType state
-                        description: description || null,
-                        status: 'pending'
-                    }
-                ])
-                .select()
-                .single();
+                .insert([{
+                    restaurant_id: profile.id,
+                    center_id: formData.center_id,
+                    quantity: parseInt(formData.quantity),
+                    food_type: formData.food_type,
+                    description: formData.description || null,
+                    status: 'pending'
+                }]);
 
             if (error) throw error;
 
-            toast.success('Food packet created successfully!');
-            confetti.success(); // 🎉 Confetti celebration!
+            // Close form and reset BEFORE refreshing so UI feels fast
             setShowAddForm(false);
-            setSelectedCenter('');
-            setQuantity('');
-            setDescription('');
-            setFoodType(''); // Clear foodType state
-            fetchMyPackets(); // Refresh the list
+            setFormData({ quantity: '', food_type: '', description: '', center_id: '' });
+
+            // Fetch fresh data from DB — guaranteed to reflect the new packet
+            await fetchMyPackets();
+
+            toast.success('Food packet created!', {
+                description: `${formData.quantity} meals of ${formData.food_type} submitted for pickup.`,
+                duration: 5000,
+            });
+            confetti.success();
         } catch (error) {
             logger.error('Error creating packet:', error);
             toast.error(error.message || 'Failed to create food packet');
@@ -261,7 +312,7 @@ export default function RestaurantDashboard() {
                     className="mb-12 flex items-center justify-between"
                 >
                     <div>
-                        <h1 className="text-4xl md:text-6xl font-bold mb-4">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
                             Restaurant <span className="gradient-text">Portal</span>
                         </h1>
                         <p className="text-xl text-muted-foreground">
@@ -340,7 +391,7 @@ export default function RestaurantDashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="glass-card p-8 rounded-3xl mb-8"
+                    className="glass-card p-4 sm:p-8 rounded-3xl mb-8"
                 >
                     <h2 className="text-2xl font-bold mb-6">Quick Actions</h2>
                     <div className="grid md:grid-cols-3 gap-4">
@@ -433,11 +484,21 @@ export default function RestaurantDashboard() {
                                     required
                                 >
                                     <option value="">Select Collection Center</option>
-                                    {centers?.map((center, index) => (
-                                        <option key={center.id || index} value={center.id} className="bg-gray-900">
-                                            {center.name || center.address || 'Mathura'} {center.name && center.address ? `- ${center.address}` : ''}
-                                        </option>
-                                    ))}
+                                    {centers
+                                        // Deduplicate by id
+                                        ?.filter((c, idx, arr) => arr.findIndex(x => x.id === c.id) === idx)
+                                        .map((center) => {
+                                            const displayName = (center.Name || '').trim();
+                                            const displayLocation = (center.Location || '').trim();
+                                            const label = displayName
+                                                ? (displayLocation ? `${displayName} — ${displayLocation}` : displayName)
+                                                : displayLocation || 'Centre';
+                                            return (
+                                                <option key={center.id} value={center.id} className="bg-gray-900">
+                                                    {label}
+                                                </option>
+                                            );
+                                        })}
                                 </select>
                             </div>
 
@@ -529,10 +590,10 @@ export default function RestaurantDashboard() {
                                         {packet.quantity} meals
                                     </p>
 
-                                    {packet.centers && (
+                                    {packet.collection_centers && (
                                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                                             <MapPin className="w-4 h-4" />
-                                            {packet.centers.name}
+                                            {(packet.collection_centers.Name || '').trim() || (packet.collection_centers.Location || '').trim()}
                                         </div>
                                     )}
 

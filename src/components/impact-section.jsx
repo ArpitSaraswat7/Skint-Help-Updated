@@ -22,7 +22,7 @@ export function ImpactSection() {
                         <TrendUp className="w-4 h-4 text-green-400" />
                         <span className="text-sm font-medium">Real Impact</span>
                     </div>
-                    <h2 className="text-4xl md:text-6xl font-bold mb-4">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
                         Our <span className="gradient-text">Impact</span> So Far
                     </h2>
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto">

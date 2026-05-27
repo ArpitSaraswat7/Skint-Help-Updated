@@ -77,7 +77,7 @@ export default function PublicFoodMap() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="text-5xl md:text-7xl font-bold mb-6 text-white"
+                        className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 text-white"
                     >
                         Interactive <span className="gradient-text">Food Map</span>
                     </motion.h1>

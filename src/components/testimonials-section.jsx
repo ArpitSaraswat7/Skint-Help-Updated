@@ -75,7 +75,7 @@ export function TestimonialsSection() {
                         <UsersThree className="w-4 h-4 text-cyan-400" />
                         <span className="text-sm font-medium">Community Voices</span>
                     </div>
-                    <h2 className="text-4xl md:text-6xl font-bold mb-4 text-white">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-white">
                         What People <span className="gradient-text">Say</span>
                     </h2>
                     <p className="text-xl text-white/60 max-w-2xl mx-auto">

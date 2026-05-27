@@ -127,7 +127,7 @@ export default function AdminDashboard() {
     ];
 
     return (
-        <div className="min-h-screen p-8">
+        <div className="min-h-screen p-4 sm:p-6 md:p-8">
             <section className="relative overflow-hidden">
                 <div className="absolute inset-0 animated-gradient opacity-20" />
 
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
                         animate={{ opacity: 1, y: 0 }}
                         className="mb-12"
                     >
-                        <h1 className="text-4xl md:text-6xl font-bold mb-4">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
                             Admin <span className="gradient-text">Dashboard</span>
                         </h1>
                         <p className="text-xl text-muted-foreground">

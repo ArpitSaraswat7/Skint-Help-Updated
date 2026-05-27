@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Meteors } from '@/components/ui/meteors';
 import { useState } from 'react';
 import emailjs from '@emailjs/browser';
+import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { logger } from '@/lib/logger';
 
@@ -134,6 +135,10 @@ export default function JoinUs() {
                 logger.debug('Admin notification sent successfully');
             } catch (adminEmailErr) {
                 logger.error('Admin email failed:', adminEmailErr);
+                // Non-fatal: application was saved; notify in dev/staging only
+                if (import.meta.env.DEV) {
+                    toast.warning('Admin notification email failed (dev only)');
+                }
             }
 
             // 3. Send CONFIRMATION EMAIL to APPLICANT
@@ -151,7 +156,7 @@ export default function JoinUs() {
                 logger.debug('Applicant confirmation sent successfully');
             } catch (applicantEmailErr) {
                 logger.error('Applicant confirmation email failed:', applicantEmailErr);
-                logger.warn('Application saved but applicant confirmation email failed');
+                toast.warning('Application saved! Confirmation email could not be sent — we\'ll follow up manually.');
             }
 
             // Success!
@@ -318,7 +323,7 @@ export default function JoinUs() {
                         <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                         <span className="text-sm font-medium">Join Our Mission</span>
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-bold mb-6">
+                    <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6">
                         Be Part of the <span className="gradient-text">Solution</span>
                     </h1>
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto">

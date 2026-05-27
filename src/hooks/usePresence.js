@@ -19,10 +19,15 @@ export function usePresence() {
         const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (!UUID_REGEX.test(user.id)) return;
 
+        // Stop retrying after 3 consecutive failures (table may not exist)
+        let consecutiveErrors = 0;
+        const MAX_ERRORS = 3;
+
         // Mark user as online (upsert to handle first-time users)
         const markOnline = async () => {
+            if (consecutiveErrors >= MAX_ERRORS) return;
             try {
-                await supabase
+                const { error } = await supabase
                     .from('user_presence')
                     .upsert({
                         user_id: user.id,
@@ -32,13 +37,21 @@ export function usePresence() {
                     }, {
                         onConflict: 'user_id'
                     });
+                if (error) {
+                    consecutiveErrors++;
+                    logger.error('Error marking online:', error);
+                } else {
+                    consecutiveErrors = 0;
+                }
             } catch (error) {
+                consecutiveErrors++;
                 logger.error('Error marking online:', error);
             }
         };
 
         // Mark user as offline
         const markOffline = async () => {
+            if (consecutiveErrors >= MAX_ERRORS) return;
             try {
                 await supabase
                     .from('user_presence')

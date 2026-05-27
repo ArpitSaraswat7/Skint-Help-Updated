@@ -67,7 +67,7 @@ const HeroSection = memo(function HeroSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "100px" }}
                             transition={{ duration: 0.3, delay: 0.1 }}
-                            className="text-5xl md:text-7xl font-bold leading-tight tracking-tight"
+                            className="text-4xl sm:text-5xl lg:text-7xl font-bold leading-tight tracking-tight"
                         >
                             End Food Waste,
                             <br />
@@ -90,7 +90,7 @@ const HeroSection = memo(function HeroSection() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.4, delay: 0.2 }}
-                            className="grid grid-cols-3 gap-4 md:gap-6"
+                            className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6"
                         >
                             <div className="glass-card p-4 md:p-5 rounded-xl text-center soft-glow-hover transition-all duration-300 relative overflow-hidden">
                                 <div className="text-3xl font-bold gradient-text relative z-10">{count.toLocaleString()}+</div>

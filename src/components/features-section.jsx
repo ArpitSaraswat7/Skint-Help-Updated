@@ -24,7 +24,7 @@ export function FeaturesSection() {
                         <Sparkle className="w-4 h-4 text-purple-400" />
                         <span className="text-sm font-medium">Platform Features</span>
                     </div>
-                    <h2 className="text-4xl md:text-6xl font-bold mb-4 text-white">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-white">
                         Powerful <span className="gradient-text">Features</span>
                     </h2>
                     <p className="text-xl text-white/60 max-w-2xl mx-auto">

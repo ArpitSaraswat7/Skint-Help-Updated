@@ -71,15 +71,15 @@ export default function AuthCallback() {
                 let retryCount = 0;
                 const maxRetries = 5;
 
-                // Declare userRole before the loop to avoid TDZ (Temporal Dead Zone)
+                // Retry with exponential backoff to avoid hammering the API
                 while (!userRole && retryCount < maxRetries) {
+                    const delay = 500 * (retryCount + 1); // 500ms, 1000ms, 1500ms, 2000ms, 2500ms
                     setStatus(`Loading profile... (${retryCount + 1}/${maxRetries})`);
-                    await new Promise(resolve => setTimeout(resolve, 500));
+                    await new Promise(resolve => setTimeout(resolve, delay));
 
                     try {
                         const response = await supabase.auth.getUser();
 
-                        // Validate response shape before accessing data
                         if (response.error) {
                             logger.error('Error fetching user:', response.error);
                             setStatus(`Retry ${retryCount + 1}/${maxRetries} failed`);

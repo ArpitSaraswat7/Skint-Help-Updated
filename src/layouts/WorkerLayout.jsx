@@ -1,5 +1,5 @@
 import { Link, useLocation, Navigate } from "react-router-dom";
-import { Briefcase, SignOut, SquaresFour, Truck, CheckCircle } from "@phosphor-icons/react";
+import { Briefcase, SignOut, SquaresFour, Truck, CheckCircle, List, X } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSignOut } from "@/hooks/useSignOut";
@@ -13,6 +13,7 @@ export function WorkerLayout() {
     const { user, profile, loading, isSigningOut } = useAuth();
     const handleSignOut = useSignOut();
     const [showSignOutDialog, setShowSignOutDialog] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // Track presence (online/offline status)
     usePresence();
@@ -65,10 +66,31 @@ export function WorkerLayout() {
             {/* Background */}
             <div className="fixed inset-0 animated-gradient opacity-20 pointer-events-none" />
 
+            {/* Mobile Header */}
+            <div className="md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-3 border-b border-white/10 backdrop-blur-xl glass-card">
+                <Link to="/" className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+                        <Briefcase className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                        <span className="font-bold text-sm gradient-text block leading-none">Worker</span>
+                        <span className="text-xs text-muted-foreground">Portal</span>
+                    </div>
+                </Link>
+                <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-white/10 text-foreground transition-colors" aria-label="Open menu">
+                    <List className="w-5 h-5" />
+                </button>
+            </div>
+
+            {/* Mobile Backdrop */}
+            {sidebarOpen && (
+                <div className="md:hidden fixed inset-0 z-20 bg-black/60 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+            )}
+
             {/* Sidebar */}
-            <aside className="w-64 glass-card border-r border-white/10 fixed h-full z-20 backdrop-blur-xl">
-                <div className="p-6 border-b border-white/10">
-                    <Link to="/" className="flex items-center gap-2 group">
+            <aside className={`w-64 glass-card border-r border-white/10 fixed h-full z-30 backdrop-blur-xl transition-transform duration-300 ease-in-out md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="p-6 border-b border-white/10 flex items-center justify-between">
+                    <Link to="/" className="flex items-center gap-2 group" onClick={() => setSidebarOpen(false)}>
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg group-hover:shadow-blue-500/50 transition-all duration-300">
                             <Briefcase className="w-5 h-5 text-white" />
                         </div>
@@ -77,6 +99,9 @@ export function WorkerLayout() {
                             <span className="text-xs text-muted-foreground">Portal</span>
                         </div>
                     </Link>
+                    <button onClick={() => setSidebarOpen(false)} className="md:hidden p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors" aria-label="Close menu">
+                        <X className="w-4 h-4" />
+                    </button>
                 </div>
 
                 {/* User Info */}
@@ -98,6 +123,7 @@ export function WorkerLayout() {
                             <Link
                                 key={link.path}
                                 to={link.path}
+                                onClick={() => setSidebarOpen(false)}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${isActive
                                     ? "bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-400 font-medium shadow-lg shadow-blue-500/10"
                                     : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
@@ -123,7 +149,7 @@ export function WorkerLayout() {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 ml-64 relative z-10">
+            <main className="flex-1 md:ml-64 relative z-10 pt-14 md:pt-0">
                 <AnimatedOutlet />
             </main>
 

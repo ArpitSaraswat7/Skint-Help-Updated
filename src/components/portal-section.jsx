@@ -57,7 +57,7 @@ export function PortalSection() {
                         <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
                         <span className="text-sm font-medium">Access Portals</span>
                     </div>
-                    <h2 className="text-4xl md:text-6xl font-bold mb-4">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
                         Choose Your <span className="gradient-text">Portal</span>
                     </h2>
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
