@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Navbar } from '@/components/navbar';
+import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/footer';
 import { Utensils, Users, MapPin, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,13 @@ import emailjs from '@emailjs/browser';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { logger } from '@/lib/logger';
+import {
+    checkEmailRateLimit,
+    recordEmailSubmission,
+    sanitizeInput,
+    validateEmail,
+    validatePhone
+} from '@/lib/emailSecurity';
 
 // Initialize EmailJS
 const emailJsKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
@@ -97,18 +104,48 @@ export default function JoinUs() {
         setError(null);
 
         try {
+            // Check rate limits (SEC-03)
+            checkEmailRateLimit();
+
+            // Validate inputs
+            if (!formData.firstName.trim() || !formData.lastName.trim()) {
+                throw new Error('First name and last name are required.');
+            }
+            if (!validateEmail(formData.email)) {
+                throw new Error('Please enter a valid email address.');
+            }
+            if (formData.phone && !validatePhone(formData.phone)) {
+                throw new Error('Please enter a valid phone number.');
+            }
+            if (!selectedRole) {
+                throw new Error('Please select a role.');
+            }
+
+            // Sanitize inputs (CQ-02)
+            const sanitizedData = {
+                firstName: sanitizeInput(formData.firstName),
+                lastName: sanitizeInput(formData.lastName),
+                email: formData.email.trim(),
+                phone: sanitizeInput(formData.phone),
+                organizationName: sanitizeInput(formData.organizationName),
+                restaurantName: sanitizeInput(formData.restaurantName),
+                facilityAddress: sanitizeInput(formData.facilityAddress),
+                restaurantAddress: sanitizeInput(formData.restaurantAddress),
+                message: sanitizeInput(formData.message),
+            };
+
             // 1. Save to Supabase database
             const { error: dbError } = await supabase
                 .from('join_applications')
                 .insert([{
-                    first_name: formData.firstName,
-                    last_name: formData.lastName,
-                    email: formData.email,
-                    phone: formData.phone,
+                    first_name: sanitizedData.firstName,
+                    last_name: sanitizedData.lastName,
+                    email: sanitizedData.email,
+                    phone: sanitizedData.phone,
                     role: selectedRole,
-                    organization_name: selectedRole === 'center' ? formData.organizationName : selectedRole === 'restaurant' ? formData.restaurantName : null,
-                    address: selectedRole === 'center' ? formData.facilityAddress : selectedRole === 'restaurant' ? formData.restaurantAddress : null,
-                    message: formData.message,
+                    organization_name: selectedRole === 'center' ? sanitizedData.organizationName : selectedRole === 'restaurant' ? sanitizedData.restaurantName : null,
+                    address: selectedRole === 'center' ? sanitizedData.facilityAddress : selectedRole === 'restaurant' ? sanitizedData.restaurantAddress : null,
+                    message: sanitizedData.message,
                 }]);
 
             if (dbError) {
@@ -125,11 +162,11 @@ export default function JoinUs() {
                     import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_li17zan',
                     import.meta.env.VITE_EMAILJS_ADMIN_TEMPLATE || 'template_abjbnct',
                     {
-                        from_name: `${formData.firstName} ${formData.lastName}`,
-                        from_email: formData.email,
-                        phone: formData.phone,
+                        from_name: `${sanitizedData.firstName} ${sanitizedData.lastName}`,
+                        from_email: sanitizedData.email,
+                        phone: sanitizedData.phone,
                         role: roleTitle,
-                        message: formData.message,
+                        message: sanitizedData.message,
                     }
                 );
                 logger.debug('Admin notification sent successfully');
@@ -148,8 +185,8 @@ export default function JoinUs() {
                     import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_li17zan',
                     import.meta.env.VITE_EMAILJS_APPLICANT_TEMPLATE || 'template_applicant_confirmation',
                     {
-                        to_email: formData.email, // Send to applicant's email
-                        applicant_name: formData.firstName,
+                        to_email: sanitizedData.email, // Send to applicant's email
+                        applicant_name: sanitizedData.firstName,
                         role: roleTitle,
                     }
                 );
@@ -159,15 +196,18 @@ export default function JoinUs() {
                 toast.warning('Application saved! Confirmation email could not be sent — we\'ll follow up manually.');
             }
 
+            // Record successful submission (SEC-03)
+            recordEmailSubmission();
+
             // Success!
-            setSubmittedEmail(formData.email);
+            setSubmittedEmail(sanitizedData.email);
             setSubmitted(true);
             
             // Store success in localStorage for home page notification
             localStorage.setItem('applicationSubmitted', JSON.stringify({
                 submitted: true,
                 role: roleTitle,
-                name: formData.firstName,
+                name: sanitizedData.firstName,
                 timestamp: new Date().toISOString()
             }));
             

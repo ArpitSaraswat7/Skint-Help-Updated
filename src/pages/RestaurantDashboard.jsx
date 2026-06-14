@@ -11,6 +11,7 @@ import { logger } from '@/lib/logger';
 import { StatsSkeleton, ListSkeleton } from '@/components/ui/skeleton-loaders';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useConfetti } from '@/hooks/useConfetti';
+import { sanitizeError } from '@/lib/sanitizeError';
 
 export default function RestaurantDashboard() {
     const { profile } = useAuth();
@@ -268,7 +269,7 @@ export default function RestaurantDashboard() {
             confetti.success();
         } catch (error) {
             logger.error('Error creating packet:', error);
-            toast.error(error.message || 'Failed to create food packet');
+            toast.error(sanitizeError(error));
         }
     };
 
@@ -286,7 +287,7 @@ export default function RestaurantDashboard() {
             await fetchMyPackets(); // Refresh the list
         } catch (error) {
             logger.error('Error deleting packet:', error);
-            toast.error(error.message || 'Failed to delete donation');
+            toast.error(sanitizeError(error));
         }
     };
 

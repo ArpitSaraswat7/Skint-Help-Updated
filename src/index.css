@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+/* Google Fonts are loaded via <link> in index.html (non-blocking) — PERF-06 */
 
 @tailwind base;
 @tailwind components;
@@ -258,25 +258,24 @@
   }
 
   /* SCROLL PERFORMANCE OPTIMIZATIONS */
-  /* Reduce scroll jank by using CSS containment */
+  /* PERF-01 FIX: content-visibility:auto without contain-intrinsic-size causes CLS
+     because the browser doesn't know the element's size before it renders.
+     We set a conservative min-height so the scroll position stays stable. */
   section {
     contain: layout style;
     content-visibility: auto;
-    will-change: auto;
-    /* Let browser decide */
+    contain-intrinsic-size: 0 600px; /* approximate height, prevents CLS */
   }
 
-  /* Optimize motion components during scroll */
+  /* PERF-02 FIX: Removed translateZ(0) from ALL layout containers.
+     Blanket GPU promotion of .container / main / section creates excessive
+     composite layers, increases VRAM usage, and causes visual artifacts
+     on mobile Safari. GPU acceleration is kept ONLY on explicitly animated
+     utility classes (.floating, .animated-gradient, .rgb-ring, etc.). */
+
+  /* Optimize motion components during scroll — let the browser decide */
   [class*="motion"] {
     will-change: auto;
-  }
-
-  /* Reduce repaints for animated elements */
-  .container,
-  main,
-  section {
-    transform: translateZ(0);
-    backface-visibility: hidden;
   }
 
   /* AGGRESSIVE JITTER ELIMINATION */
@@ -676,11 +675,17 @@
   }
 
   /* Form inputs: large enough to avoid Safari auto-zoom (min 16px font) */
+  /* MOB-02 FIX: Do NOT force width:100% globally — it breaks inline search+button combos
+     and narrow quantity inputs. Use box-sizing and font-size only. */
   input, select, textarea {
     font-size: 16px !important;
-    min-height: 48px !important;
-    width: 100% !important;
     box-sizing: border-box !important;
+  }
+  /* Only standalone form inputs (not inside a flex row) get min-height */
+  form input:not([class*="h-"]),
+  form select:not([class*="h-"]),
+  form textarea:not([class*="h-"]) {
+    min-height: 48px !important;
   }
   textarea { min-height: 100px !important; }
 
@@ -696,11 +701,10 @@
     overflow-x: hidden !important;
   }
 
-  /* Flex wrapping: prevent children from overflowing */
-  [class*="flex"] {
-    flex-wrap: wrap !important;
-    min-width: 0 !important;
-  }
+  /* MOB-01 FIX: Removed global flex-wrap override. It broke navbars, button groups,
+     icon+label pairs, and any intentionally single-row flex container.
+     Instead, only wrap known multi-item row containers. */
+  .mobile-wrap { flex-wrap: wrap !important; }
   [class*="flex"] > * { min-width: 0 !important; }
 
   /* Navbar: ensure logo + hamburger are on one line */

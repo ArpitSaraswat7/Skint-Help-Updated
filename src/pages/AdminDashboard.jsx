@@ -15,6 +15,8 @@ export default function AdminDashboard() {
     const [metrics, setMetrics] = useState(null);
     const [recentActivity, setRecentActivity] = useState([]);
     const [loading, setLoading] = useState(true);
+    // UX-04: Track whether we're in demo mode (tables not yet provisioned)
+    const [isDemoMode, setIsDemoMode] = useState(false);
 
     // Default metrics for demo mode or when table doesn't exist
     const DEFAULT_METRICS = {
@@ -26,25 +28,29 @@ export default function AdminDashboard() {
     };
 
     useEffect(() => {
-        fetchDashboardData();
+        // REL-07: AbortController ensures we don't call setState after unmount
+        const abortController = new AbortController();
+        fetchDashboardData(abortController.signal);
 
         // Subscribe to realtime updates
         const channel = supabase
             .channel('dashboard-changes')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'food_packets' }, () => {
-                fetchDashboardData();
+                if (!abortController.signal.aborted) fetchDashboardData(abortController.signal);
             })
             .on('postgres_changes', { event: '*', schema: 'public', table: 'distributions' }, () => {
-                fetchDashboardData();
+                if (!abortController.signal.aborted) fetchDashboardData(abortController.signal);
             })
             .subscribe();
 
         return () => {
+            abortController.abort();
             supabase.removeChannel(channel);
         };
     }, []);
 
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = async (signal) => {
+        if (signal?.aborted) return;
         try {
             // Fetch metrics
             const { data: metricsData, error: metricsError } = await supabase
@@ -55,11 +61,14 @@ export default function AdminDashboard() {
             if (metricsError) {
                 if (metricsError?.code === 'PGRST116' || metricsError?.message?.includes('does not exist')) {
                     logger.debug('Dashboard metrics table not found, using default values');
+                    // UX-04: Signal demo mode so the UI can warn the admin
+                    setIsDemoMode(true);
                     setMetrics(DEFAULT_METRICS);
                 } else {
                     throw metricsError;
                 }
             } else {
+                setIsDemoMode(false);
                 setMetrics(metricsData);
             }
 
@@ -136,7 +145,7 @@ export default function AdminDashboard() {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mb-12"
+                        className="mb-6"
                     >
                         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
                             Admin <span className="gradient-text">Dashboard</span>
@@ -145,6 +154,26 @@ export default function AdminDashboard() {
                             Welcome back, {profile?.name || 'Admin'}
                         </p>
                     </motion.div>
+
+                    {/* UX-04: Demo mode banner — clearly visible when database tables aren't provisioned */}
+                    {isDemoMode && !loading && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-8 glass-card p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/10 flex items-start gap-3"
+                            role="alert"
+                        >
+                            <span className="text-yellow-400 text-xl mt-0.5" aria-hidden="true">⚠️</span>
+                            <div>
+                                <p className="font-semibold text-yellow-300">Demo Mode — No Live Data</p>
+                                <p className="text-sm text-yellow-200/70 mt-1">
+                                    The <code className="font-mono text-xs bg-white/10 px-1 rounded">dashboard_metrics</code> table
+                                    was not found. All statistics below are placeholder zeros, not real data.
+                                    Run the Supabase migrations to activate live metrics.
+                                </p>
+                            </div>
+                        </motion.div>
+                    )}
 
                     {/* Stats Grid */}
                     {loading ? (

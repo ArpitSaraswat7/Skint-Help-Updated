@@ -10,6 +10,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { toast } from 'sonner';
 import { useConfetti } from '@/hooks/useConfetti';
 import { logger } from '@/lib/logger';
+import { sanitizeError } from '@/lib/sanitizeError';
 
 export default function RestaurantDonations() {
     const { profile } = useAuth();
@@ -387,7 +388,7 @@ export default function RestaurantDonations() {
                                 }));
                             } catch (error) {
                                 logger.error('Error deleting donation:', error);
-                                toast.error(error.message || 'Failed to delete donation');
+                                toast.error(sanitizeError(error));
                             }
                         }
                         setDeleteDialog({ open: false, donation: null });

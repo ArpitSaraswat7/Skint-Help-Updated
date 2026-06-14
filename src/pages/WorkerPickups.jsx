@@ -10,6 +10,7 @@ import { StatsSkeleton, CardSkeleton } from '@/components/ui/skeleton-loaders';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useConfetti } from '@/hooks/useConfetti';
 import { logger } from '@/lib/logger';
+import { sanitizeError } from '@/lib/sanitizeError';
 
 export default function WorkerPickups() {
     const { profile } = useAuth();
@@ -22,29 +23,34 @@ export default function WorkerPickups() {
     const [cancelDialog, setCancelDialog] = useState({ open: false, pickup: null, reason: '' });
 
     useEffect(() => {
-        fetchPickups();
+        // REL-07: Use AbortController so setState is skipped after unmount
+        const abortController = new AbortController();
+        fetchPickups(abortController.signal);
 
-        // Realtime subscription
+        // REL-02: Only subscribe to realtime when we have a valid center_id.
+        if (!profile?.center_id) return () => abortController.abort();
+
         const channel = supabase
-            .channel('pickups-updates')
+            .channel(`pickups-updates-${profile.center_id}`)
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
                 table: 'food_packets',
-                filter: `center_id=eq.${profile?.center_id}`
+                filter: `center_id=eq.${profile.center_id}`
             }, () => {
-                fetchPickups();
+                if (!abortController.signal.aborted) fetchPickups(abortController.signal);
             })
             .subscribe();
 
         return () => {
+            abortController.abort();
             supabase.removeChannel(channel);
         };
-    }, [profile]);
+    }, [profile?.center_id]);
 
-    const fetchPickups = async () => {
+    const fetchPickups = async (signal) => {
         if (!profile?.center_id) {
-            setLoading(false);
+            if (!signal?.aborted) setLoading(false);
             return;
         }
 
@@ -59,13 +65,15 @@ export default function WorkerPickups() {
                 .in('status', ['pending', 'at_center'])
                 .order('created_at', { ascending: false });
 
+            if (signal?.aborted) return;
             if (error) throw error;
             setPickups(data || []);
         } catch (error) {
+            if (signal?.aborted) return;
             logger.error('Error fetching pickups:', error);
             toast.error('Failed to load pickups');
         } finally {
-            setLoading(false);
+            if (!signal?.aborted) setLoading(false);
         }
     };
 
@@ -75,7 +83,9 @@ export default function WorkerPickups() {
                 .from('food_packets')
                 .update({
                     status: 'at_center',
-                    collected_at: new Date().toISOString()
+                    collected_at: new Date().toISOString(),
+                    // REL-04: Record which worker collected this pickup
+                    collected_by: profile?.id || null,
                 })
                 .eq('id', pickupId);
 
@@ -84,7 +94,7 @@ export default function WorkerPickups() {
             toast.success('Pickup marked as collected!');
             fetchPickups();
         } catch (error) {
-            toast.error(error.message || 'Failed to update pickup');
+            toast.error(sanitizeError(error));
         }
     };
 
@@ -182,7 +192,9 @@ export default function WorkerPickups() {
                         <div className="flex-1 input-3d">
                             <div className="flex items-center gap-3">
                                 <Search className="w-5 h-5 text-muted-foreground" />
+                                <label htmlFor="pickup-search" className="sr-only">Search by restaurant or food type</label>
                                 <input
+                                    id="pickup-search"
                                     type="text"
                                     placeholder="Search by restaurant or food type..."
                                     value={searchQuery}
@@ -349,7 +361,7 @@ export default function WorkerPickups() {
                                 // This would typically call a Supabase Edge Function or backend API
                             } catch (error) {
                                 logger.error('Error canceling pickup:', error);
-                                toast.error(error.message || 'Failed to cancel pickup');
+                                toast.error(sanitizeError(error));
                             }
                             setCancelDialog({ open: false, pickup: null, reason: '' });
                         } else {

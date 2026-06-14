@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Navbar } from "@/components/navbar";
+import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/footer";
 import { logger } from "@/lib/logger";
 

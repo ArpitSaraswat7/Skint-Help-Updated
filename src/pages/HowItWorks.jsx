@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Navbar } from "@/components/navbar";
+import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/footer";
 import { HowItWorks as HowItWorksSection } from "@/components/how-it-works";
 

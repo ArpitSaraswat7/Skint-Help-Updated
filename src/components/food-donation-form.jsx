@@ -14,6 +14,7 @@ import { CalendarCheck, Clock, ForkKnife } from "@phosphor-icons/react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
+import { sanitizeError } from "@/lib/sanitizeError";
 
 const formSchema = z.object({
     foodType: z.string().min(2, { message: "Please specify the type of food." }),
@@ -62,13 +63,13 @@ export function FoodDonationForm() {
                 ]);
 
             if (error) {
-                toast.error('Failed to submit: ' + error.message);
+                toast.error(sanitizeError(error));
             } else {
                 toast.success('Food donation details submitted successfully!');
                 form.reset();
             }
         } catch (error) {
-            toast.error('Failed to submit: ' + error.message);
+            toast.error(sanitizeError(error));
         } finally {
             setIsSubmitting(false);
         }

@@ -416,15 +416,10 @@ export function ChatBot() {
             'What is the commitment?': 'volunteer commitment',
             'Donate food as a restaurant': 'donate food',
             'Learn more about collection centers': 'collection centers',
-            'Join the mission': 'apply',
             'How to donate food': 'donate food',
             'How to volunteer': 'volunteer',
-            'Join as a restaurant': 'donate food',
-            'Open Food Map': 'food map',
-            'See full impact page': 'impact',
             'Restaurant Login': 'login',
             'Worker Login': 'login',
-            'Become a collection center': 'collection center partner',
         };
 
         const query = quickReplyMap[value] || value;
@@ -503,8 +498,13 @@ export function ChatBot() {
                                 </div>
                             </div>
 
-                            {/* Messages */}
-                            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+                            {/* Messages — aria-live announces new bot replies to screen readers (UX-02) */}
+                            <div
+                                role="log"
+                                aria-live="polite"
+                                aria-label="Chat messages"
+                                className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10"
+                            >
                                 {messages.map((msg) => (
                                     <MessageBubble
                                         key={msg.id}
@@ -525,18 +525,22 @@ export function ChatBot() {
                                     onSubmit={(e) => { e.preventDefault(); handleSend(); }}
                                     className="flex items-center gap-2"
                                 >
+                                    <label htmlFor="chatbot-input" className="sr-only">Type your message</label>
                                     <input
+                                        id="chatbot-input"
                                         ref={inputRef}
                                         type="text"
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
                                         placeholder="Ask me anything..."
                                         disabled={isTyping}
+                                        aria-label="Type your message"
                                         className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-green-500/40 focus:bg-white/8 transition-colors disabled:opacity-50"
                                     />
                                     <button
                                         type="submit"
                                         disabled={!input.trim() || isTyping}
+                                        aria-label="Send message"
                                         className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white hover:opacity-90 transition-opacity disabled:opacity-30 flex-shrink-0"
                                     >
                                         <Send className="w-4 h-4" />

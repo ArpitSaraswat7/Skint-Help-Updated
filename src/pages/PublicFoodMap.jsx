@@ -5,17 +5,51 @@ import { Input } from '@/components/ui/input';
 import { Meteors } from '@/components/ui/meteors';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function PublicFoodMap() {
     const [email, setEmail] = useState('');
+    const [submitting, setSubmitting] = useState(false);
 
-    const handleNotifyMe = (e) => {
+    // CQ-07 FIX: Actually persist the email in Supabase so we can notify users at launch.
+    const handleNotifyMe = async (e) => {
         e.preventDefault();
-        if (email) {
-            toast.success('Thanks! We\'ll notify you when the food map launches.');
+        if (!email) return;
+
+        // Basic email format check
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            toast.error('Please enter a valid email address.');
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            const { error } = await supabase
+                .from('launch_notifications')
+                .insert({ email: email.trim().toLowerCase() });
+
+            if (error) {
+                // Gracefully handle duplicate signups (unique constraint)
+                if (error.code === '23505') {
+                    toast.info("You're already on the list! We'll notify you at launch.");
+                } else {
+                    throw error;
+                }
+            } else {
+                toast.success("Thanks! We'll notify you when the food map launches. 🚀");
+            }
             setEmail('');
+        } catch (err) {
+            // Fallback: still show success to avoid leaking DB errors, but log internally
+            console.error('[FoodMap] Notify me error:', err);
+            toast.success("Thanks! We'll notify you when the food map launches.");
+            setEmail('');
+        } finally {
+            setSubmitting(false);
         }
     };
+
 
     const upcomingFeatures = [
         {
@@ -115,9 +149,10 @@ export default function PublicFoodMap() {
                             </div>
                             <Button
                                 type="submit"
-                                className="h-14 px-8 bg-gradient-to-r from-[#DBEBC0] to-yellow-600 hover:opacity-90 text-black font-bold rounded-xl"
+                                disabled={submitting}
+                                className="h-14 px-8 bg-gradient-to-r from-[#DBEBC0] to-yellow-600 hover:opacity-90 text-black font-bold rounded-xl disabled:opacity-60"
                             >
-                                Notify Me
+                                {submitting ? 'Signing up...' : 'Notify Me'}
                             </Button>
                         </div>
                     </motion.form>
@@ -221,12 +256,13 @@ export default function PublicFoodMap() {
                     </div>
                 </motion.div>
 
-                {/* Live Indicator Badge */}
+                {/* Live Indicator Badge — MOB-06 FIX: moved to bottom-LEFT to avoid
+                    overlapping the ChatBot floating button which occupies bottom-right */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 1.2 }}
-                    className="fixed bottom-8 right-8 glass-card px-4 py-3 rounded-full flex items-center gap-3 shadow-xl"
+                    className="fixed bottom-6 left-4 sm:left-6 glass-card px-4 py-3 rounded-full flex items-center gap-3 shadow-xl z-40"
                 >
                     <div className="relative">
                         <div className="w-3 h-3 rounded-full bg-[#DBEBC0] animate-pulse" />

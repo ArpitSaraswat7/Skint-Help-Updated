@@ -26,7 +26,10 @@ export default defineConfig(({ mode }) => ({
             usePolling: false,
         },
         fs: {
-            strict: false,
+            // ENV-03 FIX: strict:false allowed the dev server to serve ANY file on the
+            // filesystem to a connected browser. Re-enabling strict mode restricts access
+            // to files within the project root only.
+            strict: true,
         }
     },
     plugins: [

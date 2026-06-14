@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +7,8 @@ import { supabase } from '@/lib/supabase';
 import { Mail, MapPin, Phone, User, Calendar, Eye, Trash2, Search, Filter, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { logger } from '@/lib/logger';
+import { sanitizeError } from '@/lib/sanitizeError';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 export default function AdminApplications() {
     const { profile } = useAuth();
@@ -17,9 +20,14 @@ export default function AdminApplications() {
     const [roleFilter, setRoleFilter] = useState('all');
     const [selectedApp, setSelectedApp] = useState(null);
     const [deleting, setDeleting] = useState(null);
+    const [deleteDialog, setDeleteDialog] = useState({ open: false, id: null });
 
     useEffect(() => {
-        // Check if user is admin
+        // CQ-06 FIX: profile is null on first render. Skip the check until profile is loaded.
+        // Without this guard, null !== 'admin' evaluates to true and causes an immediate
+        // redirect before the auth session has a chance to resolve.
+        if (profile === null || profile === undefined) return;
+
         if (profile?.role !== 'admin') {
             navigate('/');
             return;
@@ -59,21 +67,20 @@ export default function AdminApplications() {
 
             if (error) {
                 logger.error('Fetch error:', error);
-                alert('Failed to load applications');
+                toast.error(sanitizeError(error));
                 return;
             }
 
             setApplications(data || []);
         } catch (err) {
             logger.error('Error:', err);
+            toast.error(sanitizeError(err));
         } finally {
             setLoading(false);
         }
     };
 
     const deleteApplication = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this application?')) return;
-
         try {
             setDeleting(id);
             const { error } = await supabase
@@ -85,10 +92,10 @@ export default function AdminApplications() {
 
             setApplications(applications.filter(app => app.id !== id));
             setSelectedApp(null);
-            alert('Application deleted successfully');
+            toast.success('Application deleted successfully');
         } catch (err) {
             logger.error('Delete error:', err);
-            alert('Failed to delete application');
+            toast.error(sanitizeError(err));
         } finally {
             setDeleting(null);
         }
@@ -96,9 +103,21 @@ export default function AdminApplications() {
 
     const downloadCSV = () => {
         if (filteredApps.length === 0) {
-            alert('No applications to download');
+            toast.warning('No applications to download');
             return;
         }
+
+        // REL-06 FIX: Proper CSV escaping per RFC 4180.
+        // 1. Wrap all cells in double-quotes.
+        // 2. Escape embedded double-quotes by doubling them ("" not \").
+        // 3. Neutralize formula-injection: prefix cells starting with =,+,-,@,| with a tab.
+        const csvEscape = (value) => {
+            const str = String(value ?? '');
+            // Neutralize formula injection characters at the start of a field
+            const safe = /^[=+\-@|]/.test(str) ? `\t${str}` : str;
+            // Escape embedded double-quotes by doubling them (RFC 4180)
+            return `"${safe.replace(/"/g, '""')}"`;
+        };
 
         const headers = ['Name', 'Email', 'Phone', 'Role', 'Organization', 'Message', 'Date'];
         const rows = filteredApps.map(app => [
@@ -107,13 +126,13 @@ export default function AdminApplications() {
             app.phone,
             app.role,
             app.organization_name || app.address || '-',
-            (app.message || '').replace(/,/g, ';'),
+            app.message || '',
             new Date(app.created_at).toLocaleDateString()
         ]);
 
         let csv = headers.join(',') + '\n';
         rows.forEach(row => {
-            csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+            csv += row.map(csvEscape).join(',') + '\n';
         });
 
         const blob = new Blob([csv], { type: 'text/csv' });
@@ -168,8 +187,10 @@ export default function AdminApplications() {
                     <div className="grid md:grid-cols-4 gap-4">
                         {/* Search */}
                         <div className="relative">
+                            <label htmlFor="app-search" className="sr-only">Search applications by name, email, or phone</label>
                             <Search className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
                             <input
+                                id="app-search"
                                 type="text"
                                 placeholder="Search by name, email, phone..."
                                 value={searchTerm}
@@ -307,7 +328,7 @@ export default function AdminApplications() {
                                             <Button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    deleteApplication(app.id);
+                                                    setDeleteDialog({ open: true, id: app.id });
                                                 }}
                                                 disabled={deleting === app.id}
                                                 className="px-4 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30"
@@ -322,6 +343,18 @@ export default function AdminApplications() {
                     </div>
                 )}
             </div>
+            {/* Delete Confirmation Dialog (SEC-02/CQ-03) */}
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onOpenChange={(open) => setDeleteDialog({ open, id: null })}
+                onConfirm={() => deleteApplication(deleteDialog.id)}
+                title="Delete Application?"
+                description="This will permanently remove the application. This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+                variant="destructive"
+                icon={<Trash2 className="w-8 h-8" />}
+            />
         </div>
     );
 }

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { User, Lock, Eye, EyeOff, Loader2, Mail, ArrowRight, Sparkles, Shield, Utensils, Users as UsersIcon, MapPin } from 'lucide-react';
+import { sanitizeError } from '@/lib/sanitizeError';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -70,7 +71,7 @@ export default function Auth() {
                 }, 500);
             }
         } catch (error) {
-            toast.error(error.message || 'Authentication failed');
+            toast.error(sanitizeError(error));
             setIsLoading(false);
         }
     };

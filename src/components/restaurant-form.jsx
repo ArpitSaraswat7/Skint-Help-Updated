@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { sanitizeError } from "@/lib/sanitizeError";
 
 const formSchema = z.object({
     restaurantName: z.string().min(2, { message: "Please enter your restaurant name." }),
@@ -67,13 +68,13 @@ export function RestaurantForm() {
                 ]);
 
             if (error) {
-                toast.error('Failed to submit: ' + error.message);
+                toast.error(sanitizeError(error));
             } else {
                 toast.success('Restaurant registration submitted successfully!');
                 form.reset();
             }
         } catch (error) {
-            toast.error('Failed to submit: ' + error.message);
+            toast.error(sanitizeError(error));
         } finally {
             setIsSubmitting(false);
         }

@@ -11,6 +11,7 @@ import ElectricBorder from '@/components/ui/ElectricBorder';
 import { StatsSkeleton, ListSkeleton } from '@/components/ui/skeleton-loaders';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useConfetti } from '@/hooks/useConfetti';
+import { sanitizeError } from '@/lib/sanitizeError';
 
 export default function WorkerDashboard() {
     const { profile } = useAuth();
@@ -178,7 +179,8 @@ export default function WorkerDashboard() {
             fetchCenterPackets();
             fetchStats();
         } catch (error) {
-            toast.error(error.message || 'Failed to update packet');
+            logger.error('Error updating packet status:', error);
+            toast.error(sanitizeError(error));
         }
     };
 

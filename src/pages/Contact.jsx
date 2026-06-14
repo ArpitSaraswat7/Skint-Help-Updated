@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Navbar } from '@/components/navbar';
+import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/footer';
 import { Mail, Phone, MapPin, Send, MessageSquare, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,13 @@ import { Meteors } from '@/components/ui/meteors';
 import { useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { logger } from '@/lib/logger';
+import {
+    checkEmailRateLimit,
+    recordEmailSubmission,
+    sanitizeInput,
+    validateEmail,
+    validatePhone
+} from '@/lib/emailSecurity';
 
 const faqData = [
     {
@@ -62,6 +69,33 @@ export default function Contact() {
         setFormLoading(true);
         setFormError(null);
         try {
+            // Check rate limits (SEC-03)
+            checkEmailRateLimit();
+
+            // Validate inputs
+            if (!contactForm.firstName.trim() || !contactForm.lastName.trim()) {
+                throw new Error('First name and last name are required.');
+            }
+            if (!validateEmail(contactForm.email)) {
+                throw new Error('Please enter a valid email address.');
+            }
+            if (contactForm.phone && !validatePhone(contactForm.phone)) {
+                throw new Error('Please enter a valid phone number.');
+            }
+            if (!contactForm.subject.trim() || !contactForm.message.trim()) {
+                throw new Error('Subject and message are required.');
+            }
+
+            // Sanitize inputs (CQ-02)
+            const sanitizedForm = {
+                firstName: sanitizeInput(contactForm.firstName),
+                lastName: sanitizeInput(contactForm.lastName),
+                email: contactForm.email.trim(),
+                phone: sanitizeInput(contactForm.phone),
+                subject: sanitizeInput(contactForm.subject),
+                message: sanitizeInput(contactForm.message),
+            };
+
             const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
             const templateId = import.meta.env.VITE_EMAILJS_ADMIN_TEMPLATE;
             const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
@@ -74,20 +108,24 @@ export default function Contact() {
                 serviceId,
                 templateId,
                 {
-                    from_name: `${contactForm.firstName} ${contactForm.lastName}`,
-                    from_email: contactForm.email,
-                    phone: contactForm.phone,
-                    role: `Contact: ${contactForm.subject}`,
-                    message: contactForm.message,
+                    from_name: `${sanitizedForm.firstName} ${sanitizedForm.lastName}`,
+                    from_email: sanitizedForm.email,
+                    phone: sanitizedForm.phone,
+                    role: `Contact: ${sanitizedForm.subject}`,
+                    message: sanitizedForm.message,
                 },
                 publicKey
             );
+
+            // Record successful submission (SEC-03)
+            recordEmailSubmission();
+
             setFormSuccess(true);
             setContactForm({ firstName: '', lastName: '', email: '', phone: '', subject: '', message: '' });
             setTimeout(() => setFormSuccess(false), 5000);
         } catch (err) {
             logger.error('Contact form error:', err);
-            setFormError('Failed to send message. Please try again or email us directly.');
+            setFormError(err.message || 'Failed to send message. Please try again or email us directly.');
         } finally {
             setFormLoading(false);
         }

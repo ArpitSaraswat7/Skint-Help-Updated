@@ -1,9 +1,14 @@
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
 import { ENV } from "@/lib/env";
 import { sanitizeRole } from "@/lib/role-routes";
+import {
+    createAdminSession,
+    hasValidAdminSession,
+    destroyAdminSession,
+} from "@/lib/adminSession";
 
 const AuthContext = createContext(undefined);
 
@@ -26,9 +31,8 @@ export function AuthProvider({ children }) {
 
         const initializeAuth = async () => {
             try {
-                // Check for admin session on mount
-                const adminSession = sessionStorage.getItem('_sh_admin_auth');
-                if (adminSession === 'authenticated') {
+                // Check for admin session on mount (SEC-02: use token-based validation)
+                if (hasValidAdminSession()) {
                     const adminProfile = {
                         id: 'admin-session',
                         email: 'admin@skinthelp.com',
@@ -80,9 +84,8 @@ export function AuthProvider({ children }) {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
             if (abortController.signal.aborted) return;
 
-            // If admin session is active, ignore Supabase auth changes
-            const adminSession = sessionStorage.getItem('_sh_admin_auth');
-            if (adminSession === 'authenticated') {
+            // If admin session is active, ignore Supabase auth changes (SEC-02)
+            if (hasValidAdminSession()) {
                 logger.debug('Admin session active, ignoring Supabase auth event:', event);
                 return;
             }
@@ -293,8 +296,8 @@ export function AuthProvider({ children }) {
                 logger.debug('Supabase signOut error:', e);
             }
 
-            // Clear all auth-related storage
-            sessionStorage.removeItem('_sh_admin_auth');
+            // Clear all auth-related storage (SEC-02: use utility to destroy session)
+            destroyAdminSession();
             localStorage.removeItem('selectedRole');
             localStorage.removeItem('pendingRole');
             localStorage.removeItem('userRole');
@@ -454,8 +457,8 @@ export function AuthProvider({ children }) {
         sessionStorage.removeItem(ATTEMPTS_KEY);
         sessionStorage.removeItem(LOCKOUT_KEY);
 
-        // Store session — cleared automatically on tab close
-        sessionStorage.setItem('_sh_admin_auth', 'authenticated');
+        // Store session with cryptographic token (SEC-02)
+        createAdminSession();
 
         const adminProfile = {
             id:    'admin-owner',

@@ -3,8 +3,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { getDashboardForRole } from '@/lib/role-routes';
+import { getDashboardForRole, sanitizeRole } from '@/lib/role-routes';
 import { logger } from '@/lib/logger';
+import { sanitizeError } from '@/lib/sanitizeError';
 
 export default function AuthCallback() {
     const navigate = useNavigate();
@@ -98,8 +99,8 @@ export default function AuthCallback() {
                 localStorage.removeItem('pendingRole');
                 localStorage.removeItem('selectedRole');
 
-                // Default to 'public' if no role found
-                const finalRole = userRole || 'public';
+                // Default to 'public' if no role found, and sanitize to prevent privilege escalation
+                const finalRole = sanitizeRole(userRole || 'public');
 
                 setStatus('Redirecting to your dashboard...');
                 toast.success('Successfully signed in!');
@@ -108,7 +109,7 @@ export default function AuthCallback() {
                 navigate(getDashboardForRole(finalRole), { replace: true });
             } catch (error) {
                 logger.error('Auth callback error:', error);
-                toast.error(error.message || 'Sign in failed. Please try again.');
+                toast.error(sanitizeError(error));
                 navigate('/select-role', { replace: true });
             }
         };

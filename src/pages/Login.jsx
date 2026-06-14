@@ -6,7 +6,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { getDashboardForRole } from '@/lib/role-routes';
+import { getDashboardForRole, isValidRole } from '@/lib/role-routes';
+import { sanitizeError } from '@/lib/sanitizeError';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -28,11 +29,12 @@ export default function Login() {
         })),
     []);
 
-    // Load selected role from localStorage
+    // Load selected role from localStorage and validate it (SEC-08)
     useEffect(() => {
         const role = localStorage.getItem('selectedRole');
-        if (!role) {
-            // If no role selected, redirect to role selection
+        // Reject missing or invalid/manipulated roles
+        if (!role || !isValidRole(role)) {
+            localStorage.removeItem('selectedRole');
             navigate('/select-role', { replace: true });
             return;
         }
@@ -115,7 +117,7 @@ export default function Login() {
                 navigate(destination, { replace: true });
             }
         } catch (error) {
-            toast.error(error.message || 'Authentication failed. Please try again.');
+            toast.error(sanitizeError(error));
             setIsLoading(false);
         }
     };
@@ -127,7 +129,7 @@ export default function Login() {
             await signInWithGoogle();
             // Redirect happens automatically via OAuth
         } catch (error) {
-            toast.error(error.message || 'Google sign-in failed');
+            toast.error(sanitizeError(error));
             setIsLoading(false);
         }
     };
